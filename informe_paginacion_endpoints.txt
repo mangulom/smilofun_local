@@ -1,0 +1,419 @@
+INFORME DE PAGINACIÓN EN ENDPOINTS DE API (FastAPI)
+==================================================
+Ruta base: D:\WorkSpace\dentamia\backend\app\api
+Exploración: VERY THOROUGH (sin modificaciones)
+Fecha: 2026-10-09
+
+NOTA: Todos los endpoints listados (excepto auth) usan Depends(get_current_user).
+
+---
+1. ARCHIVO: pacientes.py (D:\WorkSpace\dentamia\backend\app\api\pacientes.py)
+   Prefijo router: /api/pacientes
+
+ENDPOINTS GET QUE DEVUELVEN LISTAS:
+
+- GET /api/pacientes  (función: listar, línea 46-72)
+  - Ruta exacta: /api/pacientes
+  - Función: def listar(...)
+  - Parámetros de paginación:
+      - skip: int = 0 (default 0)  [acepta]
+      - limit: int = Query(100, le=500) (default 100, máximo <= 500)  [acepta]
+      - offset: NO
+      - page: NO
+  - Límite máximo: sí. Query(100, le=500) ? max 500
+  - ¿Frontend puede pedir más de 100 items? SÍ. Puede especificar limit hasta 500 (le=500). Valores >500 serían rechazados por Pydantic/Query.
+  - response_model: list[PacienteOut] (lista plana)
+  - Notas: Aplica filtros (search, sucursal_id, empresa_id, activo), ordena por creado_en desc, luego offset(skip).limit(limit). Devuelve .scalars().all().
+
+OTROS GET (no listas): 
+- GET /api/pacientes/{paciente_id} ? objeto único (PacienteOut), línea 90-95
+- GET /api/pacientes/{paciente_id}/resumen ? objeto agregado/resumen (PacienteResumen), línea 122-199 (calcula conteos, totales, no devuelve lista de entidades)
+- GET /api/pacientes/{paciente_id}/historial ? lista de HistorialClinico (response_model=list[HistorialOut]), línea 205-212. SIN paginación. Devuelve todos los historiales del paciente (sin skip/limit/offset/page). Ordena por fecha desc. No hay .limit() explícito ? devuelve TODOS los registros.
+- GET /api/pacientes/{paciente_id}/odontograma ? lista (list[OdontogramaOut]), línea 241-247. SIN paginación. Devuelve todos los items del odontograma ordenados por diente, superficie. Sin .limit().
+
+RESUMEN PACIENTES:
+- Lista principal (/api/pacientes): CON paginación (skip/limit, max 500)
+- Sub-listas (historial, odontograma) por paciente_id: SIN paginación (devuelven todos los items)
+
+---
+2. ARCHIVO: citas.py (D:\WorkSpace\dentamia\backend\app\api\citas.py)
+   Prefijo router: /api/citas
+
+ENDPOINTS GET QUE DEVUELVEN LISTAS:
+
+- GET /api/citas  (función: listar, línea 51-77)
+  - Ruta exacta: /api/citas
+  - Función: def listar(...)
+  - Parámetros de paginación: NINGUNO
+      - skip: NO | limit: NO | offset: NO | page: NO
+  - Límite máximo: NO existe (sin Query/le)
+  - ¿Frontend puede pedir más de 100 items? N/A (no hay parámetro limit). El endpoint no acepta paginación; devuelve todos los resultados según filtros.
+  - response_model: list[CitaOut] (lista plana)
+  - Forma de respuesta: lista de CitaOut (con .unique() por scalars)
+  - Lógica: filtros (fecha, desde, hasta, doctor_id, paciente_id, empresa_id, estado). Ordena por fecha, hora_inicio. NO aplica offset/limit. NO usa .limit().
+  - ¿Cuántos items devuelven? TODOS los registros que cumplan filtros (sin límite). Potencialmente muchos.
+
+OTROS GET (no listas):
+- GET /api/citas/{cita_id} ? objeto único (CitaOut), línea 99-104
+
+RESUMEN CITAS:
+- GET /api/citas: SIN paginación. NO soporta skip/limit/offset/page. Devuelve listado completo filtrado.
+
+---
+3. ARCHIVO: facturacion.py (D:\WorkSpace\dentamia\backend\app\api\facturacion.py)
+   Prefijo router: /api/facturas
+
+ENDPOINTS GET QUE DEVUELVEN LISTAS:
+
+- GET /api/facturas  (función: listar, línea 47-81)
+  - Ruta exacta: /api/facturas
+  - Función: def listar(...)
+  - Parámetros de paginación: NINGUNO
+      - skip: NO | limit: NO | offset: NO | page: NO
+  - Límite máximo: NO
+  - ¿Frontend puede pedir más de 100 items? N/A. No acepta paginación.
+  - response_model: list[FacturaOut]
+  - Forma de respuesta: lista plana. Carga relaciones (detalles, pagos, paciente). Usa .unique().all()
+  - Filtros: estado, paciente_id, search (número/nombre paciente), empresa_id, desde, hasta. Ordena por fecha desc. SIN offset/limit. SIN .limit().
+  - ¿Cuántos items devuelven? TODOS los registros filtrados.
+
+OTROS GET (no listas):
+- GET /api/facturas/resumen ? agregado (ReporteIngresosOut), línea 124-152 (agrupado por mes, no lista de facturas)
+- GET /api/facturas/{factura_id} ? objeto único (FacturaOut), línea 155-157
+
+RESUMEN FACTURACIÓN:
+- GET /api/facturas: SIN paginación.
+
+---
+4. ARCHIVO: tratamientos.py (D:\WorkSpace\dentamia\backend\app\api\tratamientos.py)
+   Prefijo router: NO prefix en router (usa rutas absolutas /api/tratamientos, /api/planes)
+
+ENDPOINTS GET QUE DEVUELVEN LISTAS:
+
+- GET /api/tratamientos  (función: listar_tratamientos, línea 23-37)
+  - Ruta exacta: /api/tratamientos
+  - Función: def listar_tratamientos(...)
+  - Parámetros de paginación: NINGUNO (solo activo, empresa_id, search)
+      - skip/limit/offset/page: NO
+  - Límite máximo: NO
+  - response_model: list[TratamientoOut]
+  - Ordena por categoria, nombre. SIN offset/limit. SIN .limit().
+  - ¿Cuántos items devuelven? TODOS los registros filtrados.
+
+- GET /api/planes  (función: listar_planes, línea 107-130)
+  - Ruta exacta: /api/planes
+  - Función: def listar_planes(...)
+  - Parámetros de paginación: NINGUNO (paciente_id, doctor_id, empresa_id, estado)
+      - skip/limit/offset/page: NO
+  - Límite máximo: NO
+  - response_model: list[PlanOut]
+  - Carga relaciones (items, paciente, doctor). Ordena por creado_en desc. SIN offset/limit. SIN .limit(). Usa .unique().all()
+  - ¿Cuántos items devuelven? TODOS los planes filtrados.
+
+OTROS GET (no listas):
+- GET /api/planes/{plan_id} ? objeto único (PlanOut), línea 202-204
+
+RESUMEN TRATAMIENTOS:
+- Ambas listas (/api/tratamientos, /api/planes): SIN paginación.
+
+---
+5. ARCHIVO: inventario.py (D:\WorkSpace\dentamia\backend\app\api\inventario.py)
+   Prefijo router: /api/productos
+
+ENDPOINTS GET QUE DEVUELVEN LISTAS:
+
+- GET /api/productos  (función: listar, línea 34-59)
+  - Ruta exacta: /api/productos
+  - Función: def listar(...)
+  - Parámetros de paginación: NINGUNO (search, categoria, empresa_id, sucursal_id, solo_alertas: bool)
+      - skip/limit/offset/page: NO
+  - Límite máximo: NO
+  - response_model: list[ProductoOut]
+  - Lógica: filtra activo=True, ordena por nombre. Después transforma con _con_alertas() para cada producto. Si solo_alertas, filtra por alerta_stock o alerta_vencimiento (filtrado post-query). SIN offset/limit. SIN .limit().
+  - ¿Cuántos items devuelven? TODOS los productos activos que cumplan filtros (antes del filtro post-alertas). No hay límite.
+
+- GET /api/productos/{producto_id}/movimientos  (función: listar_movimientos, línea 133-145)
+  - Ruta exacta: /api/productos/{producto_id}/movimientos
+  - Función: def listar_movimientos(producto_id: int, ...)
+  - Parámetros de paginación: NINGUNO
+  - response_model: list[MovimientoOut]
+  - Valida existencia de producto. Ordena por fecha desc. SIN offset/limit. SIN .limit().
+  - ¿Cuántos items devuelven? TODOS los movimientos del producto.
+
+OTROS GET (no listas):
+- GET /api/productos/{producto_id} ? objeto único (ProductoOut), línea 79-84
+
+RESUMEN INVENTARIO:
+- GET /api/productos: SIN paginación.
+- GET /api/productos/{producto_id}/movimientos: SIN paginación.
+
+---
+6. ARCHIVO: doctores.py (D:\WorkSpace\dentamia\backend\app\api\doctores.py)
+   Prefijo router: /api/doctores
+
+ENDPOINTS GET QUE DEVUELVEN LISTAS:
+
+- GET /api/doctores  (función: listar, línea 19-33)
+  - Ruta exacta: /api/doctores
+  - Función: def listar(...)
+  - Parámetros de paginación: NINGUNO (sucursal_id, empresa_id, activo: bool|None=True)
+      - skip/limit/offset/page: NO
+  - Límite máximo: NO
+  - response_model: list[DoctorOut]
+  - Ordena por apellidos. SIN offset/limit. SIN .limit().
+  - ¿Cuántos items devuelven? TODOS los doctores según filtros.
+
+- GET /api/doctores/{doctor_id}/agenda  (función: agenda, línea 82-99)
+  - Ruta exacta: /api/doctores/{doctor_id}/agenda
+  - Función: def agenda(doctor_id: int, fecha: date|None = Query(...), ...)
+  - Parámetros de paginación: NINGUNO
+  - response_model: list[CitaOut]
+  - Filtra por doctor_id, opcional fecha puntual. Ordena por fecha, hora_inicio. SIN offset/limit. SIN .limit(). Usa .unique().all()
+  - ¿Cuántos items devuelven? TODAS las citas del doctor (o del día si fecha especificada).
+
+OTROS GET (no listas):
+- GET /api/doctores/{doctor_id} ? objeto único (DoctorOut), línea 53-58
+
+RESUMEN DOCTORES:
+- GET /api/doctores: SIN paginación.
+- GET /api/doctores/{doctor_id}/agenda: SIN paginación.
+
+---
+7. ARCHIVO: diseno3d.py (D:\WorkSpace\dentamia\backend\app\api\diseno3d.py)
+   Prefijo router: /api/diseno3d
+
+ENDPOINTS GET QUE DEVUELVEN LISTAS:
+
+- GET /api/diseno3d/historial  (función: historial, línea 90-119)
+  - Ruta exacta: /api/diseno3d/historial
+  - Función: def historial(empresa_id: int|None=Query(default=None), paciente_id: int|None=Query(default=None), db: Session=Depends(get_db))
+  - Parámetros de paginación: NINGUNO (solo filtros)
+      - skip: NO | limit: NO | offset: NO | page: NO
+  - Límite máximo: SÍ, pero FIJO en código. Aplica stmt.order_by(...).limit(200) (línea 102). No acepta parámetro limit del cliente.
+  - ¿Frontend puede pedir más de 100 items? NO. El límite está hardcodeado a 200 y NO es configurable por query params. No puede solicitar más de 200 (el código siempre limita a 200).
+  - response_model: NO explícito (devuelve lista de dicts construidos manualmente)
+  - Forma de respuesta: lista plana de dicts con campos id, tipo, estilo, paciente, paciente_id, ancho, alto, profundidad, url_stl, metricas, creado_en
+  - ¿Cuántos items devuelven? Máximo 200 (los más recientes por id desc, limit 200). Si hay menos, devuelve menos.
+
+OTROS GET (no listas):
+- GET /api/diseno3d/catalogo ? objeto con {"piezas": ...} (no lista), línea 34-36
+- GET /api/diseno3d/{diseno_id}/geometria ? objeto único, línea 122-140
+
+RESUMEN DISEÑO3D:
+- GET /api/diseno3d/historial: SIN paginación parametrizable. Tiene límite FIJO de 200 (hardcoded). Frontend NO puede controlar skip/limit/offset/page.
+
+---
+8. ARCHIVO: ia.py (D:\WorkSpace\dentamia\backend\app\api\ia.py)
+   Prefijo router: /api/ia
+
+ENDPOINTS GET QUE DEVUELVEN LISTAS:
+
+- GET /api/ia/no-show  (función: no_show_proximos, línea 103-132)
+  - Ruta exacta: /api/ia/no-show
+  - Parámetros: dias (1-60, default 7), min_probabilidad (0-1, default 0.0), empresa_id
+  - Paginación: NINGUNO (no skip/limit/offset/page)
+  - response_model: list[NoShowPrediccion]
+  - Lógica: obtiene citas programadas/confirmadas próximas (hoy + dias), calcula predicción por cita con ia_service.predecir_no_show, filtra por min_probabilidad, ordena por probabilidad desc. SIN offset/limit. SIN .limit() en query final.
+  - ¿Cuántos items devuelven? TODOS los items que pasan el filtro (cantidad depende de citas encontradas en rango). No hay límite máximo parametrizable.
+
+- GET /api/ia/no-show/{cita_id} ? objeto único (NoShowPrediccion), línea 135-156 (no es lista)
+
+- GET /api/ia/pacientes-riesgo  (función: pacientes_riesgo, línea 174-180)
+  - Ruta exacta: /api/ia/pacientes-riesgo
+  - Parámetros: limite: int = Query(10, ge=1, le=50), empresa_id
+  - Paginación: PARCIAL - acepta parámetro 'limite' (equivalente a limit). NO acepta skip/offset/page.
+      - skip: NO | limit: SÍ vía 'limite' (no se llama 'limit') | offset: NO | page: NO
+  - Límite máximo: 50 (le=50). Default 10.
+  - response_model: list[PacienteRiesgo]
+  - Delega a ia_service.pacientes_en_riesgo(db, limite=limite, empresa_id=empresa_id). No hay offset aplicado.
+  - ¿Frontend puede pedir más de 100 items? NO (máx 50). Aunque >50 rechaza por validación.
+
+- GET /api/ia/predicciones  (función: historial, línea 247-260) - endpoint nombrado /predicciones devuelve historial
+  - Ruta exacta: /api/ia/predicciones
+  - Parámetros: tipo: str|None, limite: int = Query(50, ge=1, le=200)
+  - Paginación: PARCIAL - acepta 'limite' (no limit). NO skip/offset/page.
+      - skip: NO | limit: SÍ vía 'limite' | offset: NO | page: NO
+  - Límite máximo: 200 (le=200). Default 50.
+  - response_model: list[PrediccionOut]
+  - Query: filtra por tipo si aplica, ordena por fecha_generacion desc, aplica .limit(limite). NO offset.
+  - ¿Cuántos items devuelven? Hasta 200 (máximo parametrizable). Frontend puede pedir hasta 200.
+
+- GET /api/ia/inventario  (función: inventario, línea 292-299)
+  - Ruta exacta: /api/ia/inventario
+  - Parámetros: empresa_id
+  - Paginación: NINGUNO
+  - response_model: NO explícito (devuelve resultado de ia_service.prediccion_inventario)
+  - Tipo: resultado analítico/agrupado (no lista plana de entidades del modelo con posibilidad de paginar por skip/limit estándar). Es una predicción/analítica.
+
+OTROS GET relevantes en IA (mencionados):
+- GET /api/ia/recomendaciones (línea 183-189): acepta limite Query(10,ge=1,le=30). Sin skip/offset/page. Máx 30.
+- GET /api/ia/resumen (línea 192-244): agregado, no lista.
+- GET /api/ia/proyeccion-ingresos (159-171): agregado, no lista.
+- GET /api/ia/segmentacion (273-279): analítico, no lista estándar de paginación.
+- GET /api/ia/demanda-citas (282-290): analítico.
+- GET /api/ia/agenda (301-308): analítico (optimización agenda).
+- GET /api/ia/anomalias (310-317): analítico.
+- GET /api/ia/rentabilidad (319-327): acepta limite Query(12,ge=1,le=30). Analítico con límite.
+- GET /api/ia/metricas (98-100): no lista.
+
+RESUMEN IA:
+- /api/ia/no-show: SIN paginación (devuelve todas las predicciones para citas en rango que cumplan filtro)
+- /api/ia/pacientes-riesgo: PARCIAL - solo 'limite' (max 50), sin skip/offset/page
+- /api/ia/predicciones (historial): PARCIAL - solo 'limite' (max 200), sin skip/offset/page
+- /api/ia/recomendaciones: PARCIAL - solo 'limite' (max 30)
+- /api/ia/rentabilidad: PARCIAL - solo 'limite' (max 30)
+- /api/ia/inventario (analítico): SIN paginación (retorna estructura analítica)
+
+---
+9. ARCHIVO: reportes.py (D:\WorkSpace\dentamia\backend\app\api\reportes.py)
+   Prefijo router: /api/reportes
+
+ENDPOINTS GET:
+
+- GET /api/reportes/ingresos (línea 24-49): response_model=ReporteIngresosOut (objeto agregado: detalle + totales). NO es lista de entidades ? no aplica paginación de lista.
+- GET /api/reportes/doctores (línea 52-104): response_model=list[ReporteDoctorOut] (lista plana de reporte por doctor). 
+  - Parámetros: desde, hasta, empresa_id (sin skip/limit/offset/page)
+  - Lógica: genera reporte combinando citas completadas + producción por doctor. SIN offset/limit. SIN .limit() explícito en la consulta final (aunque construye dicts).
+  - ¿Cuántos items devuelven? Un item por doctor encontrado (según group_by Doctor.id) ? cantidad = número de doctores activos que cumplen filtro. Generalmente pequeño.
+- GET /api/reportes/tratamientos (línea 107-134): response_model=list[ReporteTratamientoOut]
+  - Parámetros: desde, hasta, empresa_id
+  - Lógica: agrupa por DetalleFactura.descripcion, ordena por suma subtotal desc, APLICA .limit(20) FIJO (línea 129).
+  - Paginación: NO parametrizable. Tiene límite fijo 20.
+  - ¿Frontend puede pedir más de 100 items? NO (hardcoded limit 20).
+- GET /api/reportes/pacientes-nuevos (línea 137-157): retorna lista de dicts [{"mes": ..., "total": ...}]
+  - Agrupado por mes (YYYY-MM), sin limit. Sin paginación.
+- GET /api/reportes/citas (línea 160-180): retorna lista de dicts por estado, calcula porcentaje. Sin paginación, sin limit.
+
+RESUMEN REPORTES:
+- /api/reportes/ingresos: agregado (no lista)
+- /api/reportes/doctores: lista SIN paginación parametrizable (devuelve 1 por doctor; típicamente pocos registros)
+- /api/reportes/tratamientos: lista CON límite FIJO 20 (hardcoded). NO acepta skip/limit.
+- /api/reportes/pacientes-nuevos: lista agrupada por mes SIN paginación
+- /api/reportes/citas: lista agrupada por estado SIN paginación
+
+---
+10. ARCHIVO: examenes.py (D:\WorkSpace\dentamia\backend\app\api\examenes.py)
+    Prefijo router: /api (rutas /api/pacientes/{paciente_id}/examenes)
+
+ENDPOINTS GET QUE DEVUELVEN LISTAS:
+
+- GET /api/pacientes/{paciente_id}/examenes  (función: listar_examenes, línea 47-58)
+  - Ruta exacta: /api/pacientes/{paciente_id}/examenes
+  - Función: def listar_examenes(paciente_id: int, ...)
+  - Parámetros de paginación: NINGUNO
+  - response_model: list[ExamenImagenOut]
+  - Ordena por fecha desc, id desc. SIN offset/limit. SIN .limit().
+  - ¿Cuántos items devuelven? TODOS los exámenes del paciente.
+  - Sub-lista por paciente (similar a historial/odontograma).
+
+OTROS GET: Ninguno más (solo listar, subir, actualizar, eliminar)
+
+RESUMEN EXAMENES:
+- /api/pacientes/{paciente_id}/examenes: SIN paginación.
+
+---
+11. ARCHIVO: configuracion.py (D:\WorkSpace\dentamia\backend\app\api\configuracion.py)
+    Prefijo router: /api
+
+ENDPOINTS GET QUE DEVUELVEN LISTAS:
+
+- GET /api/sucursales (línea 46-48): response_model=list[SucursalOut]. Ordena por nombre. SIN paginación.
+- GET /api/configuraciones (línea 75-77): response_model=list[ConfiguracionOut]. Ordena por clave. SIN paginación.
+- GET /api/empresas (línea 99-101): response_model=list[EmpresaOut]. Ordena por nombre. SIN paginación. (mencionado en requisitos: GET /api/empresas)
+- GET /api/usuarios (línea 146-149): SIN response_model explícito (devuelve lista de dicts via _usuario_dict). SIN paginación. (mencionado: GET /api/usuarios ¿existe? sí, aquí)
+  - Construye dicts con empresas_link; devuelve todos los usuarios.
+- GET /api/roles (línea 293-295): response_model=list[RolOut]. SIN paginación.
+- GET /api/doctores-activos (línea 298-302): response_model=list[DoctorOut]. Filtra activo=True, ordena por apellidos. SIN paginación.
+- GET /api/catalogos (línea 305-315): devuelve objeto dict con catálogos (no lista) ? no aplica.
+
+RESUMEN CONFIGURACIÓN:
+- /api/empresas: SIN paginación.
+- /api/usuarios: SIN paginación (devuelve TODOS los usuarios).
+- Resto de listas de configuración/catalogos maestros: SIN paginación (generalmente catálogos pequeños).
+
+---
+12. ARCHIVO: dashboard.py (D:\WorkSpace\dentamia\backend\app\api\dashboard.py)
+    Prefijo router: /api/dashboard
+
+ENDPOINTS GET:
+
+- GET /api/dashboard (línea 26-224): response_model=DashboardOut (objeto agregado con múltiples secciones: proximas_citas es lista pero limitada internamente, serie_ingresos, top_tratamientos limitados, etc.)
+  - No es una lista paginable de entidades; es un dashboard agregado.
+  - Notas internas: proximas_citas aplica .limit(8). top_tratamientos aplica .limit(6). serie_ingresos se genera en bucle (últimos 12 meses). Citas por doctor limitadas por lógica de agrupado. No hay skip/limit parametrizable para paginar resultados.
+
+RESUMEN DASHBOARD:
+- Agregado, sin paginación parametrizable.
+
+---
+13. ARCHIVO: auth.py (D:\WorkSpace\dentamia\backend\app\api\auth.py)
+    Prefijo router: /api/auth
+
+ENDPOINTS GET/POST:
+- POST /api/auth/login: autenticación, retorna token + usuario
+- GET /api/auth/me: retorna usuario actual
+Sin endpoints GET que devuelvan listas.
+
+RESUMEN AUTH: Sin listas paginables.
+
+---
+14. ARCHIVO: deps.py, __init__.py
+    Sin endpoints HTTP.
+
+
+==================================================
+RESUMEN EJECUTIVO
+==================================================
+
+ENDPOINTS PRINCIPALES CON PAGINACIÓN (aceptan skip/limit):
+- GET /api/pacientes  ? skip, limit (le=500). CON paginación. Frontend puede pedir hasta 500.
+
+ENDPOINTS CON "limite" PARCIAL (solo control de límite, SIN skip/offset/page):
+- GET /api/ia/pacientes-riesgo  ? limite (1-50)
+- GET /api/ia/predicciones      ? limite (1-200)  (endpoint /api/ia/predicciones)
+- GET /api/ia/recomendaciones   ? limite (1-30)
+- GET /api/ia/rentabilidad       ? limite (1-30)
+
+ENDPOINTS CON LÍMITE FIJO (hardcoded, NO parametrizable):
+- GET /api/diseno3d/historial   ? .limit(200) fijo (sin params)
+- GET /api/reportes/tratamientos ? .limit(20) fijo (sin params)
+
+ENDPOINTS QUE DEVUELVEN LISTAS COMPLETAS SIN PAGINACIÓN (críticos para frontend - necesitan paginación):
+- GET /api/citas                ? sin skip/limit/offset/page (devuelve TODO según filtros)
+- GET /api/facturas              ? sin skip/limit/offset/page (devuelve TODO según filtros)
+- GET /api/tratamientos         ? sin skip/limit/offset/page
+- GET /api/planes               ? sin skip/limit/offset/page
+- GET /api/productos            ? sin skip/limit/offset/page
+- GET /api/productos/{id}/movimientos ? sin skip/limit/offset/page
+- GET /api/doctores             ? sin skip/limit/offset/page
+- GET /api/doctores/{id}/agenda ? sin skip/limit/offset/page
+- GET /api/pacientes/{id}/historial ? sin skip/limit/offset/page
+- GET /api/pacientes/{id}/odontograma ? sin skip/limit/offset/page
+- GET /api/pacientes/{id}/examenes   ? sin skip/limit/offset/page (/api/pacientes/{id}/examenes vía examenes.py)
+- GET /api/empresas             ? sin skip/limit/offset/page
+- GET /api/usuarios             ? sin skip/limit/offset/page
+- GET /api/ia/no-show           ? sin skip/limit/offset/page (devuelve predicciones para rango)
+- Sub-listas por entidad (historial/odontograma/exámenes) ? sin paginación
+
+ENDPOINTS DE REPORTE/AGREGADOS (no listas paginables típicas):
+- reportes/ingresos, reportes/doctores (lista pero pequeña), reportes/pacientes-nuevos, reportes/citas
+- dashboard/* (agregados)
+- ia/resumen, ia/proyeccion-ingresos, ia/segmentacion, ia/demanda-citas, ia/agenda, ia/anomalias, ia/metricas
+- diseno3d/catalogo, diseno3d/{id}/geometria
+- facturas/resumen
+- pacientes/{id}/resumen
+
+OBSERVACIONES ESPECÍFICAS SOLICITADAS:
+- GET /api/pacientes: SÍ tiene skip/limit (le=500). Puede pedir hasta 500.
+- GET /api/citas: NO tiene skip/limit. Devuelve todos los resultados filtrados.
+- GET /api/facturas (o similar en facturacion.py): endpoint es GET /api/facturas, NO tiene skip/limit.
+- GET /api/tratamientos: NO tiene skip/limit.
+- GET /api/productos (inventario): GET /api/productos, NO tiene skip/limit.
+- GET /api/doctores: NO tiene skip/limit.
+- GET /api/usuarios: SÍ existe en configuracion.py en /api/usuarios. NO tiene skip/limit (devuelve todos).
+- GET /api/diseno3d/historial: tiene limit(200) FIJO (hardcoded). No acepta skip/limit params. Frontend NO puede pedir más de 200.
+- GET /api/ia/historial: NO existe como ruta independiente con ese nombre; el historial de predicciones está en GET /api/ia/predicciones (acepta 'limite' max 200, sin skip/offset). También hay /api/ia/no-show.
+- GET /api/ia/no-show: NO tiene skip/limit, devuelve todas las predicciones del rango filtrado.
+- GET /api/ia/inventario: endpoint analítico /api/ia/inventario, NO tiene paginación (retorna análisis/predicción).
+- GET /api/ia/pacientes-riesgo: tiene 'limite' (max 50), NO skip/offset/page.
+- GET /api/empresas: existe en /api/empresas (configuracion.py), NO tiene skip/limit.
+- GET /api/reportes/*: mayormente agregados (ingresos es objeto). reportes/tratamientos tiene limit(20) fijo. reportes/doctores devuelve lista por doctor sin paginación.

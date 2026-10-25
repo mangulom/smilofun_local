@@ -1,0 +1,25 @@
+# Entorno
+node_modules/
+.venv/
+venv/
+__pycache__/
+*.py[cod]
+
+# Logs
+*.log
+
+# Uploads / datos locales
+uploads/
+*.db
+*.sqlite3
+
+# Entorno y secretos
+.env
+.env.*
+!.env.example
+
+# Editores / SO
+.vscode/
+.idea/
+Thumbs.db
+desktop.ini

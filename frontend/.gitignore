@@ -1,0 +1,19 @@
+# Angular
+/dist
+/node_modules
+/.angular
+/.cache
+*.tsbuildinfo
+
+# Logs
+*.log
+
+# Entorno / secretos
+.env
+.env.*
+
+# Editores / SO
+.vscode/
+.idea/
+Thumbs.db
+desktop.ini

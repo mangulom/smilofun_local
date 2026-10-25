@@ -1,0 +1,16 @@
+fastapi>=0.115
+uvicorn[standard]>=0.30
+sqlalchemy>=2.0
+psycopg2-binary>=2.9
+pydantic[email]>=2.7
+pydantic-settings>=2.3
+PyJWT>=2.8
+scikit-learn>=1.5
+numpy>=1.26
+trimesh>=5.1
+manifold3d>=3.5
+nibabel>=5.2
+pydicom>=2.4
+SimpleITK>=2.3
+pillow>=10.4
+python-multipart>=0.0.9
