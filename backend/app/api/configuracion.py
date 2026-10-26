@@ -44,13 +44,21 @@ router = APIRouter(
 
 # --- Sucursales (centros odontológicos) ---
 @router.get("/sucursales", response_model=list[SucursalOut])
-def listar_sucursales(db: Session = Depends(get_db)):
-    return db.execute(select(Sucursal).order_by(Sucursal.nombre)).scalars().all()
+def listar_sucursales(empresa_id: int | None = None, db: Session = Depends(get_db)):
+    stmt = select(Sucursal).where(Sucursal.activa.is_(True))
+    if empresa_id is not None:
+        stmt = stmt.where((Sucursal.empresa_id == empresa_id) | (Sucursal.empresa_id.is_(None)))
+    return db.execute(stmt.order_by(Sucursal.nombre)).scalars().all()
 
 
 @router.post("/sucursales", response_model=SucursalOut, status_code=status.HTTP_201_CREATED)
-def crear_sucursal(data: SucursalCreate, db: Session = Depends(get_db)):
-    obj = Sucursal(**data.model_dump())
+def crear_sucursal(data: SucursalCreate, db: Session = Depends(get_db), user: Usuario = Depends(get_current_user)):
+    empresa_id = data.empresa_id or (user.empresas_link[0].empresa_id if user.empresas_link else None)
+    if empresa_id and user.empresas_link and empresa_id not in {x.empresa_id for x in user.empresas_link}:
+        raise HTTPException(403, "No tienes acceso a esa empresa")
+    if empresa_id and db.get(Empresa, empresa_id) is None:
+        raise HTTPException(404, "Empresa no encontrada")
+    obj = Sucursal(**data.model_dump(exclude={"empresa_id"}), empresa_id=empresa_id)
     db.add(obj)
     db.commit()
     db.refresh(obj)

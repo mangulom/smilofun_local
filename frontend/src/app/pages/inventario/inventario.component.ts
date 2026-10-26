@@ -6,6 +6,7 @@ import { EmpresaService } from '../../core/empresa.service';
 import { Producto, Sucursal } from '../../core/models';
 import { PaginadorComponent } from '../../shared/paginador.component';
 import { RouterLink, RouterLinkActive } from '@angular/router';
+import { DialogService } from '../../shared/dialog.service';
 
 @Component({
   selector: 'app-inventario',
@@ -152,6 +153,7 @@ import { RouterLink, RouterLinkActive } from '@angular/router';
   `,
 })
 export class InventarioComponent {
+  private dialog = inject(DialogService);
   private api = inject(ApiService);
   empresa = inject(EmpresaService);
 
@@ -176,7 +178,7 @@ export class InventarioComponent {
       this.empresa.actualId();
       this.cargar();
     });
-    this.api.sucursales().subscribe((s) => this.sucursales.set(s));
+    this.api.sucursales(this.empresa.actualId()).subscribe((s) => this.sucursales.set(s));
   }
 
   cargar(): void {
@@ -238,11 +240,12 @@ export class InventarioComponent {
       next: () => {
         this.guardando.set(false);
         this.modal.set(false);
+        void this.dialog.success({ title: this.editId() ? 'Insumo actualizado' : 'Insumo agregado', text: 'El inventario se actualizó correctamente.' });
         this.cargar();
       },
       error: (e) => {
         this.guardando.set(false);
-        alert(e?.error?.detail || 'No se pudo guardar');
+        void this.dialog.apiError(e, 'No se pudo guardar el insumo.');
       },
     });
   }
@@ -253,11 +256,11 @@ export class InventarioComponent {
     this.movModal.set({ producto: p, tipo });
   }
 
-  eliminar(p: Producto): void {
-    if (!confirm(`¿Dar de baja el insumo "${p.nombre}"? Se conservará el historial de movimientos.`)) return;
+  async eliminar(p: Producto): Promise<void> {
+    if (!await this.dialog.confirm({ title: '¿Dar de baja insumo?', text: `${p.nombre}. Se conservará el historial de movimientos.`, confirmText: 'Dar de baja', danger: true })) return;
     this.api.eliminarProducto(p.id).subscribe({
-      next: () => this.cargar(),
-      error: (e) => alert(e?.error?.detail || 'No se pudo dar de baja el insumo.'),
+      next: () => { void this.dialog.success({ title: 'Insumo dado de baja' }); this.cargar(); },
+      error: (e) => { void this.dialog.apiError(e, 'No se pudo dar de baja el insumo.'); },
     });
   }
 
@@ -268,9 +271,10 @@ export class InventarioComponent {
       .subscribe({
         next: () => {
           this.movModal.set(null);
+          void this.dialog.success({ title: 'Movimiento registrado', text: 'El stock se actualizó correctamente.' });
           this.cargar();
         },
-        error: (e) => this.movError.set(e?.error?.detail || 'No se pudo registrar'),
+        error: (e) => { this.movError.set(e?.error?.detail || 'No se pudo registrar'); void this.dialog.apiError(e, 'No se pudo registrar el movimiento de inventario.'); },
       });
   }
 }

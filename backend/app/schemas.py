@@ -117,6 +117,7 @@ class EmpresaResumen(BaseModel):
 # Sucursal / configuración
 # ---------------------------------------------------------------------------
 class SucursalBase(BaseModel):
+    empresa_id: int | None = None
     nombre: str
     direccion: str | None = None
     telefono: str | None = None
@@ -132,6 +133,7 @@ class SucursalCreate(SucursalBase):
 
 
 class SucursalUpdate(BaseModel):
+    empresa_id: int | None = None
     nombre: str | None = None
     direccion: str | None = None
     telefono: str | None = None
@@ -144,6 +146,7 @@ class SucursalUpdate(BaseModel):
 
 class SucursalOut(ORMModel):
     id: int
+    empresa_id: int | None = None
     nombre: str
     direccion: str | None
     telefono: str | None

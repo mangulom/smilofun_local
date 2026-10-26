@@ -96,6 +96,7 @@ class Sucursal(Base):
     __tablename__ = "sucursales"
 
     id: Mapped[int] = mapped_column(primary_key=True)
+    empresa_id: Mapped[int | None] = mapped_column(ForeignKey("empresas.id"), nullable=True, index=True)
     nombre: Mapped[str] = mapped_column(String(120))
     direccion: Mapped[str | None] = mapped_column(String(200))
     telefono: Mapped[str | None] = mapped_column(String(30))

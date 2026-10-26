@@ -5,6 +5,10 @@ interface AyudaItem {
   titulo: string;
   descripcion: string;
   pasos: string[];
+  keywords?: string[];
+  requiere?: string[];
+  resultado?: string;
+  advertencia?: string;
   consejos?: string[];
   ruta?: string;
   rutaLabel?: string;
@@ -37,7 +41,7 @@ interface AyudaSeccion {
         (click)="cerrar()"
       >
         <div
-          class="flex max-h-[85vh] w-full max-w-3xl flex-col overflow-hidden rounded-2xl bg-white shadow-2xl"
+          class="flex max-h-[92vh] w-full max-w-6xl flex-col overflow-hidden rounded-2xl bg-white shadow-2xl"
           (click)="$event.stopPropagation()"
           role="dialog"
           aria-modal="true"
@@ -51,7 +55,7 @@ interface AyudaSeccion {
                   <span class="mr-1">💡</span>Centro de ayuda
                 </h2>
                 <p class="text-xs text-slate-500">
-                  Guía completa de SmiloFun · {{ secciones.length }} temas · {{ totalPasos() }} pasos
+                  Manual práctico de SmiloFun · {{ secciones.length }} módulos · {{ totalPasos() }} pasos
                 </p>
               </div>
               <button
@@ -80,9 +84,10 @@ interface AyudaSeccion {
               </svg>
               <input
                 class="input w-full !pl-9"
+                #campoBusqueda
                 [value]="busqueda()"
                 (input)="onBuscar($event)"
-                placeholder="Buscar tema, módulo o palabra clave…"
+                placeholder="Busca una tarea, campo, error o palabra clave… ( / )"
                 aria-label="Buscar en la ayuda"
               />
               @if (busqueda()) {
@@ -102,12 +107,19 @@ interface AyudaSeccion {
           <!-- Cuerpo -->
           <div class="flex min-h-0 flex-1">
             <!-- Categorías -->
-            <nav class="hidden w-44 shrink-0 space-y-1 overflow-y-auto border-r border-slate-100 bg-slate-50 p-3 md:block">
+            <nav class="hidden w-56 shrink-0 space-y-1 overflow-y-auto border-r border-slate-100 bg-slate-50 p-3 md:block">
+              <button class="mb-2 flex w-full items-center gap-2 rounded-lg px-3 py-2 text-left text-[13px] font-bold" [class.bg-purple-950]="categoria() === 'inicio'" [class.text-white]="categoria() === 'inicio'" [class.text-slate-600]="categoria() !== 'inicio'" (click)="seleccionarCategoria('inicio')"><span>✨</span><span>Inicio rápido</span></button>
+              <button class="mb-2 flex w-full items-center gap-2 rounded-lg px-3 py-2 text-left text-[13px] font-semibold text-slate-600 hover:bg-amber-50" (click)="mostrarFavoritos()"><span>⭐</span><span>Mis favoritos</span><span class="ml-auto text-[10px]">{{ favoritos().length }}</span></button>
+              @if (recientes().length) {
+                <p class="px-3 pb-1 pt-2 text-[10px] font-bold uppercase tracking-wider text-slate-400">Vistos recientemente</p>
+                @for (reciente of articulosRecientes(); track reciente.titulo) { <button class="w-full truncate rounded-lg px-3 py-1.5 text-left text-xs text-slate-500 hover:bg-slate-200" (click)="mostrarArticulo(reciente)">{{ reciente.titulo }}</button> }
+              }
+              <p class="px-3 pb-1 pt-3 text-[10px] font-bold uppercase tracking-wider text-slate-400">Módulos</p>
               @for (sec of secciones; track sec.id) {
                 <button
                   class="flex w-full items-center gap-2 rounded-lg px-3 py-2 text-left text-[13px] font-semibold transition-colors"
                   [class]="categoria() === sec.id ? 'bg-purple-950 text-white' : 'text-slate-600 hover:bg-slate-200'"
-                  (click)="categoria.set(sec.id)"
+                  (click)="seleccionarCategoria(sec.id)"
                 >
                   <span>{{ sec.icono }}</span>
                   <span class="truncate">{{ sec.titulo }}</span>
@@ -116,11 +128,50 @@ interface AyudaSeccion {
             </nav>
 
             <!-- Contenido -->
-            <div class="min-w-0 flex-1 overflow-y-auto p-5">
-              @if (resultados(); as res) {
+            <div class="min-w-0 flex-1 overflow-y-auto p-5 sm:p-7">
+              @if (!busqueda() && categoria() === 'inicio' && !vistaFavoritos() && !articuloSeleccionado()) {
+                <section class="mb-7 overflow-hidden rounded-2xl bg-gradient-to-br from-purple-950 via-purple-900 to-indigo-800 p-6 text-white sm:p-8">
+                  <p class="text-xs font-bold uppercase tracking-[0.18em] text-amber-300">Centro de conocimiento</p>
+                  <h3 class="mt-2 text-2xl font-extrabold sm:text-3xl">¿Qué necesitas hacer hoy?</h3>
+                  <p class="mt-2 max-w-2xl text-sm text-purple-100">Instrucciones paso a paso para el trabajo clínico, la gestión del consultorio y la administración de tu cuenta.</p>
+                  <div class="mt-5 grid gap-2 sm:grid-cols-3">
+                @for (atajo of accesosRapidos; track atajo.titulo) {
+                      <button class="rounded-xl border border-white/15 bg-white/10 p-3 text-left transition hover:bg-white/20" (click)="abrirAccesoRapido(atajo)">
+                        <span class="text-lg">{{ atajo.icono }}</span><span class="ml-2 text-sm font-bold">{{ atajo.titulo }}</span>
+                        <span class="mt-1 block text-xs text-purple-100">{{ atajo.descripcion }}</span>
+                      </button>
+                    }
+                  </div>
+                </section>
+                <div class="mb-6 grid gap-3 sm:grid-cols-3">
+                  <article class="rounded-xl border border-slate-200 p-4"><p class="text-2xl font-extrabold text-slate-800">{{ secciones.length }}</p><p class="text-xs text-slate-500">módulos documentados</p></article>
+                  <article class="rounded-xl border border-slate-200 p-4"><p class="text-2xl font-extrabold text-slate-800">{{ totalArticulos() }}</p><p class="text-xs text-slate-500">guías paso a paso</p></article>
+                  <article class="rounded-xl border border-slate-200 p-4"><p class="text-2xl font-extrabold text-slate-800">{{ totalPasos() }}</p><p class="text-xs text-slate-500">pasos explicados</p></article>
+                </div>
+              }
+              @if (vistaFavoritos()) {
+                <div class="mb-5"><h3 class="text-xl font-extrabold text-slate-800">Mis temas favoritos</h3><p class="text-sm text-slate-500">Tus guías guardadas para consultarlas rápidamente.</p></div>
+                @for (item of articulosFavoritos(); track item.titulo) { <button class="mb-2 w-full rounded-xl border border-slate-200 p-4 text-left hover:border-purple-300 hover:bg-purple-50" (click)="abrirArticulo(item, seccionDe(item))"><p class="font-bold text-slate-800">⭐ {{ item.titulo }}</p><p class="mt-1 text-xs text-slate-500">{{ item.descripcion }}</p></button> }
+                @if (!articulosFavoritos().length) { <p class="rounded-xl bg-slate-50 p-6 text-center text-sm text-slate-500">Aún no has guardado favoritos. Usa la estrella dentro de una guía.</p> }
+              } @else if (articuloSeleccionado()) {
+                @let item = articuloSeleccionado()!;
+                <article class="mx-auto max-w-3xl">
+                  <button class="mb-4 text-xs font-bold text-purple-700 hover:underline" (click)="volverSeccion()">← Volver a {{ seccionDe(item)?.titulo || 'la guía' }}</button>
+                  <div class="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm sm:p-7">
+                    <div class="flex items-start justify-between gap-3"><div><p class="text-xs font-bold uppercase tracking-wider text-purple-700">{{ seccionDe(item)?.icono }} {{ seccionDe(item)?.titulo }}</p><h3 class="mt-2 text-2xl font-extrabold text-slate-900">{{ item.titulo }}</h3><p class="mt-2 text-sm leading-6 text-slate-600">{{ item.descripcion }}</p></div><button class="rounded-lg border border-slate-200 px-3 py-2 text-sm hover:bg-amber-50" (click)="alternarFavorito(item)" [attr.aria-label]="esFavorito(item) ? 'Quitar de favoritos' : 'Guardar en favoritos'">{{ esFavorito(item) ? '⭐ Guardado' : '☆ Guardar' }}</button></div>
+                    @if (item.requiere?.length) { <div class="mt-5 rounded-xl bg-blue-50 p-4"><p class="text-xs font-bold uppercase tracking-wide text-blue-800">Antes de empezar</p><ul class="mt-2 list-inside list-disc space-y-1 text-sm text-blue-900">@for (r of item.requiere; track $index) { <li>{{ r }}</li> }</ul></div> }
+                    <div class="mt-6"><h4 class="text-sm font-extrabold uppercase tracking-wide text-slate-500">Procedimiento</h4><ol class="mt-3 space-y-3">@for (paso of item.pasos; track $index) { <li class="flex gap-3"><span class="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-purple-100 text-xs font-extrabold text-purple-800">{{ $index + 1 }}</span><span class="pt-1 text-sm leading-6 text-slate-700">{{ paso }}</span></li> }</ol></div>
+                    @if (item.resultado) { <div class="mt-5 rounded-xl bg-emerald-50 p-4"><p class="text-xs font-bold uppercase tracking-wide text-emerald-800">Resultado esperado</p><p class="mt-1 text-sm text-emerald-900">{{ item.resultado }}</p></div> }
+                    @if (item.advertencia) { <div class="mt-4 rounded-xl border border-amber-200 bg-amber-50 p-4"><p class="text-xs font-bold uppercase tracking-wide text-amber-900">Importante</p><p class="mt-1 text-sm text-amber-900">{{ item.advertencia }}</p></div> }
+                    @if (item.consejos?.length) { <div class="mt-5"><h4 class="text-xs font-extrabold uppercase tracking-wide text-slate-500">Consejos</h4><ul class="mt-2 space-y-2">@for (c of item.consejos; track $index) { <li class="flex gap-2 text-sm text-slate-600"><span class="text-amber-500">✦</span>{{ c }}</li> }</ul></div> }
+                    @if (item.ruta) { <button class="mt-6 inline-flex items-center gap-2 rounded-lg bg-purple-950 px-4 py-2.5 text-sm font-bold text-white hover:bg-purple-800" (click)="ir(item.ruta!)">{{ item.rutaLabel ?? 'Abrir módulo' }} →</button> }
+                  </div>
+                </article>
+              }
+              @if (!vistaFavoritos() && !articuloSeleccionado() && resultados(); as res) {
                 <!-- Modo búsqueda: resultados planos agrupados por sección -->
                 <p class="mb-3 text-xs font-semibold uppercase tracking-wide text-slate-400">
-                  {{ res.length }} sección(es) con "{{ busqueda() }}"
+                  {{ contarResultados(res) }} guía(s) para "{{ busqueda() }}"
                 </p>
                 @for (sec of res; track sec.id) {
                   <div class="mb-5">
@@ -131,7 +182,7 @@ interface AyudaSeccion {
                       @for (item of sec.items; track item.titulo) {
                         <button
                           class="w-full rounded-xl border border-slate-200 bg-white px-4 py-3 text-left transition-colors hover:border-purple-300 hover:bg-purple-50/50"
-                          (click)="abiertoItem.set(item.titulo)"
+                          (click)="abrirArticulo(item, sec)"
                         >
                           <p class="text-sm font-bold text-slate-800">{{ item.titulo }}</p>
                           <p class="mt-0.5 text-xs text-slate-500">{{ item.descripcion }}</p>
@@ -140,20 +191,20 @@ interface AyudaSeccion {
                     </div>
                   </div>
                 }
-                @if (res.length === 0) {
+                @if (contarResultados(res) === 0) {
                   <div class="py-10 text-center">
                     <p class="text-3xl">🔍</p>
                     <p class="mt-2 text-sm font-semibold text-slate-600">Sin resultados para "{{ busqueda() }}"</p>
                     <p class="text-xs text-slate-400">Prueba con otra palabra, por ejemplo: cita, factura, stock, IA…</p>
                   </div>
                 }
-              } @else {
+              } @else if (!articuloSeleccionado() && !vistaFavoritos()) {
                 <!-- Modo normal: sección seleccionada con acordeón -->
                 <p class="mb-3 text-xs font-semibold uppercase tracking-wide text-slate-400">
-                  {{ seccionActual().icono }} {{ seccionActual().titulo }} · {{ seccionActual().items.length }} temas
+                  {{ seccionActual().icono }} {{ seccionActual().titulo }} · {{ itemsSeccionActual().length }} guías
                 </p>
                 <div class="space-y-2">
-                  @for (item of seccionActual().items; track item.titulo) {
+                  @for (item of itemsSeccionActual(); track item.titulo) {
                     <div
                       class="overflow-hidden rounded-xl border transition-colors"
                       [class]="abiertoItem() === item.titulo ? 'border-purple-300 bg-purple-50/40' : 'border-slate-200 bg-white'"
@@ -182,6 +233,7 @@ interface AyudaSeccion {
 
                       @if (abiertoItem() === item.titulo) {
                         <div class="border-t border-slate-100 px-4 py-3">
+                          @if (item.requiere?.length) { <div class="mb-3 rounded-lg bg-blue-50 p-3"><p class="text-[11px] font-bold uppercase text-blue-800">Antes de empezar</p><ul class="mt-1 list-inside list-disc text-xs text-blue-900">@for (r of item.requiere; track $index) { <li>{{ r }}</li> }</ul></div> }
                           <p class="mb-2 text-[11px] font-bold uppercase tracking-wide text-slate-400">
                             Pasos
                           </p>
@@ -197,6 +249,8 @@ interface AyudaSeccion {
                               </li>
                             }
                           </ol>
+                          @if (item.resultado) { <p class="mt-3 rounded-lg bg-emerald-50 p-3 text-xs text-emerald-900"><b>Resultado:</b> {{ item.resultado }}</p> }
+                          @if (item.advertencia) { <p class="mt-3 rounded-lg bg-amber-50 p-3 text-xs text-amber-900"><b>Importante:</b> {{ item.advertencia }}</p> }
                           @if (item.consejos?.length) {
                             <p class="mb-1.5 mt-3 text-[11px] font-bold uppercase tracking-wide text-slate-400">
                               Consejos
@@ -221,6 +275,7 @@ interface AyudaSeccion {
                               </svg>
                             </button>
                           }
+                          <button class="ml-2 mt-3 rounded-lg border border-slate-200 px-3 py-1.5 text-xs font-bold text-slate-600 hover:bg-amber-50" (click)="alternarFavorito(item)">{{ esFavorito(item) ? '⭐ Guardado' : '☆ Guardar favorito' }}</button>
                         </div>
                       }
                     </div>
@@ -232,8 +287,8 @@ interface AyudaSeccion {
 
           <!-- Pie -->
           <div class="flex items-center justify-between border-t border-slate-200 bg-slate-50 px-5 py-3">
-            <p class="text-[11px] text-slate-400">
-              SmiloFun v1.0 · Angular 19 + FastAPI + PostgreSQL 17
+                  <p class="text-[11px] text-slate-400">
+              SmiloFun · Manual de uso · Atajo de búsqueda: /
             </p>
             <button
               class="text-xs font-bold text-purple-700 transition-colors hover:text-purple-900 hover:underline"
@@ -249,11 +304,28 @@ interface AyudaSeccion {
 })
 export class AyudaComponent {
   private router = inject(Router);
+  private readonly claveFavoritos = 'smilofun.ayuda.favoritos';
+  private readonly claveRecientes = 'smilofun.ayuda.recientes';
 
   abierto = signal(false);
   busqueda = signal('');
   categoria = signal('inicio');
   abiertoItem = signal<string | null>(null);
+  articuloSeleccionado = signal<AyudaItem | null>(null);
+  vistaFavoritos = signal(false);
+  favoritos = signal<string[]>(this.leerLista(this.claveFavoritos));
+  recientes = signal<string[]>(this.leerLista(this.claveRecientes));
+
+  readonly accesosRapidos = [
+    { titulo: 'Registrar paciente', descripcion: 'Alta, búsqueda y ficha clínica', icono: '🦷', seccion: 'pacientes', item: 'Registrar paciente' },
+    { titulo: 'Agendar cita', descripcion: 'Paciente, doctor y horario', icono: '📅', seccion: 'agenda', item: 'Crear una cita' },
+    { titulo: 'Revisar plan de tratamiento', descripcion: 'Procedimientos, costos y aprobación', icono: '📝', seccion: 'pacientes', item: 'Planes de tratamiento' },
+  ];
+  abrirAccesoRapido(atajo: { item: string; seccion: string }): void {
+    const section = this.secciones.find(s => s.id === atajo.seccion);
+    const item = section?.items.find(i => i.titulo === atajo.item);
+    if (item && section) this.abrirArticulo(item, section);
+  }
 
   readonly secciones: AyudaSeccion[] = [
     {
@@ -316,6 +388,10 @@ export class AyudaComponent {
             'Guarda el formulario.',
           ],
           consejos: ['El código del paciente (P-000XX) se genera automáticamente.'],
+          requiere: ['Empresa activa seleccionada.', 'Datos personales básicos y sede de atención.'],
+          resultado: 'El paciente aparece en la lista de la empresa activa y puede seleccionarse en citas y planes.',
+          keywords: ['alta', 'nuevo', 'dni', 'empresa', 'sede'],
+          advertencia: 'No registres datos de prueba en la base de pacientes real; protege la información personal y clínica.',
           ruta: '/pacientes',
           rutaLabel: 'Ir a Pacientes',
         },
@@ -374,11 +450,14 @@ export class AyudaComponent {
           pasos: [
             'En la ficha del paciente, abre la pestaña "Exámenes".',
             'Haz clic en "Subir examen".',
-            'Elige el archivo: imagen hasta 15 MB, video hasta 200 MB.',
+            'Elige el archivo. Imágenes: hasta 15 MB; videos: hasta 200 MB; DICOM: hasta 512 MB; NIfTI/NRRD: hasta 1 GB.',
             'Indica el tipo y un título descriptivo.',
             'Guarda el examen.',
           ],
-          consejos: ['Puedes marcar dientes sobre la imagen para señalar hallazgos.'],
+          consejos: ['Puedes marcar dientes sobre la imagen para señalar hallazgos.', 'Los formatos DICOM, NIfTI (.nii/.nii.gz) y NRRD (.nrrd) se abren con visor volumétrico cuando están registrados como examen.'],
+          advertencia: 'Verifica paciente, tipo y archivo antes de guardar: los exámenes contienen información clínica sensible.',
+          resultado: 'El examen queda asociado a la ficha y disponible para su visor según el tipo y formato.',
+          keywords: ['dcm', 'dicom', 'nifti', 'nii', 'nii.gz', 'nrrd', 'tomografía', 'resonancia', 'volumen'],
           ruta: '/pacientes',
           rutaLabel: 'Ir a Pacientes',
         },
@@ -412,6 +491,9 @@ export class AyudaComponent {
             'Indica el motivo de la consulta.',
             'Guarda la cita.',
           ],
+          requiere: ['Paciente registrado y activo.', 'Doctor disponible para la sede y horario elegidos.'],
+          resultado: 'La cita aparece en la agenda con su estado inicial y los filtros de empresa/sede.',
+          advertencia: 'Comprueba fecha, hora, paciente y doctor antes de confirmar.',
           ruta: '/citas',
           rutaLabel: 'Ir a Agenda',
         },
@@ -469,8 +551,20 @@ export class AyudaComponent {
             'Aplica descuento si corresponde.',
             'Guarda la factura.',
           ],
+          requiere: ['Paciente y sede correctos.', 'Detalle, cantidades y precios revisados.'],
+          advertencia: 'La factura genera un registro financiero. No la uses para simular una operación real.',
+          resultado: 'La factura queda en el historial del paciente con el total calculado.',
           ruta: '/facturacion',
           rutaLabel: 'Ir a Facturación',
+        },
+        {
+          titulo: 'Planes de tratamiento',
+          descripcion: 'Prepara un plan y consúltalo en la ficha clínica.',
+          pasos: ['Abre la ficha del paciente y selecciona Planes, o entra a Tratamientos.', 'Crea el plan y agrega procedimientos del catálogo.', 'Revisa dientes, superficies, precios, descuento y estado.', 'Guarda y confirma que el plan aparezca asociado al paciente.'],
+          requiere: ['Paciente correcto y tratamientos del catálogo configurados.'],
+          resultado: 'El plan queda visible para seguimiento y puede usarse como referencia de facturación según el flujo de la clínica.',
+          advertencia: 'Valida el tratamiento y sus costos con el profesional antes de presentarlo al paciente.',
+          ruta: '/tratamientos', rutaLabel: 'Abrir tratamientos', keywords: ['presupuesto', 'plan clínico', 'diente', 'procedimiento'],
         },
         {
           titulo: 'Registrar pagos',
@@ -506,6 +600,8 @@ export class AyudaComponent {
             'Registra nombre, categoría, stock y stock mínimo.',
             'Guarda el producto.',
           ],
+          requiere: ['Empresa activa y sede de inventario correctas.'],
+          resultado: 'El producto aparece en inventario y puede asociarse a movimientos o compras.',
           ruta: '/inventario',
           rutaLabel: 'Ir a Inventario',
         },
@@ -534,6 +630,24 @@ export class AyudaComponent {
           rutaLabel: 'Ir a Inventario',
         },
         {
+          titulo: 'Proveedores',
+          descripcion: 'Administra el catálogo de proveedores de cada empresa.',
+          pasos: ['Confirma la empresa activa en el encabezado.', 'Abre Inventario → Proveedores.', 'Usa la búsqueda y el filtro de estado para localizar registros.', 'Selecciona “Nuevo proveedor” y completa la razón social y los datos verificados.', 'Guarda y comprueba que el proveedor aparezca bajo la empresa activa.'],
+          requiere: ['Permiso para administrar proveedores.', 'Razón social real; verifica RUC y contacto antes de registrarlos.'],
+          resultado: 'El proveedor aparece solo en la empresa seleccionada y estará disponible en el formulario de compras.',
+          advertencia: 'Un proveedor de demostración debe reemplazarse por datos reales antes de operar. Dar de baja no elimina compras históricas.',
+          ruta: '/inventario/proveedores', rutaLabel: 'Abrir proveedores', keywords: ['ruc', 'catálogo', 'demo', 'empresa'],
+        },
+        {
+          titulo: 'Compras de insumos y recepción',
+          descripcion: 'Registra una compra real y recibe cantidades en el stock de la sede seleccionada.',
+          pasos: ['Confirma empresa activa.', 'Ve a Inventario → Compras → Registrar compra.', 'Selecciona un proveedor activo de esa empresa.', 'Selecciona la sede: la lista de insumos se limita a esa sede.', 'Agrega cada insumo con cantidad y costo unitario comprobados.', 'Verifica subtotal, impuesto/cargos, referencia, fecha y total.', 'Guarda una sola vez y espera la confirmación; comprueba la compra y los movimientos de stock.'],
+          requiere: ['Proveedor real y activo de la misma empresa.', 'Sede activa.', 'Insumos de esa sede.', 'Cantidades, costo, comprobante e impuesto basados en la compra real.'],
+          resultado: 'Se registra la compra, se incrementa el stock por las cantidades recibidas y se conserva el movimiento asociado.',
+          advertencia: 'Guardar tiene efecto financiero y modifica stock. No registres compras de prueba en producción; si hay error, verifica primero si la compra llegó a guardarse antes de reintentar.',
+          ruta: '/inventario/compras', rutaLabel: 'Abrir compras', keywords: ['stock', 'recepción', 'factura proveedor', 'compra', 'sede', 'costo'],
+        },
+        {
           titulo: 'Catálogo de tratamientos',
           descripcion: 'Define los procedimientos y sus precios.',
           pasos: [
@@ -544,6 +658,15 @@ export class AyudaComponent {
           ],
           ruta: '/tratamientos',
           rutaLabel: 'Ir a Tratamientos',
+        },
+        {
+          titulo: 'Pagos y anulaciones',
+          descripcion: 'Consulta saldos y registra pagos o anulaciones sobre una factura.',
+          pasos: ['Abre Facturación y localiza la factura.', 'Verifica paciente, moneda, total y saldo pendiente.', 'Para cobrar, elige Registrar pago, introduce el importe efectivamente recibido y el método.', 'Guarda una sola vez y confirma que saldo y estado se actualizaron.', 'Para anular, usa la acción correspondiente y confirma solo si la operación es correcta.'],
+          requiere: ['Factura de la empresa activa.', 'Importe y método confirmados con el comprobante real.'],
+          advertencia: 'Pagos y anulaciones afectan registros financieros. No los pruebes en producción; comprueba el historial antes de reintentar.',
+          resultado: 'El estado de la factura refleja el pago parcial/total o la anulación y se conserva el historial.',
+          ruta: '/facturacion', rutaLabel: 'Abrir facturación', keywords: ['saldo', 'cobro', 'pago parcial', 'anular', 'finanzas'],
         },
         {
           titulo: 'Doctores',
@@ -567,6 +690,15 @@ export class AyudaComponent {
           ],
           ruta: '/reportes',
           rutaLabel: 'Ir a Reportes',
+        },
+        {
+          titulo: 'Respaldos de base de datos',
+          descripcion: 'Consulta y administra los respaldos disponibles según permisos.',
+          pasos: ['Abre el módulo Respaldos.', 'Revisa fecha, tamaño y estado del archivo.', 'Descarga o crea un respaldo solo siguiendo la política del administrador.', 'Antes de restaurar, verifica el entorno destino, la fecha y que exista un respaldo reciente.'],
+          requiere: ['Permiso administrativo.', 'Confirmación del entorno y de la política de retención.'],
+          advertencia: 'Una restauración puede sobrescribir datos actuales. No ejecutes restauraciones como prueba.',
+          resultado: 'El respaldo queda disponible en la ubicación y con el estado mostrados por el sistema.',
+          ruta: '/respaldos', rutaLabel: 'Abrir respaldos', keywords: ['backup', 'restaurar', 'base de datos', 'exportar'],
         },
         {
           titulo: 'Empresas',
@@ -719,6 +851,8 @@ export class AyudaComponent {
             'Genera el diseño 3D.',
             'Descarga el archivo STL cuando esté listo.',
           ],
+          requiere: ['Ficha del paciente correcta.', 'Datos de diseño clínicamente revisados.'],
+          advertencia: 'El diseño generado debe ser revisado por el profesional responsable antes de fabricación o uso clínico.',
           ruta: '/diseno3d',
           rutaLabel: 'Ir a Diseño 3D',
         },
@@ -762,10 +896,11 @@ export class AyudaComponent {
           pasos: ['Consulta la leyenda en la parte superior de la agenda.'],
         },
         {
-          titulo: '¿Cómo subo una radiografía?',
+          titulo: '¿Qué formatos médicos puedo subir?',
           descripcion: 'Ficha del paciente → pestaña Exámenes → "Subir examen".',
-          pasos: ['Abre la ficha del paciente.', 'Ve a la pestaña Exámenes.', 'Haz clic en "Subir examen" y elige el archivo.'],
-          consejos: ['Imagen hasta 15 MB, video hasta 200 MB.'],
+          pasos: ['Abre la ficha del paciente y entra a Exámenes.', 'Elige el tipo correcto y selecciona el archivo.', 'Carga la imagen o video, un DICOM, NIfTI (.nii/.nii.gz) o NRRD (.nrrd).', 'Guarda y abre el visor asociado para verificar que el volumen se visualiza.'],
+          consejos: ['Límites del backend: imágenes 15 MB, video 200 MB, DICOM 512 MB y volúmenes NIfTI/NRRD 1 GB.'],
+          keywords: ['dcm', 'dicom', 'nifti', 'nii', 'nrrd', 'tomografía', 'resonancia'],
         },
         {
           titulo: '¿Cómo entreno el modelo de IA?',
@@ -794,9 +929,87 @@ export class AyudaComponent {
           ruta: '/contacto',
           rutaLabel: 'Ir a Contáctenos',
         },
+        {
+          titulo: '¿Qué hago si aparece un error al guardar?',
+          descripcion: 'Pasos seguros para diagnosticar un error sin duplicar operaciones.',
+          pasos: ['Lee el mensaje completo y anota el módulo, hora y acción, sin compartir contraseñas ni datos clínicos.', 'Para compras, pagos, facturas o citas, no pulses Guardar repetidamente.', 'Comprueba primero si el registro aparece en la lista o historial.', 'Si no aparece, captura el detalle de error y consulta al administrador.', 'Reintenta solo cuando se confirme que no hubo registro y los datos estén corregidos.'],
+          advertencia: 'Un timeout o error visual no demuestra que la operación haya fallado en la base de datos.',
+          keywords: ['error', 'guardar', 'duplicado', '500', 'backend', 'api'],
+        },
       ],
     },
   ];
+
+  private leerLista(clave: string): string[] {
+    try {
+      const valor = localStorage.getItem(clave);
+      const datos: unknown = valor ? JSON.parse(valor) : [];
+      return Array.isArray(datos) ? datos.filter((x): x is string => typeof x === 'string') : [];
+    } catch { return []; }
+  }
+
+  totalArticulos(): number { return this.secciones.reduce((n, s) => n + s.items.length, 0); }
+
+  itemsSeccionActual(): AyudaItem[] {
+    const sec = this.seccionActual();
+    if (sec.id === 'inicio') return [];
+    if (sec.id !== 'favoritos') return sec.items;
+    return this.articulosFavoritos();
+  }
+
+  seleccionarCategoria(id: string): void {
+    this.vistaFavoritos.set(false);
+    this.articuloSeleccionado.set(null);
+    this.categoria.set(id);
+    this.abiertoItem.set(null);
+  }
+
+  mostrarFavoritos(): void {
+    this.busqueda.set('');
+    this.articuloSeleccionado.set(null);
+    this.vistaFavoritos.set(true);
+  }
+
+  todosArticulos(): AyudaItem[] { return this.secciones.flatMap(s => s.items); }
+
+  seccionDe(item: AyudaItem): AyudaSeccion | undefined {
+    return this.secciones.find(s => s.items.some(i => i.titulo === item.titulo));
+  }
+
+  articulosFavoritos(): AyudaItem[] {
+    const guardados = new Set(this.favoritos());
+    return this.todosArticulos().filter(i => guardados.has(i.titulo));
+  }
+
+  articulosRecientes(): AyudaItem[] {
+    const mapa = new Map(this.todosArticulos().map(i => [i.titulo, i]));
+    return this.recientes().map(t => mapa.get(t)).filter((i): i is AyudaItem => !!i).slice(0, 5);
+  }
+
+  esFavorito(item: AyudaItem): boolean { return this.favoritos().includes(item.titulo); }
+
+  alternarFavorito(item: AyudaItem): void {
+    const lista = this.esFavorito(item) ? this.favoritos().filter(t => t !== item.titulo) : [item.titulo, ...this.favoritos()];
+    this.favoritos.set(lista);
+    try { localStorage.setItem(this.claveFavoritos, JSON.stringify(lista)); } catch { /* storage opcional */ }
+  }
+
+  abrirArticulo(item: AyudaItem, seccion?: AyudaSeccion): void {
+    const encontrada = seccion ?? this.seccionDe(item);
+    this.vistaFavoritos.set(false);
+    this.busqueda.set('');
+    this.categoria.set(encontrada?.id ?? 'inicio');
+    this.articuloSeleccionado.set(item);
+    const lista = [item.titulo, ...this.recientes().filter(t => t !== item.titulo)].slice(0, 8);
+    this.recientes.set(lista);
+    try { localStorage.setItem(this.claveRecientes, JSON.stringify(lista)); } catch { /* storage opcional */ }
+  }
+
+  mostrarArticulo(item: AyudaItem): void { this.abrirArticulo(item); }
+
+  volverSeccion(): void { this.articuloSeleccionado.set(null); }
+
+  contarResultados(secciones: AyudaSeccion[]): number { return secciones.reduce((n, s) => n + s.items.length, 0); }
 
   seccionActual = computed(
     () => this.secciones.find((s) => s.id === this.categoria()) ?? this.secciones[0]
@@ -817,7 +1030,11 @@ export class AyudaComponent {
             it.titulo.toLowerCase().includes(q) ||
             it.descripcion.toLowerCase().includes(q) ||
             it.pasos.some((p) => p.toLowerCase().includes(q)) ||
-            (it.consejos ?? []).some((c) => c.toLowerCase().includes(q))
+            (it.consejos ?? []).some((c) => c.toLowerCase().includes(q)) ||
+            (it.keywords ?? []).some((k) => k.toLowerCase().includes(q)) ||
+            (it.requiere ?? []).some((r) => r.toLowerCase().includes(q)) ||
+            (it.resultado ?? '').toLowerCase().includes(q) ||
+            sec.titulo.toLowerCase().includes(q)
         ),
       }))
       .filter((sec) => sec.items.length > 0);
@@ -828,7 +1045,9 @@ export class AyudaComponent {
   }
 
   toggle(titulo: string): void {
-    this.abiertoItem.set(this.abiertoItem() === titulo ? null : titulo);
+    const item = this.seccionActual().items.find(i => i.titulo === titulo);
+    if (item) this.abrirArticulo(item, this.seccionActual());
+    else this.abiertoItem.set(this.abiertoItem() === titulo ? null : titulo);
   }
 
   ir(ruta: string): void {
@@ -840,10 +1059,21 @@ export class AyudaComponent {
     this.abierto.set(false);
     this.busqueda.set('');
     this.abiertoItem.set(null);
+    this.articuloSeleccionado.set(null);
+    this.vistaFavoritos.set(false);
   }
 
   @HostListener('document:keydown.escape')
   onEscape(): void {
     if (this.abierto()) this.cerrar();
+  }
+
+  @HostListener('document:keydown', ['$event'])
+  onAtajoBusqueda(evento: KeyboardEvent): void {
+    if (!this.abierto() || evento.key !== '/' || evento.ctrlKey || evento.metaKey || evento.altKey) return;
+    const destino = evento.target as HTMLElement | null;
+    if (destino && ['INPUT', 'TEXTAREA'].includes(destino.tagName)) return;
+    evento.preventDefault();
+    document.querySelector<HTMLInputElement>('[aria-label="Buscar en la ayuda"]')?.focus();
   }
 }

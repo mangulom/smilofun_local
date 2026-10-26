@@ -4,6 +4,8 @@ import { DatePipe } from '@angular/common';
 import { ApiService } from '../../core/api.service';
 import { EmpresaService } from '../../core/empresa.service';
 import { Cita, Doctor, Paciente } from '../../core/models';
+import { DialogService } from '../../shared/dialog.service';
+import { LoadingService } from '../../shared/loading.service';
 
 @Component({
   selector: 'app-citas',
@@ -156,6 +158,8 @@ import { Cita, Doctor, Paciente } from '../../core/models';
   `,
 })
 export class CitasComponent {
+  private dialog = inject(DialogService);
+  private loading = inject(LoadingService);
   private api = inject(ApiService);
   empresa = inject(EmpresaService);
 
@@ -196,9 +200,10 @@ export class CitasComponent {
 
   cargar(): void {
     this.error.set(null);
+    const loadingId = this.loading.show('OBTENIENDO AGENDA');
     this.api.citas({ fecha: this.fechaTexto, empresa_id: this.empresa.actualId() }).subscribe({
-      next: (c) => this.citas.set(c),
-      error: () => this.error.set('No se pudieron cargar las citas.'),
+      next: (c) => { this.citas.set(c); this.loading.hide(loadingId); },
+      error: (e) => { this.loading.hide(loadingId); this.error.set('No se pudieron cargar las citas.'); void this.dialog.apiError(e, 'No se pudieron cargar las citas.'); },
     });
   }
 
@@ -230,14 +235,17 @@ export class CitasComponent {
 
   cambiarEstado(cita: Cita, estado: string): void {
     this.api.estadoCita(cita.id, estado).subscribe({
-      next: () => this.cargar(),
-      error: (e) => this.error.set(e?.error?.detail || 'No se pudo cambiar el estado'),
+      next: () => { void this.dialog.success({ title: 'Estado actualizado', text: `La cita ahora está ${estado.replace('_', ' ')}.` }); this.cargar(); },
+      error: (e) => { this.error.set(e?.error?.detail || 'No se pudo cambiar el estado'); void this.dialog.apiError(e, 'No se pudo cambiar el estado de la cita.'); },
     });
   }
 
-  eliminar(cita: Cita): void {
-    if (!confirm(`¿Eliminar la cita de ${cita.paciente.nombre_completo}?`)) return;
-    this.api.eliminarCita(cita.id).subscribe({ next: () => this.cargar() });
+  async eliminar(cita: Cita): Promise<void> {
+    if (!await this.dialog.confirm({ title: '¿Eliminar cita?', text: `Se eliminará la cita de ${cita.paciente.nombre_completo}.`, confirmText: 'Eliminar cita', danger: true })) return;
+    this.api.eliminarCita(cita.id).subscribe({
+      next: () => { void this.dialog.success({ title: 'Cita eliminada' }); this.cargar(); },
+      error: e => { void this.dialog.apiError(e, 'No se pudo eliminar la cita.'); },
+    });
   }
 
   nuevaCita(): void {
@@ -295,11 +303,13 @@ export class CitasComponent {
         next: () => {
           this.guardando.set(false);
           this.modal.set(false);
+          void this.dialog.success({ title: 'Cita creada', text: 'La cita se agregó a la agenda.' });
           if (this.form.fecha === this.fechaTexto) this.cargar();
         },
         error: (e) => {
           this.guardando.set(false);
           this.errorModal.set(e?.error?.detail || 'No se pudo crear la cita.');
+          void this.dialog.apiError(e, 'No se pudo crear la cita.');
         },
       });
   }

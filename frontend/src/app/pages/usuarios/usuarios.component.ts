@@ -5,6 +5,7 @@ import { ApiService } from '../../core/api.service';
 import { EmpresaService } from '../../core/empresa.service';
 import { Doctor, Rol, UsuarioAdmin } from '../../core/models';
 import { PaginadorComponent } from '../../shared/paginador.component';
+import { DialogService } from '../../shared/dialog.service';
 
 const COLOR_ROL: Record<string, string> = {
   Administrador: 'bg-purple-100 text-purple-700 border-purple-200',
@@ -256,6 +257,7 @@ const COLOR_ROL: Record<string, string> = {
 })
 export class UsuariosComponent {
   private api = inject(ApiService);
+  private dialog = inject(DialogService);
   empresa = inject(EmpresaService);
 
   lista = signal<UsuarioAdmin[]>([]);
@@ -398,7 +400,8 @@ export class UsuariosComponent {
       empresa_ids: (this.form.empresa_ids ?? []) as number[],
     };
 
-    const req = this.editandoId()
+    const editando = this.editandoId() !== null;
+    const req = editando
       ? this.api.actualizarUsuario(this.editandoId()!, password ? { ...base, password } : base)
       : this.api.crearUsuario({ ...base, password });
 
@@ -406,29 +409,31 @@ export class UsuariosComponent {
       next: () => {
         this.guardando.set(false);
         this.modal.set(false);
+        void this.dialog.success({ title: editando ? 'Usuario actualizado' : 'Usuario agregado', text: 'Los datos se guardaron correctamente.' });
         this.cargar();
       },
       error: (e) => {
         this.guardando.set(false);
         this.error.set(e?.error?.detail || 'No se pudo guardar el usuario.');
+        void this.dialog.apiError(e, 'No se pudo guardar el usuario.');
       },
     });
   }
 
   alternar(u: UsuarioAdmin): void {
     this.api.actualizarUsuario(u.id, { activo: !u.activo }).subscribe({
-      next: () => this.cargar(),
-      error: (e) => alert(e?.error?.detail || 'No se pudo cambiar el estado.'),
+      next: () => { void this.dialog.success({ title: u.activo ? 'Usuario desactivado' : 'Usuario activado' }); this.cargar(); },
+      error: (e) => { void this.dialog.apiError(e, 'No se pudo cambiar el estado.'); },
     });
   }
 
-  eliminar(u: UsuarioAdmin): void {
-    if (!confirm(`¿Eliminar el usuario "${u.nombre}" (${u.email})?\nEsta acción no se puede deshacer.`)) {
+  async eliminar(u: UsuarioAdmin): Promise<void> {
+    if (!await this.dialog.confirm({ title: '¿Eliminar usuario?', text: `${u.nombre} (${u.email}). Esta acción no se puede deshacer.`, confirmText: 'Eliminar usuario', danger: true })) {
       return;
     }
     this.api.eliminarUsuario(u.id).subscribe({
-      next: () => this.cargar(),
-      error: (e) => alert(e?.error?.detail || 'No se pudo eliminar el usuario.'),
+      next: () => { void this.dialog.success({ title: 'Usuario eliminado' }); this.cargar(); },
+      error: (e) => { void this.dialog.apiError(e, 'No se pudo eliminar el usuario.'); },
     });
   }
 }

@@ -18,6 +18,7 @@ from app.models import (
     Paciente,
     Pago,
     PlanTratamiento,
+    Sucursal,
     Usuario,
 )
 from app.schemas import (
@@ -80,6 +81,11 @@ def crear(data: PacienteCreate, db: Session = Depends(get_db)):
             raise HTTPException(status.HTTP_409_CONFLICT, f"Ya existe un paciente con DNI {data.dni}")
     payload = data.model_dump()
     payload["empresa_id"] = payload.get("empresa_id") or 1
+    sucursal = db.get(Sucursal, payload["sucursal_id"])
+    if sucursal is None or not sucursal.activa:
+        raise HTTPException(status.HTTP_404_NOT_FOUND, "Sede activa no encontrada")
+    if sucursal.empresa_id and sucursal.empresa_id != payload["empresa_id"]:
+        raise HTTPException(status.HTTP_400_BAD_REQUEST, "La sede seleccionada pertenece a otra empresa")
     paciente = Paciente(**payload, codigo=_siguiente_codigo(db))
     db.add(paciente)
     db.commit()

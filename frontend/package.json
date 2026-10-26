@@ -22,6 +22,7 @@
     "@cornerstonejs/core": "^5.13.1",
     "@cornerstonejs/dicom-image-loader": "^5.13.1",
     "@cornerstonejs/tools": "^5.13.1",
+    "sweetalert2": "^11.22.0",
     "rxjs": "~7.8.0",
     "three": "^0.169.0",
     "tslib": "^2.3.0",

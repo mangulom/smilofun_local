@@ -2,6 +2,7 @@ import { Component, inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { Router, ActivatedRoute } from '@angular/router';
 import { AuthService } from '../../core/auth.service';
+import { DialogService } from '../../shared/dialog.service';
 
 @Component({
   selector: 'app-login',
@@ -114,6 +115,7 @@ import { AuthService } from '../../core/auth.service';
 })
 export class LoginComponent {
   private auth = inject(AuthService);
+  private dialog = inject(DialogService);
   private router = inject(Router);
   private route = inject(ActivatedRoute);
 
@@ -141,6 +143,7 @@ export class LoginComponent {
       error: (err) => {
         this.cargando.set(false);
         this.error.set(err?.error?.detail || 'No se pudo iniciar sesión. Verifica que el backend esté corriendo.');
+        void this.dialog.error({ title: 'No se pudo iniciar sesión', text: err?.error?.detail || 'Verifica el correo, la contraseña y que el backend esté disponible.' });
       },
     });
   }

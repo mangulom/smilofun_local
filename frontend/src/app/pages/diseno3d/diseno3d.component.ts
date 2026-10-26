@@ -14,6 +14,7 @@ import * as THREE from 'three';
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
 import { ApiService } from '../../core/api.service';
 import { EmpresaService } from '../../core/empresa.service';
+import { DialogService } from '../../shared/dialog.service';
 
 interface CatalogoPieza {
   clave: string;
@@ -154,6 +155,7 @@ interface CatalogoPieza {
   `,
 })
 export class Diseno3DComponent implements AfterViewInit, OnDestroy {
+  private dialog = inject(DialogService);
   private api = inject(ApiService);
   private empresa = inject(EmpresaService);
   private route = inject(ActivatedRoute);
@@ -227,7 +229,7 @@ export class Diseno3DComponent implements AfterViewInit, OnDestroy {
           }
           this.dibujar(r);
         },
-        error: () => this.error.set('No se pudo cargar el diseño guardado.'),
+        error: (e) => { this.error.set('No se pudo cargar el diseño guardado.'); void this.dialog.apiError(e, 'No se pudo cargar el diseño guardado.'); },
       });
     }
   }
@@ -264,9 +266,10 @@ export class Diseno3DComponent implements AfterViewInit, OnDestroy {
           this.dibujar(r);
           this.generando.set(false);
         },
-        error: () => {
+        error: (e) => {
           this.error.set('No se pudo generar el diseño. Revisa los datos e inténtalo de nuevo.');
           this.generando.set(false);
+          void this.dialog.apiError(e, 'No se pudo generar el diseño 3D.');
         },
       });
   }

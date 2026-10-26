@@ -3,6 +3,7 @@ import { FormsModule } from '@angular/forms';
 import { ApiService } from '../../core/api.service';
 import { AuthService } from '../../core/auth.service';
 import { Rol, Sucursal, Tratamiento } from '../../core/models';
+import { DialogService } from '../../shared/dialog.service';
 
 /** Usuario de equipo: la API /api/usuarios devuelve `rol` como string. */
 interface EquipoUsuario {
@@ -150,6 +151,7 @@ interface EquipoUsuario {
   `,
 })
 export class ConfiguracionComponent {
+  private dialog = inject(DialogService);
   private api = inject(ApiService);
   auth = inject(AuthService);
 
@@ -178,12 +180,12 @@ export class ConfiguracionComponent {
   }
 
   guardarSede(): void {
-    this.api.crearSucursal({ ...this.formSede, activa: true }).subscribe({
+    this.api.crearSucursal({ ...this.formSede, empresa_id: this.auth.usuario()?.empresa_id ?? undefined, activa: true }).subscribe({
       next: () => {
         this.modalSede.set(false);
         this.cargar();
       },
-      error: (e) => alert(e?.error?.detail || 'No se pudo crear la sede'),
+      error: (e) => { void this.dialog.apiError(e, 'No se pudo crear la sede.'); },
     });
   }
 

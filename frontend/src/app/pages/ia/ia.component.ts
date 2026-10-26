@@ -5,6 +5,8 @@ import { Router } from '@angular/router';
 import { ApiService } from '../../core/api.service';
 import { EmpresaService } from '../../core/empresa.service';
 import { NoShow, PacienteRiesgo, Prediccion, Recomendacion, ResumenIA } from '../../core/models';
+import { DialogService } from '../../shared/dialog.service';
+import { LoadingService } from '../../shared/loading.service';
 
 const DIAS = ['dom', 'lun', 'mar', 'mié', 'jue', 'vie', 'sáb'];
 
@@ -424,6 +426,8 @@ const TIPO_LABEL: Record<string, string> = {
   `,
 })
 export class IaComponent {
+  private dialog = inject(DialogService);
+  private loadingOverlay = inject(LoadingService);
   api = inject(ApiService);
   router = inject(Router);
   empresa = inject(EmpresaService);
@@ -455,14 +459,18 @@ export class IaComponent {
     const emp = this.empresa.actualId();
     this.cargando.set(true);
     this.error.set(null);
+    const loadingId = this.loadingOverlay.show('ANALIZANDO DATOS DE LA CLÍNICA');
     this.api.resumenIA(emp).subscribe({
       next: (r) => {
         this.resumen.set(r);
         this.cargando.set(false);
+        this.loadingOverlay.hide(loadingId);
       },
-      error: () => {
+      error: (e) => {
         this.error.set('No se pudo cargar el resumen de IA.');
         this.cargando.set(false);
+        this.loadingOverlay.hide(loadingId);
+        void this.dialog.apiError(e, 'No se pudo cargar el resumen de IA.');
       },
     });
     this.api.noShow({ dias: 14, empresa_id: emp }).subscribe((lista) => this.noShow.set(lista as NoShow[]));
@@ -486,7 +494,7 @@ export class IaComponent {
         this.cargar();
         this.entrenando.set(false);
       },
-      error: () => this.entrenando.set(false),
+      error: (e) => { this.entrenando.set(false); void this.dialog.apiError(e, 'No se pudo reentrenar el modelo de IA.'); },
     });
   }
 

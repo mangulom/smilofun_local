@@ -6,6 +6,8 @@ import { ApiService } from '../../core/api.service';
 import { EmpresaService } from '../../core/empresa.service';
 import { Paciente, Sucursal } from '../../core/models';
 import { PaginadorComponent } from '../../shared/paginador.component';
+import { DialogService } from '../../shared/dialog.service';
+import { LoadingService } from '../../shared/loading.service';
 
 @Component({
   selector: 'app-pacientes',
@@ -123,9 +125,9 @@ import { PaginadorComponent } from '../../shared/paginador.component';
             <div><label class="label">Contacto de emergencia</label><input class="input" name="emergencia_nombre" [(ngModel)]="form.emergencia_nombre"></div>
             <div><label class="label">Tel. emergencia</label><input class="input" name="emergencia_telefono" [(ngModel)]="form.emergencia_telefono"></div>
             <div>
-              <label class="label">Centro / Sede</label>
+              <label class="label">Empresa y sede</label>
               <select class="input" name="sucursal_id" [(ngModel)]="form.sucursal_id" required>
-                @for (s of sucursales(); track s.id) { <option [value]="s.id">{{ s.nombre }}</option> }
+                @for (s of sucursales(); track s.id) { <option [value]="s.id">{{ empresa.nombreActual() }} · {{ s.nombre }}</option> }
               </select>
             </div>
             <div class="sm:col-span-2 flex justify-end gap-2 pt-2">
@@ -143,6 +145,8 @@ import { PaginadorComponent } from '../../shared/paginador.component';
 })
 export class PacientesComponent {
   private api = inject(ApiService);
+  private dialog = inject(DialogService);
+  private loading = inject(LoadingService);
   empresa = inject(EmpresaService);
 
   lista = signal<Paciente[]>([]);
@@ -162,7 +166,15 @@ export class PacientesComponent {
       this.empresa.actualId();
       this.cargar();
     });
-    this.api.sucursales().subscribe((s) => this.sucursales.set(s));
+    effect(() => {
+      const empresaId = this.empresa.actualId();
+      if (!empresaId) return;
+      const loadingId = this.loading.show('OBTENIENDO SEDES');
+      this.api.sucursales(empresaId).subscribe({
+        next: s => { this.sucursales.set(s); if (!s.some(x => x.id === Number(this.form.sucursal_id))) this.form.sucursal_id = s[0]?.id ?? null; this.loading.hide(loadingId); },
+        error: e => { this.loading.hide(loadingId); void this.dialog.apiError(e, 'No se pudieron cargar las sedes.'); },
+      });
+    });
   }
 
   formVacio() {
@@ -170,18 +182,18 @@ export class PacientesComponent {
       nombres: '', apellidos: '', dni: '', fecha_nacimiento: '', sexo: '',
       telefono: '', email: '', tipo_sangre: '', direccion: '', alergias: '',
       enfermedades: '', emergencia_nombre: '', emergencia_telefono: '',
-      sucursal_id: 1,
+      sucursal_id: this.sucursales()[0]?.id ?? null,
     };
   }
 
   cargar(): void {
     this.api
       .pacientes({ search: this.busqueda || undefined, empresa_id: this.empresa.actualId() })
-      .subscribe((p) => {
+      .subscribe({ next: (p) => {
         this.lista.set(p);
         const maxPag = Math.max(1, Math.ceil(p.length / this.tamanoPagina()));
         if (this.pagina() > maxPag) this.pagina.set(maxPag);
-      });
+      }, error: e => { void this.dialog.apiError(e, 'No se pudo obtener la lista de pacientes.'); } });
   }
 
   buscar(): void {
@@ -231,19 +243,25 @@ export class PacientesComponent {
     }
     this.guardando.set(true);
     this.error.set(null);
+    const editando = this.editandoId() !== null;
     const payload = { ...this.form, sucursal_id: Number(this.form.sucursal_id) };
-    const req = this.editandoId()
+    const req = editando
       ? this.api.actualizarPaciente(this.editandoId()!, payload)
       : this.api.crearPaciente({ ...payload, empresa_id: this.empresa.actualId() });
     req.subscribe({
       next: () => {
         this.guardando.set(false);
         this.cerrar();
+        void this.dialog.success({
+          title: editando ? 'Paciente actualizado' : 'Paciente agregado',
+          text: editando ? 'Los cambios del paciente se guardaron correctamente.' : 'El paciente se registró correctamente.',
+        });
         this.cargar();
       },
       error: (err) => {
         this.guardando.set(false);
         this.error.set(err?.error?.detail || 'No se pudo guardar.');
+        void this.dialog.apiError(err, 'No se pudo guardar el paciente.');
       },
     });
   }

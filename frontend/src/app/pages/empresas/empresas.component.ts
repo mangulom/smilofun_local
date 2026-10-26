@@ -4,6 +4,7 @@ import { ApiService } from '../../core/api.service';
 import { EmpresaService } from '../../core/empresa.service';
 import { Empresa } from '../../core/models';
 import { PaginadorComponent } from '../../shared/paginador.component';
+import { DialogService } from '../../shared/dialog.service';
 
 const COLORES = [
   '#7c3aed',
@@ -262,6 +263,7 @@ const COLORES = [
 })
 export class EmpresasComponent {
   private api = inject(ApiService);
+  private dialog = inject(DialogService);
   empresa = inject(EmpresaService);
 
   colores = COLORES;
@@ -400,27 +402,29 @@ export class EmpresasComponent {
       next: () => {
         this.guardando.set(false);
         this.cerrar();
+        void this.dialog.success({ title: id ? 'Empresa actualizada' : 'Empresa agregada', text: 'Los datos se guardaron correctamente.' });
         this.empresa.cargar();
       },
       error: (e) => {
         this.guardando.set(false);
         this.error.set(e?.error?.detail ?? 'No se pudo guardar la empresa.');
+        void this.dialog.apiError(e, 'No se pudo guardar la empresa.');
       },
     });
   }
 
   alternar(e: Empresa): void {
     this.api.actualizarEmpresa(e.id, { activo: !e.activo } as Partial<Empresa>).subscribe({
-      next: () => this.empresa.cargar(),
-      error: (err) => this.error.set(err?.error?.detail ?? 'No se pudo cambiar el estado.'),
+      next: () => { void this.dialog.success({ title: e.activo ? 'Empresa desactivada' : 'Empresa activada' }); this.empresa.cargar(); },
+      error: (err) => { this.error.set(err?.error?.detail ?? 'No se pudo cambiar el estado.'); void this.dialog.apiError(err, 'No se pudo cambiar el estado de la empresa.'); },
     });
   }
 
-  eliminar(e: Empresa): void {
-    if (!confirm(`¿Eliminar la empresa "${e.nombre}"? Esta acción no se puede deshacer.`)) return;
+  async eliminar(e: Empresa): Promise<void> {
+    if (!await this.dialog.confirm({ title: '¿Eliminar empresa?', text: `${e.nombre}. Esta acción no se puede deshacer.`, confirmText: 'Eliminar empresa', danger: true })) return;
     this.api.eliminarEmpresa(e.id).subscribe({
       next: () => this.empresa.cargar(),
-      error: (err) => this.error.set(err?.error?.detail ?? 'No se pudo eliminar la empresa.'),
+      error: (err) => { this.error.set(err?.error?.detail ?? 'No se pudo eliminar la empresa.'); void this.dialog.apiError(err, 'No se pudo eliminar la empresa.'); },
     });
   }
 }

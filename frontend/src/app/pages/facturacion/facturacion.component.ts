@@ -5,6 +5,8 @@ import { ApiService } from '../../core/api.service';
 import { EmpresaService } from '../../core/empresa.service';
 import { Factura, Paciente, Tratamiento } from '../../core/models';
 import { PaginadorComponent } from '../../shared/paginador.component';
+import { DialogService } from '../../shared/dialog.service';
+import { LoadingService } from '../../shared/loading.service';
 
 @Component({
   selector: 'app-facturacion',
@@ -174,6 +176,8 @@ import { PaginadorComponent } from '../../shared/paginador.component';
   `,
 })
 export class FacturacionComponent {
+  private dialog = inject(DialogService);
+  private loading = inject(LoadingService);
   private api = inject(ApiService);
   empresa = inject(EmpresaService);
 
@@ -202,13 +206,15 @@ export class FacturacionComponent {
   }
 
   cargar(): void {
+    const loadingId = this.loading.show('OBTENIENDO FACTURAS');
     this.api
       .facturas({ search: this.busqueda || undefined, empresa_id: this.empresa.actualId() })
-      .subscribe((f) => {
+      .subscribe({ next: (f) => {
         this.lista.set(f);
+        this.loading.hide(loadingId);
         const maxPag = Math.max(1, Math.ceil(f.length / this.tamanoPagina()));
         if (this.pagina() > maxPag) this.pagina.set(maxPag);
-      });
+      }, error: e => { this.loading.hide(loadingId); void this.dialog.apiError(e, 'No se pudieron cargar las facturas.'); } });
   }
 
   buscar(): void {
@@ -314,11 +320,13 @@ export class FacturacionComponent {
         next: () => {
           this.guardando.set(false);
           this.modal.set(false);
+          void this.dialog.success({ title: 'Factura emitida', text: 'La factura se guardó correctamente.' });
           this.cargar();
         },
         error: (e) => {
           this.guardando.set(false);
           this.error.set(e?.error?.detail || 'No se pudo emitir la factura.');
+          void this.dialog.apiError(e, 'No se pudo emitir la factura.');
         },
       });
   }
@@ -335,14 +343,18 @@ export class FacturacionComponent {
     this.api.pagarFactura(f.id, { monto: Number(this.pagoForm.monto), metodo: this.pagoForm.metodo }).subscribe({
       next: () => {
         this.pagoModal.set(null);
+        void this.dialog.success({ title: 'Pago registrado', text: 'El pago se guardó correctamente.' });
         this.cargar();
       },
-      error: (e) => alert(e?.error?.detail || 'No se pudo registrar el pago'),
+      error: (e) => { void this.dialog.apiError(e, 'No se pudo registrar el pago.'); },
     });
   }
 
-  anular(f: Factura): void {
-    if (!confirm(`¿Anular la factura ${f.numero}?`)) return;
-    this.api.anularFactura(f.id).subscribe({ next: () => this.cargar() });
+  async anular(f: Factura): Promise<void> {
+    if (!await this.dialog.confirm({ title: '¿Anular factura?', text: `Se anulará la factura ${f.numero}.`, confirmText: 'Anular factura', danger: true })) return;
+    this.api.anularFactura(f.id).subscribe({
+      next: () => { void this.dialog.success({ title: 'Factura anulada' }); this.cargar(); },
+      error: e => { void this.dialog.apiError(e, 'No se pudo anular la factura.'); },
+    });
   }
 }

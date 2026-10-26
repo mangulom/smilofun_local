@@ -17,19 +17,27 @@ export function getDicomModules(): Promise<DicomModules> {
       import('@cornerstonejs/core'),
       import('@cornerstonejs/dicom-image-loader'),
       import('@cornerstonejs/tools'),
-    ]).then(([core, loader, tools]) => {
-      core.init();
-      loader.init({
+    ]).then(async ([core, loader, tools]) => {
+      // core.init() y tools.init() son asíncronos: hay que esperarlos antes de crear
+      // el RenderingEngine o registrar herramientas; si no, el visor puede abrirse
+      // sin motor de render listo y las imágenes no se pintan.
+      await core.init();
+      await loader.init({
         // El builder de Angular no resuelve estas rutas WASM automáticamente.
         wasmBasePath: new URL('assets/cs-wasm/', document.baseURI).toString(),
       });
-      tools.init();
+      await tools.init();
 
       [tools.PanTool, tools.ZoomTool, tools.WindowLevelTool, tools.StackScrollTool].forEach(
         (tool) => tools.addTool(tool),
       );
 
       return { core, loader, tools };
+    }).catch((error) => {
+      // Si la inicialización falla, no dejar la promesa rechazada en caché:
+      // así el siguiente intento de abrir el visor vuelve a inicializar.
+      dicomModulesPromise = undefined;
+      throw error;
     });
   }
   return dicomModulesPromise;

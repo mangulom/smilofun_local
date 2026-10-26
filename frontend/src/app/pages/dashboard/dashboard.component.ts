@@ -4,6 +4,7 @@ import { RouterLink } from '@angular/router';
 import { ApiService } from '../../core/api.service';
 import { EmpresaService } from '../../core/empresa.service';
 import { Dashboard } from '../../core/models';
+import { DialogService } from '../../shared/dialog.service';
 
 @Component({
   selector: 'app-dashboard',
@@ -167,6 +168,7 @@ import { Dashboard } from '../../core/models';
   `,
 })
 export class DashboardComponent {
+  private dialog = inject(DialogService);
   private api = inject(ApiService);
   empresa = inject(EmpresaService);
   data = signal<Dashboard | null>(null);
@@ -177,7 +179,7 @@ export class DashboardComponent {
       const id = this.empresa.actualId();
       this.api.dashboard(id).subscribe({
         next: (d) => this.data.set(d),
-        error: () => this.error.set(true),
+        error: (e) => { this.error.set(true); void this.dialog.apiError(e, 'No se pudo cargar el dashboard.'); },
       });
     });
   }

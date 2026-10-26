@@ -17,6 +17,7 @@ import { DicomViewerComponent } from '../../shared/dicom-viewer.component';
 import { TomografiaViewerComponent } from '../../shared/tomografia-viewer.component';
 import { ResonanciaViewerComponent } from '../../shared/resonancia-viewer.component';
 import { VolumenViewerComponent } from '../../shared/volumen-viewer.component';
+import { DialogService } from '../../shared/dialog.service';
 
 const TIPOS_EXAMEN: Record<string, { label: string; color: string }> = {
   rx: { label: 'Radiografía', color: 'bg-sky-500 text-white' },
@@ -240,8 +241,11 @@ const TIPOS_EXAMEN: Record<string, { label: string; color: string }> = {
                 </div>
                 <div><label class="label">Descripción</label><textarea class="input" rows="2" name="descripcion" [(ngModel)]="formEx.descripcion" placeholder="Hallazgos, indicaciones…"></textarea></div>
                 <button class="btn-primary w-full justify-center" [disabled]="subiendo() || !archivoSel()">
-                  @if (subiendo()) { Subiendo… } @else { Subir examen }
+                  @if (subiendo()) { Subiendo y validando volumen… } @else { Subir examen }
                 </button>
+                @if (subiendo() && archivoSel()) {
+                  <p class="text-xs text-slate-500">{{ archivoSel()!.name }} · {{ (archivoSel()!.size / 1048576) | number:'1.1-1' }} MB. La validación puede tardar unos segundos.</p>
+                }
                 @if (errorEx()) { <p class="text-xs font-medium text-red-600">{{ errorEx() }}</p> }
               </form>
             </div>
@@ -568,6 +572,7 @@ const TIPOS_EXAMEN: Record<string, { label: string; color: string }> = {
   ],
 })
 export class PacienteDetalleComponent implements OnInit {
+  private dialog = inject(DialogService);
   private api = inject(ApiService);
 
   @Input({ required: true }) id!: string | number;
@@ -665,11 +670,12 @@ historial = signal<HistorialNota[]>([]);
         next: () => {
           this.guardandoNota.set(false);
           this.notaOk.set(true);
+          void this.dialog.success({ title: 'Evolución guardada', text: 'La nota clínica se agregó al historial.' });
           this.api.historial(Number(this.id)).subscribe((h) => this.historial.set(h));
           setTimeout(() => this.notaOk.set(false), 2500);
           this.notaForm = { ...this.notaForm, motivo: '', diagnostico: '', tratamiento: '', indicaciones: '' };
         },
-        error: () => this.guardandoNota.set(false),
+        error: (e) => { this.guardandoNota.set(false); void this.dialog.apiError(e, 'No se pudo guardar la evolución clínica.'); },
       });
   }
 
@@ -804,6 +810,7 @@ clasePlan(estado: string): string {
       next: (ex) => {
         this.examenes.set([ex, ...this.examenes()]);
         this.subiendo.set(false);
+        void this.dialog.success({ title: ex.tipo === 'tomografia' ? 'Tomografía agregada' : 'Examen agregado', text: `${ex.titulo} se guardó y validó correctamente.` });
         this.archivoSel.set(null);
         this.formEx = { tipo: 'rx', titulo: '', diente: '', fecha: '', descripcion: '' };
         const input = document.querySelector<HTMLInputElement>('input[type="file"]');
@@ -811,35 +818,38 @@ clasePlan(estado: string): string {
       },
       error: (e) => {
         this.subiendo.set(false);
+        this.archivoSel.set(null);
         const detalle = e?.error?.detail || e?.message || `HTTP ${e?.status || 'sin conexión'}`;
         this.errorEx.set(`No se pudo subir “${file.name}” (${file.size} bytes). Motivo: ${detalle}`);
+        void this.dialog.apiError(e, `No se pudo subir “${file.name}”.`);
       },
     });
   }
 
-  eliminarExamen(ex: ExamenImagen): void {
-    if (!confirm(`¿Eliminar el examen "${ex.titulo}"?`)) return;
+  async eliminarExamen(ex: ExamenImagen): Promise<void> {
+    if (!await this.dialog.confirm({ title: '¿Eliminar examen?', text: `Se eliminará "${ex.titulo}" de la ficha del paciente.`, confirmText: 'Eliminar', danger: true })) return;
     this.api.eliminarExamen(Number(this.id), ex.id).subscribe({
-      next: () => this.examenes.set(this.examenes().filter((x) => x.id !== ex.id)),
+      next: () => { this.examenes.set(this.examenes().filter((x) => x.id !== ex.id)); void this.dialog.success({ title: 'Examen eliminado' }); },
+      error: e => { void this.dialog.apiError(e, 'No se pudo eliminar el examen.'); },
     });
   }
 
   // ================= Visor interactivo =================
   abrirVisor(ex: ExamenImagen): void {
     if (this.esVolumen(ex) && !this.volumenValido(ex)) {
-      alert(`El archivo ${ex.archivo} no contiene un volumen 3D válido. Tamaño registrado: ${ex.tamano} bytes. El archivo original no se ha modificado; elimina este registro de prueba y vuelve a subir un NRRD/NIfTI válido.`);
+      void this.dialog.warning({ title: 'Volumen no válido', text: `El archivo ${ex.archivo} no contiene un volumen 3D válido. Tamaño registrado: ${ex.tamano} bytes. El archivo original no se ha modificado; elimina este registro de prueba y vuelve a subir un NRRD/NIfTI válido.` });
       return;
     }
     if (this.esSerieZip(ex) && !this.dicomSerie()[ex.id]) {
       this.api.serieDICOM(Number(this.id), ex.id).subscribe({
         next: r => {
-          if (!r.instancias.length) { alert('El ZIP no contiene cortes DICOM para mostrar.'); return; }
+          if (!r.instancias.length) { void this.dialog.warning({ title: 'Serie DICOM vacía', text: 'El ZIP no contiene cortes DICOM para mostrar.' }); return; }
           const apiOrigin = new URL('/api/', document.baseURI).origin;
           const urls = r.instancias.map(i => new URL(i.url, apiOrigin).toString());
           this.dicomSerie.update(x => ({ ...x, [ex.id]: urls }));
           this.visor.set({ ...ex, formato_volumen: 'DICOM-ZIP', tipo: ex.tipo === 'tomografia' ? 'tomografia' : 'resonancia' });
         },
-        error: e => alert(e?.error?.detail || 'No se pudo leer la serie DICOM del ZIP.'),
+        error: e => { void this.dialog.apiError(e, 'No se pudo leer la serie DICOM del ZIP.'); },
       });
       return;
     }
@@ -956,11 +966,11 @@ clasePlan(estado: string): string {
     this.sincronizarMarcas(marcas);
   }
 
-  quitarMarca(index: number, e: Event): void {
+  async quitarMarca(index: number, e: Event): Promise<void> {
     e.stopPropagation();
     const v = this.visor();
     if (!v) return;
-    if (!confirm('¿Eliminar esta marca?')) return;
+    if (!await this.dialog.confirm({ title: '¿Eliminar marca?', text: 'La marca se quitará del examen.', confirmText: 'Eliminar', danger: true })) return;
     const marcas = (v.marcas ?? []).filter((_, i) => i !== index);
     this.visor.set({ ...v, marcas });
     this.sincronizarMarcas(marcas);
@@ -983,7 +993,7 @@ clasePlan(estado: string): string {
       },
       error: () => {
         this.guardandoMarca.set(false);
-        alert('No se pudieron guardar las marcas.');
+        void this.dialog.apiError(null, 'No se pudieron guardar las marcas.');
       },
     });
   }

@@ -411,3 +411,19 @@ export interface Catalogos {
   estados_factura: string[];
   metodos_pago: string[];
 }
+
+export interface Respaldo {
+  nombre: string;
+  tamano: number;
+  creado: string;
+  tablas: number;
+  filas: number;
+  valido: boolean;
+  tipo: 'manual' | 'previo';
+}
+
+export interface ResultadoRestauracion {
+  tablas: number;
+  filas: number;
+  respaldo_previo: string;
+}

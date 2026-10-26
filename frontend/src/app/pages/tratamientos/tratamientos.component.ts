@@ -5,6 +5,7 @@ import { ApiService } from '../../core/api.service';
 import { EmpresaService } from '../../core/empresa.service';
 import { Doctor, Paciente, Plan, PlanItem, Tratamiento } from '../../core/models';
 import { PaginadorComponent } from '../../shared/paginador.component';
+import { DialogService } from '../../shared/dialog.service';
 
 @Component({
   selector: 'app-tratamientos',
@@ -218,6 +219,7 @@ import { PaginadorComponent } from '../../shared/paginador.component';
   `,
 })
 export class TratamientosComponent {
+  private dialog = inject(DialogService);
   private api = inject(ApiService);
   empresa = inject(EmpresaService);
 
@@ -300,7 +302,11 @@ export class TratamientosComponent {
     const req = this.editId()
         ? this.api.actualizarTratamiento(this.editId()!, this.formT)
         : this.api.crearTratamiento({ ...this.formT, empresa_id: this.empresa.actualId() });
-    req.subscribe({ next: () => { this.modalTrat.set(false); this.cargar(); } });
+    const editando = this.editId() !== null;
+    req.subscribe({
+      next: () => { this.modalTrat.set(false); void this.dialog.success({ title: editando ? 'Tratamiento actualizado' : 'Tratamiento agregado' }); this.cargar(); },
+      error: e => { void this.dialog.apiError(e, 'No se pudo guardar el tratamiento.'); },
+    });
   }
 
   // Planes
@@ -361,17 +367,22 @@ export class TratamientosComponent {
           this.guardandoPlan.set(false);
           this.modalPlan.set(false);
           this.tab.set('planes');
+          void this.dialog.success({ title: 'Plan creado', text: 'El plan de tratamiento se guardó correctamente.' });
           this.cargar();
         },
         error: (e) => {
           this.guardandoPlan.set(false);
           this.errorPlan.set(e?.error?.detail || 'No se pudo crear el plan.');
+          void this.dialog.apiError(e, 'No se pudo crear el plan de tratamiento.');
         },
       });
   }
 
   cambiarEstadoPlan(p: Plan, estado: string): void {
-    this.api.actualizarPlan(p.id, { estado }).subscribe({ next: () => this.cargar() });
+    this.api.actualizarPlan(p.id, { estado }).subscribe({
+      next: () => { void this.dialog.success({ title: 'Plan actualizado', text: `Nuevo estado: ${estado.replace('_', ' ')}.` }); this.cargar(); },
+      error: e => { void this.dialog.apiError(e, 'No se pudo actualizar el plan.'); },
+    });
   }
 
   clasePlan(estado: string): string {

@@ -1,5 +1,6 @@
 # Entorno
 node_modules/
+backups/
 .venv/
 venv/
 __pycache__/

@@ -4,6 +4,8 @@ import { ApiService } from '../../core/api.service';
 import { EmpresaService } from '../../core/empresa.service';
 import { Doctor, Sucursal } from '../../core/models';
 import { PaginadorComponent } from '../../shared/paginador.component';
+import { DialogService } from '../../shared/dialog.service';
+import { LoadingService } from '../../shared/loading.service';
 
 @Component({
   selector: 'app-doctores',
@@ -99,6 +101,8 @@ import { PaginadorComponent } from '../../shared/paginador.component';
   `,
 })
 export class DoctoresComponent {
+  private dialog = inject(DialogService);
+  private loading = inject(LoadingService);
   private api = inject(ApiService);
   empresa = inject(EmpresaService);
 
@@ -121,11 +125,13 @@ export class DoctoresComponent {
   }
 
   cargar(): void {
+    const loadingId = this.loading.show('OBTENIENDO LISTA DE DOCTORES');
     this.api.doctores({ activo: '', empresa_id: this.empresa.actualId() }).subscribe((d) => {
       this.lista.set(d);
+      this.loading.hide(loadingId);
       const maxPag = Math.max(1, Math.ceil(d.length / this.tamanoPagina()));
       if (this.pagina() > maxPag) this.pagina.set(maxPag);
-    });
+    }, e => { this.loading.hide(loadingId); void this.dialog.apiError(e, 'No se pudo cargar la lista de doctores.'); });
   }
 
   paginaActual(): Doctor[] {
@@ -162,24 +168,30 @@ export class DoctoresComponent {
   guardar(): void {
     this.guardando.set(true);
     this.error.set(null);
+    const editando = this.editandoId() !== null;
     const payload = { ...this.form, sucursal_id: Number(this.form.sucursal_id) };
-    const req = this.editandoId()
+    const req = editando
       ? this.api.actualizarDoctor(this.editandoId()!, payload)
       : this.api.crearDoctor({ ...payload, empresa_id: this.empresa.actualId() });
     req.subscribe({
       next: () => {
         this.guardando.set(false);
         this.modal.set(false);
+        void this.dialog.success({ title: editando ? 'Doctor actualizado' : 'Doctor agregado', text: 'Los datos se guardaron correctamente.' });
         this.cargar();
       },
       error: (e) => {
         this.guardando.set(false);
         this.error.set(e?.error?.detail || 'No se pudo guardar.');
+        void this.dialog.apiError(e, 'No se pudo guardar el doctor.');
       },
     });
   }
 
   alternar(d: Doctor): void {
-    this.api.actualizarDoctor(d.id, { activo: !d.activo }).subscribe({ next: () => this.cargar() });
+    this.api.actualizarDoctor(d.id, { activo: !d.activo }).subscribe({
+      next: () => { void this.dialog.success({ title: d.activo ? 'Doctor desactivado' : 'Doctor activado' }); this.cargar(); },
+      error: e => { void this.dialog.apiError(e, 'No se pudo cambiar el estado del doctor.'); },
+    });
   }
 }

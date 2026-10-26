@@ -6,6 +6,7 @@ import { ExamenImagen, OdontogramaPieza } from '../../core/models';
 import { DicomViewerComponent } from '../../shared/dicom-viewer.component';
 import { TomografiaViewerComponent } from '../../shared/tomografia-viewer.component';
 import { ResonanciaViewerComponent } from '../../shared/resonancia-viewer.component';
+import { DialogService } from '../../shared/dialog.service';
 
 const COLORES: Record<string, string> = {
   sano: 'bg-white border-slate-300',
@@ -524,6 +525,7 @@ interface BBox {
   `,
 })
 export class OdontogramaComponent implements AfterViewInit {
+  private dialog = inject(DialogService);
   private api = inject(ApiService);
   private el = inject(ElementRef);
 
@@ -677,8 +679,9 @@ export class OdontogramaComponent implements AfterViewInit {
       next: (res) => {
         this.piezas.set(res);
         this.guardando.set(false);
+        void this.dialog.success({ title: 'Odontograma guardado', text: 'Los cambios clínicos se guardaron correctamente.' });
       },
-      error: () => this.guardando.set(false),
+      error: (e) => { this.guardando.set(false); void this.dialog.apiError(e, 'No se pudo guardar el odontograma.'); },
     });
   }
 
@@ -722,8 +725,8 @@ export class OdontogramaComponent implements AfterViewInit {
     this.piezas.set(lista);
   }
 
-  limpiarPieza(diente: number): void {
-    if (!confirm(`¿Limpiar todos los estados de la pieza ${diente}?`)) return;
+  async limpiarPieza(diente: number): Promise<void> {
+    if (!await this.dialog.confirm({ title: '¿Limpiar pieza?', text: `Se quitarán todos los estados registrados para la pieza ${diente}.`, confirmText: 'Limpiar pieza', danger: true })) return;
     this.piezas.set(this.piezas().filter((p) => p.diente !== diente));
     this.notaDraft = '';
   }
@@ -899,6 +902,7 @@ export class OdontogramaComponent implements AfterViewInit {
       next: (ex) => {
         this.examenes.set([ex, ...this.examenes()]);
         this.subiendo.set(false);
+        void this.dialog.success({ title: 'Examen agregado', text: 'El archivo se guardó en la ficha del paciente.' });
         this.archivoSel.set(null);
         this.formEx = { tipo: this.formEx.tipo, titulo: '', diente: '', fecha: '' };
         const input = document.querySelector<HTMLInputElement>('#odontograma-file');
@@ -911,14 +915,16 @@ export class OdontogramaComponent implements AfterViewInit {
     });
   }
 
-  eliminarExamen(ex: ExamenImagen): void {
+  async eliminarExamen(ex: ExamenImagen): Promise<void> {
     const pid = Number(this.pacienteId);
-    if (!confirm(`¿Eliminar "${ex.titulo}"?`)) return;
+    if (!await this.dialog.confirm({ title: '¿Eliminar examen?', text: `Se eliminará "${ex.titulo}" de este paciente.`, confirmText: 'Eliminar', danger: true })) return;
     this.api.eliminarExamen(pid, ex.id).subscribe({
       next: () => {
         this.examenes.set(this.examenes().filter((x) => x.id !== ex.id));
         this.mediaVisor.set(null);
+        void this.dialog.success({ title: 'Examen eliminado' });
       },
+      error: e => { void this.dialog.apiError(e, 'No se pudo eliminar el examen.'); },
     });
   }
 }

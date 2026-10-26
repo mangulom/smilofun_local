@@ -11,6 +11,26 @@ import {
 } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { DicomModules, crearGrupoHerramientas, getDicomModules } from './dicom-runtime';
+import { CorteDicom, EstudioDicom, corteAImageData, leerDicomSinComprimir, rangoDeCorte } from './dicom-simple';
+
+/** Estado del visor propio (series sin comprimir, sin web workers). */
+interface VisorNativo {
+  cortes: CorteDicom[];
+  canvas: HTMLCanvasElement;
+  imagen: HTMLCanvasElement;
+  datos?: ImageData;
+  indice: number;
+  centro: number;
+  ancho: number;
+  centroBase: number;
+  anchoBase: number;
+  invertido: boolean;
+  invertidoBase: boolean;
+  zoom: number;
+  panX: number;
+  panY: number;
+  limpiar: () => void;
+}
 
 @Component({
   selector: 'app-resonancia-viewer',
@@ -206,6 +226,7 @@ export class ResonanciaViewerComponent implements AfterViewInit, OnDestroy {
   private onNuevoCorte?: EventListener;
   private temporizador?: ReturnType<typeof setInterval>;
   private cambiando = false;
+  private nativo?: VisorNativo;
   private estadoAnteriorPantalla: { overflow: string; scrollY: number } | null = null;
 
   alternarPantallaCompleta(): void {
@@ -224,6 +245,7 @@ export class ResonanciaViewerComponent implements AfterViewInit, OnDestroy {
     requestAnimationFrame(() => {
       this.engine?.resize(true, true);
       this.engine?.renderViewport(this.viewportId);
+      this.redimensionarNativo();
     });
   }
 
@@ -235,6 +257,8 @@ export class ResonanciaViewerComponent implements AfterViewInit, OnDestroy {
     this.destruido = true;
     if (this.estadoAnteriorPantalla) document.body.style.overflow = this.estadoAnteriorPantalla.overflow;
     this.detenerCine();
+    this.nativo?.limpiar();
+    this.nativo = undefined;
     if (this.modules) {
       if (this.onNuevoCorte) {
         this.viewportHost.nativeElement.removeEventListener(
@@ -265,6 +289,11 @@ export class ResonanciaViewerComponent implements AfterViewInit, OnDestroy {
   }
 
   invertir(): void {
+    if (this.nativo) {
+      this.nativo.invertido = !this.nativo.invertido;
+      this.dibujarNativo();
+      return;
+    }
     if (!this.viewport || !this.engine) return;
     const invertido = !this.viewport.getProperties().invert;
     this.viewport.setProperties({ invert: invertido });
@@ -272,6 +301,17 @@ export class ResonanciaViewerComponent implements AfterViewInit, OnDestroy {
   }
 
   autoContraste(): void {
+    if (this.nativo) {
+      // Restaura la ventana original del DICOM y la vista (zoom y desplazamiento).
+      const n = this.nativo;
+      n.centro = n.centroBase;
+      n.ancho = n.anchoBase;
+      n.zoom = 1;
+      n.panX = 0;
+      n.panY = 0;
+      this.dibujarNativo();
+      return;
+    }
     if (!this.viewport || !this.engine) return;
     const invertido = !!this.viewport.getProperties().invert;
     this.viewport.resetProperties();
@@ -315,6 +355,22 @@ export class ResonanciaViewerComponent implements AfterViewInit, OnDestroy {
 
   private async abrirEstudio(): Promise<void> {
     try {
+      const urls = this.imageUrls.length ? this.imageUrls : [this.url];
+      if (!urls[0]) throw new Error('La serie no contiene instancias DICOM.');
+
+      // 1) Camino principal: descarga y decodificación propias en el hilo principal
+      //    (series DICOM sin comprimir). No depende de web workers ni WebAssembly.
+      this.estadoCarga.set(`Descargando serie de ${urls.length} cortes…`);
+      const estudio = await this.descargarSerie(urls);
+      if (this.destruido) return;
+      if (estudio) {
+        this.iniciarVisorNativo(estudio);
+        return;
+      }
+
+      // 2) Respaldo: formatos comprimidos (JPEG, JPEG 2000, RLE…) con Cornerstone.
+      this.estadoCarga.set('Preparando visor DICOM…');
+      this.progresoCarga.set(0);
       const modules = await getDicomModules();
       if (this.destruido) return;
       this.modules = modules;
@@ -328,8 +384,6 @@ export class ResonanciaViewerComponent implements AfterViewInit, OnDestroy {
       });
       this.viewport = this.engine.getViewport(this.viewportId);
 
-      const urls = this.imageUrls.length ? this.imageUrls : [this.url];
-      if (!urls[0]) throw new Error('La serie no contiene instancias DICOM.');
       const imageIds = urls.map(url => `wadouri:${url}`);
       this.estadoCarga.set(`Preparando serie de ${imageIds.length} cortes…`);
       crearGrupoHerramientas(modules, this.viewportId, this.renderingEngineId, this.toolGroupId);
@@ -363,7 +417,211 @@ export class ResonanciaViewerComponent implements AfterViewInit, OnDestroy {
     }
   }
 
+  // ================= Visor propio (series sin comprimir) =================
+
+  /** Descarga todos los cortes (4 en paralelo). Devuelve null si el formato requiere Cornerstone. */
+  private async descargarSerie(urls: string[]): Promise<EstudioDicom | null> {
+    const resultados: (EstudioDicom | undefined)[] = new Array(urls.length);
+    let siguiente = 0;
+    let completados = 0;
+    let detener = false;
+
+    const trabajador = async (): Promise<void> => {
+      while (!detener && !this.destruido) {
+        const i = siguiente++;
+        if (i >= urls.length) return;
+        try {
+          const buffer = await this.descargarCorte(urls[i], i + 1);
+          const estudio = leerDicomSinComprimir(buffer);
+          if (!estudio) {
+            detener = true;
+            return;
+          }
+          resultados[i] = estudio;
+        } catch (error) {
+          detener = true;
+          throw error;
+        }
+        completados++;
+        this.progresoCarga.set(completados);
+        this.estadoCarga.set(`Cargando corte ${completados} de ${urls.length}…`);
+      }
+    };
+
+    await Promise.all(Array.from({ length: Math.min(4, urls.length) }, () => trabajador()));
+    if (this.destruido) return null;
+    const completos = resultados.filter((r): r is EstudioDicom => !!r);
+    if (completos.length !== urls.length) return null;
+
+    return {
+      cortes: completos.flatMap(r => r.cortes),
+      modalidad: completos[0].modalidad,
+      centro: completos[0].centro,
+      ancho: completos[0].ancho,
+      invertido: completos[0].invertido,
+    };
+  }
+
+  private async descargarCorte(url: string, numero: number): Promise<ArrayBuffer> {
+    const control = new AbortController();
+    const temporizador = setTimeout(() => control.abort(), 30000);
+    try {
+      const respuesta = await fetch(url, { signal: control.signal });
+      if (!respuesta.ok) {
+        throw new Error(`No se pudo descargar el corte ${numero} (HTTP ${respuesta.status}).`);
+      }
+      return await respuesta.arrayBuffer();
+    } catch (error) {
+      if (control.signal.aborted) {
+        throw new Error(`Tiempo agotado al descargar el corte ${numero}. Verifica que el backend esté activo.`);
+      }
+      if (error instanceof TypeError) {
+        throw new Error(`No se pudo conectar con el servidor al descargar el corte ${numero}.`);
+      }
+      throw error;
+    } finally {
+      clearTimeout(temporizador);
+    }
+  }
+
+  private iniciarVisorNativo(estudio: EstudioDicom): void {
+    const host = this.viewportHost.nativeElement;
+    const canvas = document.createElement('canvas');
+    canvas.style.cssText = 'display:block;width:100%;height:100%;touch-action:none';
+    host.appendChild(canvas);
+
+    let centro = estudio.centro;
+    let ancho = estudio.ancho;
+    if (centro === null || ancho === null || ancho <= 0) {
+      const rango = rangoDeCorte(estudio.cortes[0]);
+      centro = (rango.min + rango.max) / 2;
+      ancho = Math.max(rango.max - rango.min, 1);
+    }
+
+    const n: VisorNativo = {
+      cortes: estudio.cortes,
+      canvas,
+      imagen: document.createElement('canvas'),
+      indice: 0,
+      centro,
+      ancho,
+      centroBase: centro,
+      anchoBase: ancho,
+      invertido: estudio.invertido,
+      invertidoBase: estudio.invertido,
+      zoom: 1,
+      panX: 0,
+      panY: 0,
+      limpiar: () => {},
+    };
+
+    // Izquierdo: ventana/nivel · central: mover · derecho: zoom · rueda: cortes.
+    let boton = -1;
+    let ultimoX = 0;
+    let ultimoY = 0;
+    const alBajar = (e: PointerEvent): void => {
+      boton = e.button;
+      ultimoX = e.clientX;
+      ultimoY = e.clientY;
+      canvas.setPointerCapture(e.pointerId);
+      e.preventDefault();
+    };
+    const alMover = (e: PointerEvent): void => {
+      if (boton < 0) return;
+      const dx = e.clientX - ultimoX;
+      const dy = e.clientY - ultimoY;
+      ultimoX = e.clientX;
+      ultimoY = e.clientY;
+      const k = Math.max(n.anchoBase / 256, 0.01);
+      if (boton === 0) {
+        n.ancho = Math.max(1, n.ancho + dx * k);
+        n.centro += dy * k;
+      } else if (boton === 1) {
+        const dpr = window.devicePixelRatio || 1;
+        n.panX += dx * dpr;
+        n.panY += dy * dpr;
+      } else if (boton === 2) {
+        n.zoom = Math.min(Math.max(n.zoom * Math.exp(-dy * 0.01), 0.2), 20);
+      }
+      this.dibujarNativo();
+    };
+    const alSoltar = (): void => {
+      boton = -1;
+    };
+    const alRodar = (e: WheelEvent): void => {
+      e.preventDefault();
+      this.moverCorte(e.deltaY > 0 ? 1 : -1);
+    };
+    canvas.addEventListener('pointerdown', alBajar);
+    canvas.addEventListener('pointermove', alMover);
+    canvas.addEventListener('pointerup', alSoltar);
+    canvas.addEventListener('pointercancel', alSoltar);
+    canvas.addEventListener('wheel', alRodar, { passive: false });
+    const observador = new ResizeObserver(() => this.redimensionarNativo());
+    observador.observe(host);
+    n.limpiar = () => {
+      observador.disconnect();
+      canvas.removeEventListener('pointerdown', alBajar);
+      canvas.removeEventListener('pointermove', alMover);
+      canvas.removeEventListener('pointerup', alSoltar);
+      canvas.removeEventListener('pointercancel', alSoltar);
+      canvas.removeEventListener('wheel', alRodar);
+      canvas.remove();
+    };
+
+    this.nativo = n;
+    this.cortes.set(n.cortes.length);
+    this.corteActual.set(1);
+    this.modalidad.set(estudio.modalidad);
+    this.redimensionarNativo();
+    this.cargando.set(false);
+  }
+
+  private redimensionarNativo(): void {
+    const n = this.nativo;
+    if (!n) return;
+    const dpr = window.devicePixelRatio || 1;
+    const host = this.viewportHost.nativeElement;
+    n.canvas.width = Math.max(1, Math.round(host.clientWidth * dpr));
+    n.canvas.height = Math.max(1, Math.round(host.clientHeight * dpr));
+    this.dibujarNativo();
+  }
+
+  private dibujarNativo(): void {
+    const n = this.nativo;
+    if (!n) return;
+    const corte = n.cortes[n.indice];
+    if (n.imagen.width !== corte.columnas || n.imagen.height !== corte.filas) {
+      n.imagen.width = corte.columnas;
+      n.imagen.height = corte.filas;
+      n.datos = undefined;
+    }
+    const ctxImagen = n.imagen.getContext('2d');
+    const ctx = n.canvas.getContext('2d');
+    if (!ctxImagen || !ctx) return;
+    n.datos ??= ctxImagen.createImageData(corte.columnas, corte.filas);
+    corteAImageData(corte, n.centro, n.ancho, n.invertido, n.datos.data);
+    ctxImagen.putImageData(n.datos, 0, 0);
+
+    ctx.setTransform(1, 0, 0, 1, 0, 0);
+    ctx.fillStyle = '#000';
+    ctx.fillRect(0, 0, n.canvas.width, n.canvas.height);
+    const escala = Math.min(n.canvas.width / corte.columnas, n.canvas.height / corte.filas) * n.zoom;
+    const w = corte.columnas * escala;
+    const h = corte.filas * escala;
+    ctx.imageSmoothingEnabled = true;
+    ctx.imageSmoothingQuality = 'high';
+    ctx.drawImage(n.imagen, (n.canvas.width - w) / 2 + n.panX, (n.canvas.height - h) / 2 + n.panY, w, h);
+  }
+
   private async irACorte(corte: number): Promise<void> {
+    if (this.nativo) {
+      const indice = Math.min(Math.max(corte - 1, 0), this.nativo.cortes.length - 1);
+      this.nativo.indice = indice;
+      this.corteActual.set(indice + 1);
+      this.dibujarNativo();
+      return;
+    }
     if (!this.viewport || this.cortes() < 2 || this.cambiando) return;
     this.cambiando = true;
     try {

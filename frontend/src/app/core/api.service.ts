@@ -24,6 +24,8 @@ import {
   Tratamiento,
   Usuario,
   UsuarioAdmin,
+  ResultadoRestauracion,
+  Respaldo
 } from './models';
 
 type Query = Record<string, string | number | boolean | undefined | null>;
@@ -31,6 +33,7 @@ type Query = Record<string, string | number | boolean | undefined | null>;
 @Injectable({ providedIn: 'root' })
 export class ApiService {
   private http = inject(HttpClient);
+
 
   private params(query?: Query): HttpParams {
     let p = new HttpParams();
@@ -310,8 +313,8 @@ export class ApiService {
   eliminarEmpresa(id: number): Observable<{ ok: boolean; id: number }> {
     return this.http.delete<{ ok: boolean; id: number }>(`/api/empresas/${id}`);
   }
-  sucursales(): Observable<Sucursal[]> {
-    return this.http.get<Sucursal[]>('/api/sucursales');
+  sucursales(empresa_id?: number): Observable<Sucursal[]> {
+    return this.http.get<Sucursal[]>('/api/sucursales', { params: this.params({ empresa_id }) });
   }
   crearSucursal(data: Partial<Sucursal>): Observable<Sucursal> {
     return this.http.post<Sucursal>('/api/sucursales', data);
@@ -352,5 +355,27 @@ export class ApiService {
   }
   catalogos(): Observable<Catalogos> {
     return this.http.get<Catalogos>('/api/catalogos');
+  }
+
+  // Respaldos de la base de datos (solo administradores)
+  respaldos(): Observable<Respaldo[]> {
+    return this.http.get<Respaldo[]>('/api/respaldos');
+  }
+  crearRespaldo(etiqueta?: string): Observable<Respaldo> {
+    return this.http.post<Respaldo>('/api/respaldos', { etiqueta: etiqueta || null });
+  }
+  subirRespaldo(archivo: File): Observable<Respaldo> {
+    const datos = new FormData();
+    datos.append('file', archivo);
+    return this.http.post<Respaldo>('/api/respaldos/subir', datos);
+  }
+  descargarRespaldo(nombre: string): Observable<Blob> {
+    return this.http.get(`/api/respaldos/${encodeURIComponent(nombre)}/descargar`, { responseType: 'blob' });
+  }
+  restaurarRespaldo(nombre: string, confirmacion: string): Observable<ResultadoRestauracion> {
+    return this.http.post<ResultadoRestauracion>(`/api/respaldos/${encodeURIComponent(nombre)}/restaurar`, { confirmacion });
+  }
+  eliminarRespaldo(nombre: string): Observable<void> {
+    return this.http.delete<void>(`/api/respaldos/${encodeURIComponent(nombre)}`);
   }
 }

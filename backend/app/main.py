@@ -20,6 +20,7 @@ from app.api import (
     pacientes,
     proveedores,
     reportes,
+    respaldos,
     tratamientos,
 )
 from app.core.config import settings
@@ -70,6 +71,12 @@ async def lifespan(_: FastAPI):
             db.close()
 
         # b) Columnas empresa_id: una transacción por tabla para no anular el resto
+        # Sucursales quedan vinculadas a empresas; null significa sede compartida.
+        columnas_sucursales = {c["name"] for c in inspect(engine).get_columns("sucursales")}
+        if "empresa_id" not in columnas_sucursales:
+            with engine.begin() as conn:
+                conn.execute(text("ALTER TABLE sucursales ADD COLUMN empresa_id INTEGER REFERENCES empresas(id)"))
+
         for tabla in tablas:
             with engine.begin() as conn:
                 existe = conn.execute(
@@ -147,8 +154,8 @@ app = FastAPI(
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=settings.cors_origins,
-    allow_credentials=True,
+    allow_origins=["*"],
+    allow_credentials=False,
     allow_methods=["*"],
     allow_headers=["*"],
 )
@@ -169,6 +176,7 @@ for router in (
     ia.router,
     configuracion.router,
     diseno3d.router,
+    respaldos.router,
 ):
     app.include_router(router)
 

@@ -1,10 +1,13 @@
-import { Component, Input, Output, EventEmitter } from '@angular/core';
+import { Component, Input, Output, EventEmitter, computed, inject } from '@angular/core';
 import { RouterLink, RouterLinkActive } from '@angular/router';
+import { AuthService } from '../core/auth.service';
 
 interface NavItem {
   ruta: string;
   etiqueta: string;
   path: string;
+  /** Solo se muestra a usuarios con rol de administrador. */
+  soloAdmin?: boolean;
 }
 
 interface Seccion {
@@ -49,6 +52,7 @@ interface Seccion {
       <!-- Navegación por secciones -->
       <nav class="flex-1 space-y-6 overflow-y-auto px-2 py-4">
         @for (sec of secciones; track sec.titulo) {
+          @if (hayVisibles(sec)) {
           <div>
             @if (!colapsada) {
               <p class="mb-2 px-3 text-[9px] font-semibold uppercase tracking-wider text-purple-400">
@@ -56,10 +60,11 @@ interface Seccion {
               </p>
             }
             @for (item of sec.items; track item.ruta) {
+              @if (!item.soloAdmin || esAdmin()) {
               <a
                 [routerLink]="item.ruta"
                 routerLinkActive="!bg-amber-400 !text-purple-950"
-                [routerLinkActiveOptions]="{ exact: item.ruta === '/dashboard' || item.ruta === '/ia' || item.ruta === '/diseno3d' }"
+                [routerLinkActiveOptions]="{ exact: item.ruta === '/dashboard' || item.ruta === '/ia' || item.ruta === '/diseno3d' || item.ruta === '/inventario' }"
                 class="flex items-center gap-3 rounded-lg px-3 py-2 text-[13px] transition-colors hover:bg-purple-900 hover:text-white"
                 [title]="colapsada ? item.etiqueta : null"
               >
@@ -78,8 +83,10 @@ interface Seccion {
                   <span>{{ item.etiqueta }}</span>
                 }
               </a>
+              }
             }
           </div>
+          }
         }
       </nav>
 
@@ -112,6 +119,15 @@ export class SidebarComponent {
   @Output() cerrar = new EventEmitter<void>();
   @Output() toggleColapsar = new EventEmitter<void>();
 
+  private readonly auth = inject(AuthService);
+  hayVisibles(sec: Seccion): boolean {
+    return sec.items.some((i) => !i.soloAdmin || this.esAdmin());
+  }
+
+  readonly esAdmin = computed(() =>
+    (this.auth.usuario()?.rol?.nombre ?? '').toLowerCase().includes('admin'),
+  );
+
   readonly secciones: Seccion[] = [
     {
       titulo: 'General',
@@ -140,21 +156,6 @@ export class SidebarComponent {
           ruta: '/tratamientos',
           etiqueta: 'Tratamientos',
           path: 'M12 4C10.5 2.5 8 2 6 3 3.5 4.2 2.5 7 3 10c.4 2.4 1.5 4.6 2.4 6.8.6 1.5 1 3.2 2.1 3.2 1 0 1.3-1.2 1.6-2.6.3-1.4.6-2.8 1.4-2.8h.1c.8 0 1.1 1.4 1.4 2.8.3 1.4.6 2.6 1.6 2.6 1.1 0 1.5-1.7 2.1-3.2C19.5 14.6 20.6 12.4 21 10c.5-3-.5-5.8-3-7-2-1-4.5-.5-6 1z',
-        },
-        {
-          ruta: '/inventario',
-          etiqueta: 'Insumos',
-          path: 'M20.25 7.5l-.625 10.632a2.25 2.25 0 01-2.247 2.118H6.622a2.25 2.25 0 01-2.247-2.118L3.75 7.5M10 11.25h4M3.375 7.5h17.25c.621 0 1.125-.504 1.125-1.125v-1.5c0-.621-.504-1.125-1.125-1.125H3.375c-.621 0-1.125.504-1.125 1.125v1.5c0 .621.504 1.125 1.125 1.125z',
-        },
-        {
-          ruta: '/inventario/proveedores',
-          etiqueta: 'Proveedores',
-          path: 'M16 11V7a4 4 0 0 0-8 0v4M5 11h14l1 10H4l1-10z',
-        },
-        {
-          ruta: '/inventario/compras',
-          etiqueta: 'Compras de insumos',
-          path: 'M3 3h2l2.2 11.2A2 2 0 0 0 9.2 16H18a2 2 0 0 0 2-1.6L21 8H6M10 21h.01M18 21h.01',
         },
       ],
     },
@@ -233,8 +234,18 @@ export class SidebarComponent {
         },
         {
           ruta: '/inventario',
-          etiqueta: 'Inventario',
+          etiqueta: 'Insumos',
           path: 'M20.25 7.5l-.625 10.632a2.25 2.25 0 01-2.247 2.118H6.622a2.25 2.25 0 01-2.247-2.118L3.75 7.5m8.25 3v6.75m0 0l-3-3m3 3l3-3M3.375 7.5h17.25c.621 0 1.125-.504 1.125-1.125v-1.5c0-.621-.504-1.125-1.125-1.125H3.375c-.621 0-1.125.504-1.125 1.125v1.5c0 .621.504 1.125 1.125 1.125z',
+        },
+        {
+          ruta: '/inventario/proveedores',
+          etiqueta: 'Proveedores',
+          path: 'M16 11V7a4 4 0 0 0-8 0v4M5 11h14l1 10H4l1-10z',
+        },
+        {
+          ruta: '/inventario/compras',
+          etiqueta: 'Compras de insumos',
+          path: 'M3 3h2l2.2 11.2A2 2 0 0 0 9.2 16H18a2 2 0 0 0 2-1.6L21 8H6M10 21h.01M18 21h.01',
         },
         {
           ruta: '/reportes',
@@ -255,6 +266,23 @@ export class SidebarComponent {
           ruta: '/configuracion',
           etiqueta: 'Configuración',
           path: 'M9.594 3.94c.09-.542.56-.94 1.11-.94h2.593c.55 0 1.02.398 1.11.94l.213 1.281c.063.374.313.686.645.87.074.04.147.083.22.127.324.196.72.257 1.075.124l1.217-.456a1.125 1.125 0 011.37.49l1.296 2.247a1.125 1.125 0 01-.26 1.431l-1.003.827c-.293.24-.438.613-.431.992a6.759 6.759 0 010 .255c-.007.378.138.75.43.99l1.005.828c.424.35.534.954.26 1.43l-1.298 2.247a1.125 1.125 0 01-1.369.491l-1.217-.456c-.355-.133-.75-.072-1.076.124a6.57 6.57 0 01-.22.128c-.331.183-.581.495-.644.869l-.213 1.28c-.09.543-.56.941-1.11.941h-2.594c-.55 0-1.02-.398-1.11-.94l-.213-1.281c-.062-.374-.312-.686-.644-.87a6.52 6.52 0 01-.22-.127c-.325-.196-.72-.257-1.076-.124l-1.217.456a1.125 1.125 0 01-1.369-.49l-1.297-2.247a1.125 1.125 0 01.26-1.431l1.004-.827c.292-.24.437-.613.43-.992a6.932 6.932 0 010-.255c.007-.378-.138-.75-.43-.99l-1.004-.828a1.125 1.125 0 01-.26-1.43l1.297-2.247a1.125 1.125 0 011.37-.491l1.216.456c.356.133.751.072 1.076-.124.072-.044.146-.087.22-.128.332-.183.582-.495.644-.869l.214-1.281zM15 12a3 3 0 11-6 0 3 3 0 016 0z',
+        },
+      ],
+    },
+    {
+      titulo: 'Mantenimiento',
+      items: [
+        {
+          ruta: '/mantenimiento/respaldo',
+          etiqueta: 'Copia de Respaldo de Base de Datos',
+          soloAdmin: true,
+          path: 'M4 7c0-1.657 3.582-3 8-3s8 1.343 8 3-3.582 3-8 3-8-1.343-8-3zm0 0v5c0 1.657 3.582 3 8 3s8-1.343 8-3V7m-16 5v5c0 1.657 3.582 3 8 3s8-1.343 8-3v-5',
+        },
+        {
+          ruta: '/mantenimiento/restaurar',
+          etiqueta: 'Restaurar Base de Datos',
+          soloAdmin: true,
+          path: 'M4 16v2a2 2 0 002 2h12a2 2 0 002-2v-2M12 4v12m0-12l-4 4m4-4l4 4',
         },
       ],
     },

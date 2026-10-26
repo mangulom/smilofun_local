@@ -56,8 +56,10 @@ def crear(data: ProveedorCreate, db: Session = Depends(get_db), user: Usuario = 
         raise HTTPException(422, "El nombre del proveedor es obligatorio")
     if data.ruc and db.scalar(select(Proveedor.id).where(Proveedor.empresa_id == empresa_id, Proveedor.ruc == data.ruc.strip())):
         raise HTTPException(409, "Ya existe un proveedor con ese RUC en la empresa")
-    proveedor = Proveedor(**data.model_dump(exclude={"empresa_id"}), empresa_id=empresa_id, nombre=nombre,
-                          ruc=data.ruc.strip() if data.ruc else None)
+    datos = data.model_dump(exclude={"empresa_id"})
+    datos["nombre"] = nombre
+    datos["ruc"] = data.ruc.strip() if data.ruc else None
+    proveedor = Proveedor(**datos, empresa_id=empresa_id)
     db.add(proveedor)
     try:
         db.commit()

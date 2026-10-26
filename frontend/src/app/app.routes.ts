@@ -133,6 +133,18 @@ export const routes: Routes = [
           import('./pages/diseno3d/diseno3d.component').then((m) => m.Diseno3DComponent),
       },
       {
+        path: 'mantenimiento/respaldo',
+        data: { modo: 'respaldo' },
+        loadComponent: () =>
+          import('./pages/respaldos/respaldos.component').then((m) => m.RespaldosComponent),
+      },
+      {
+        path: 'mantenimiento/restaurar',
+        data: { modo: 'restaurar' },
+        loadComponent: () =>
+          import('./pages/respaldos/respaldos.component').then((m) => m.RespaldosComponent),
+      },
+      {
         path: 'configuracion',
         loadComponent: () =>
           import('./pages/configuracion/configuracion.component').then(

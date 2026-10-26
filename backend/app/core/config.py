@@ -8,8 +8,10 @@ class Settings(BaseSettings):
     secret_key: str = "dentamia-dev-secret-cambiar-en-produccion-2026"
     algorithm: str = "HS256"
     access_token_expire_minutes: int = 60 * 12
-    cors_origins: list[str] = ["http://localhost:4200", "http://127.0.0.1:4200"]
-
+    # CORS abierto por solicitud del usuario. No usar credenciales CORS con '*'.
+    cors_origins: list[str] = ["*"]
+    # Carpeta de respaldos de la base de datos (por defecto: backend/backups).
+    backup_dir: str | None = None
     model_config = SettingsConfigDict(env_file=".env", extra="ignore")
 
 
