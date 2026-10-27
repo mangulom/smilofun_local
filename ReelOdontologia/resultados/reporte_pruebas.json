@@ -1,0 +1,262 @@
+{
+  "fecha": "2026-10-26T23:52:07",
+  "base_url": "http://localhost:4200",
+  "resolucion": {
+    "ancho": 1600,
+    "alto": 900
+  },
+  "pantallas": [
+    {
+      "nombre": "Dashboard",
+      "ruta": "dashboard",
+      "url_solicitada": "http://localhost:4200/dashboard",
+      "estado": "sesion_no_reconocida",
+      "url_final": "http://localhost:4200/login?redirect=%2Fdashboard",
+      "captura": "D:\\WorkSpace\\dentamia\\ReelOdontologia\\capturas\\01_dashboard.png",
+      "componentes": {
+        "url": "http://localhost:4200/login?redirect=%2Fdashboard",
+        "titulo": "SmiloFun · Centro Odontológico Inteligente",
+        "enlaces": [],
+        "botones": [],
+        "campos": [],
+        "errores_consola": [],
+        "errores_pagina": []
+      },
+      "error": "La aplicación redirigió al inicio de sesión. Revisa cómo conserva la autenticación."
+    },
+    {
+      "nombre": "Pacientes",
+      "ruta": "pacientes",
+      "url_solicitada": "http://localhost:4200/pacientes",
+      "estado": "sesion_no_reconocida",
+      "url_final": "http://localhost:4200/login?redirect=%2Fpacientes",
+      "captura": "D:\\WorkSpace\\dentamia\\ReelOdontologia\\capturas\\02_pacientes.png",
+      "componentes": {
+        "url": "http://localhost:4200/login?redirect=%2Fpacientes",
+        "titulo": "SmiloFun · Centro Odontológico Inteligente",
+        "enlaces": [],
+        "botones": [],
+        "campos": [],
+        "errores_consola": [],
+        "errores_pagina": []
+      },
+      "error": "La aplicación redirigió al inicio de sesión. Revisa cómo conserva la autenticación."
+    },
+    {
+      "nombre": "Detalle de paciente",
+      "ruta": "pacientes/1",
+      "url_solicitada": "http://localhost:4200/pacientes/1",
+      "estado": "sesion_no_reconocida",
+      "url_final": "http://localhost:4200/login?redirect=%2Fpacientes%2F1",
+      "captura": "D:\\WorkSpace\\dentamia\\ReelOdontologia\\capturas\\03_pacientes_1.png",
+      "componentes": {
+        "url": "http://localhost:4200/login?redirect=%2Fpacientes%2F1",
+        "titulo": "SmiloFun · Centro Odontológico Inteligente",
+        "enlaces": [],
+        "botones": [],
+        "campos": [],
+        "errores_consola": [],
+        "errores_pagina": []
+      },
+      "error": "La aplicación redirigió al inicio de sesión. Revisa cómo conserva la autenticación."
+    },
+    {
+      "nombre": "Citas",
+      "ruta": "citas",
+      "url_solicitada": "http://localhost:4200/citas",
+      "estado": "sesion_no_reconocida",
+      "url_final": "http://localhost:4200/login?redirect=%2Fcitas",
+      "captura": "D:\\WorkSpace\\dentamia\\ReelOdontologia\\capturas\\04_citas.png",
+      "componentes": {
+        "url": "http://localhost:4200/login?redirect=%2Fcitas",
+        "titulo": "SmiloFun · Centro Odontológico Inteligente",
+        "enlaces": [],
+        "botones": [],
+        "campos": [],
+        "errores_consola": [],
+        "errores_pagina": []
+      },
+      "error": "La aplicación redirigió al inicio de sesión. Revisa cómo conserva la autenticación."
+    },
+    {
+      "nombre": "Doctores",
+      "ruta": "doctores",
+      "url_solicitada": "http://localhost:4200/doctores",
+      "estado": "sesion_no_reconocida",
+      "url_final": "http://localhost:4200/login?redirect=%2Fdoctores",
+      "captura": "D:\\WorkSpace\\dentamia\\ReelOdontologia\\capturas\\05_doctores.png",
+      "componentes": {
+        "url": "http://localhost:4200/login?redirect=%2Fdoctores",
+        "titulo": "SmiloFun · Centro Odontológico Inteligente",
+        "enlaces": [],
+        "botones": [],
+        "campos": [],
+        "errores_consola": [],
+        "errores_pagina": []
+      },
+      "error": "La aplicación redirigió al inicio de sesión. Revisa cómo conserva la autenticación."
+    },
+    {
+      "nombre": "Tratamientos",
+      "ruta": "tratamientos",
+      "url_solicitada": "http://localhost:4200/tratamientos",
+      "estado": "sesion_no_reconocida",
+      "url_final": "http://localhost:4200/login?redirect=%2Ftratamientos",
+      "captura": "D:\\WorkSpace\\dentamia\\ReelOdontologia\\capturas\\06_tratamientos.png",
+      "componentes": {
+        "url": "http://localhost:4200/login?redirect=%2Ftratamientos",
+        "titulo": "SmiloFun · Centro Odontológico Inteligente",
+        "enlaces": [],
+        "botones": [],
+        "campos": [],
+        "errores_consola": [],
+        "errores_pagina": []
+      },
+      "error": "La aplicación redirigió al inicio de sesión. Revisa cómo conserva la autenticación."
+    },
+    {
+      "nombre": "Facturación",
+      "ruta": "facturacion",
+      "url_solicitada": "http://localhost:4200/facturacion",
+      "estado": "sesion_no_reconocida",
+      "url_final": "http://localhost:4200/login?redirect=%2Ffacturacion",
+      "captura": "D:\\WorkSpace\\dentamia\\ReelOdontologia\\capturas\\07_facturacion.png",
+      "componentes": {
+        "url": "http://localhost:4200/login?redirect=%2Ffacturacion",
+        "titulo": "SmiloFun · Centro Odontológico Inteligente",
+        "enlaces": [],
+        "botones": [],
+        "campos": [],
+        "errores_consola": [],
+        "errores_pagina": []
+      },
+      "error": "La aplicación redirigió al inicio de sesión. Revisa cómo conserva la autenticación."
+    },
+    {
+      "nombre": "Inventario",
+      "ruta": "inventario",
+      "url_solicitada": "http://localhost:4200/inventario",
+      "estado": "sesion_no_reconocida",
+      "url_final": "http://localhost:4200/login?redirect=%2Finventario",
+      "captura": "D:\\WorkSpace\\dentamia\\ReelOdontologia\\capturas\\08_inventario.png",
+      "componentes": {
+        "url": "http://localhost:4200/login?redirect=%2Finventario",
+        "titulo": "SmiloFun · Centro Odontológico Inteligente",
+        "enlaces": [],
+        "botones": [],
+        "campos": [],
+        "errores_consola": [],
+        "errores_pagina": []
+      },
+      "error": "La aplicación redirigió al inicio de sesión. Revisa cómo conserva la autenticación."
+    },
+    {
+      "nombre": "Proveedores",
+      "ruta": "inventario/proveedores",
+      "url_solicitada": "http://localhost:4200/inventario/proveedores",
+      "estado": "sesion_no_reconocida",
+      "url_final": "http://localhost:4200/login?redirect=%2Finventario%2Fproveedores",
+      "captura": "D:\\WorkSpace\\dentamia\\ReelOdontologia\\capturas\\09_inventario_proveedores.png",
+      "componentes": {
+        "url": "http://localhost:4200/login?redirect=%2Finventario%2Fproveedores",
+        "titulo": "SmiloFun · Centro Odontológico Inteligente",
+        "enlaces": [],
+        "botones": [],
+        "campos": [],
+        "errores_consola": [],
+        "errores_pagina": []
+      },
+      "error": "La aplicación redirigió al inicio de sesión. Revisa cómo conserva la autenticación."
+    },
+    {
+      "nombre": "Compras",
+      "ruta": "inventario/compras",
+      "url_solicitada": "http://localhost:4200/inventario/compras",
+      "estado": "sesion_no_reconocida",
+      "url_final": "http://localhost:4200/login?redirect=%2Finventario%2Fcompras",
+      "captura": "D:\\WorkSpace\\dentamia\\ReelOdontologia\\capturas\\10_inventario_compras.png",
+      "componentes": {
+        "url": "http://localhost:4200/login?redirect=%2Finventario%2Fcompras",
+        "titulo": "SmiloFun · Centro Odontológico Inteligente",
+        "enlaces": [],
+        "botones": [],
+        "campos": [],
+        "errores_consola": [],
+        "errores_pagina": []
+      },
+      "error": "La aplicación redirigió al inicio de sesión. Revisa cómo conserva la autenticación."
+    },
+    {
+      "nombre": "Reportes",
+      "ruta": "reportes",
+      "url_solicitada": "http://localhost:4200/reportes",
+      "estado": "sesion_no_reconocida",
+      "url_final": "http://localhost:4200/login?redirect=%2Freportes",
+      "captura": "D:\\WorkSpace\\dentamia\\ReelOdontologia\\capturas\\11_reportes.png",
+      "componentes": {
+        "url": "http://localhost:4200/login?redirect=%2Freportes",
+        "titulo": "SmiloFun · Centro Odontológico Inteligente",
+        "enlaces": [],
+        "botones": [],
+        "campos": [],
+        "errores_consola": [],
+        "errores_pagina": []
+      },
+      "error": "La aplicación redirigió al inicio de sesión. Revisa cómo conserva la autenticación."
+    },
+    {
+      "nombre": "Asistente IA",
+      "ruta": "ia/asistente",
+      "url_solicitada": "http://localhost:4200/ia/asistente",
+      "estado": "sesion_no_reconocida",
+      "url_final": "http://localhost:4200/login?redirect=%2Fia%2Fasistente",
+      "captura": "D:\\WorkSpace\\dentamia\\ReelOdontologia\\capturas\\12_ia_asistente.png",
+      "componentes": {
+        "url": "http://localhost:4200/login?redirect=%2Fia%2Fasistente",
+        "titulo": "SmiloFun · Centro Odontológico Inteligente",
+        "enlaces": [],
+        "botones": [],
+        "campos": [],
+        "errores_consola": [],
+        "errores_pagina": []
+      },
+      "error": "La aplicación redirigió al inicio de sesión. Revisa cómo conserva la autenticación."
+    },
+    {
+      "nombre": "IA No-show",
+      "ruta": "ia/no-show",
+      "url_solicitada": "http://localhost:4200/ia/no-show",
+      "estado": "sesion_no_reconocida",
+      "url_final": "http://localhost:4200/login?redirect=%2Fia%2Fno-show",
+      "captura": "D:\\WorkSpace\\dentamia\\ReelOdontologia\\capturas\\13_ia_no-show.png",
+      "componentes": {
+        "url": "http://localhost:4200/login?redirect=%2Fia%2Fno-show",
+        "titulo": "SmiloFun · Centro Odontológico Inteligente",
+        "enlaces": [],
+        "botones": [],
+        "campos": [],
+        "errores_consola": [],
+        "errores_pagina": []
+      },
+      "error": "La aplicación redirigió al inicio de sesión. Revisa cómo conserva la autenticación."
+    },
+    {
+      "nombre": "IA Ingresos",
+      "ruta": "ia/ingresos",
+      "url_solicitada": "http://localhost:4200/ia/ingresos",
+      "estado": "sesion_no_reconocida",
+      "url_final": "http://localhost:4200/login?redirect=%2Fia%2Fingresos",
+      "captura": "D:\\WorkSpace\\dentamia\\ReelOdontologia\\capturas\\14_ia_ingresos.png",
+      "componentes": {
+        "url": "http://localhost:4200/login?redirect=%2Fia%2Fingresos",
+        "titulo": "SmiloFun · Centro Odontológico Inteligente",
+        "enlaces": [],
+        "botones": [],
+        "campos": [],
+        "errores_consola": [],
+        "errores_pagina": []
+      },
+      "error": "La aplicación redirigió al inicio de sesión. Revisa cómo conserva la autenticación."
+    }
+  ]
+}
