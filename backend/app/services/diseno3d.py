@@ -229,6 +229,6 @@ def generar(tipo: str, estilo: str, ancho: float, alto: float, profundidad: floa
         "faces": caras,
         "colors": colores[:, :3].tolist(),
         "archivo": nombre,
-        "url_stl": f"/uploads/diseno3d/{nombre}",
+        "url_stl": "",
         "metricas": metricas,
     }

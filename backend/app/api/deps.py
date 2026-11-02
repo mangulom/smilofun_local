@@ -2,7 +2,7 @@
 from __future__ import annotations
 
 import jwt as pyjwt
-from fastapi import Depends, HTTPException, status
+from fastapi import Depends, HTTPException, Request, status
 from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 from sqlalchemy.orm import Session
 
@@ -25,7 +25,11 @@ def get_current_user(
         raise HTTPException(status.HTTP_401_UNAUTHORIZED, "Sesión expirada")
     except pyjwt.InvalidTokenError:
         raise HTTPException(status.HTTP_401_UNAUTHORIZED, "Token inválido")
-    user = db.get(Usuario, payload.get("sub"))
+    try:
+        user_id = int(payload.get("sub"))
+    except (TypeError, ValueError):
+        raise HTTPException(status.HTTP_401_UNAUTHORIZED, "Token inv?lido")
+    user = db.get(Usuario, user_id)
     if user is None or not user.activo:
         raise HTTPException(status.HTTP_401_UNAUTHORIZED, "Usuario no encontrado o inactivo")
     return user
@@ -38,3 +42,11 @@ def require_roles(*roles: str):
         return user
 
     return dependency
+
+
+def require_empresa_access(empresa_id: int | None, user: Usuario) -> None:
+    if empresa_id is None:
+        return
+    allowed = {link.empresa_id for link in user.empresas_link}
+    if allowed and empresa_id not in allowed:
+        raise HTTPException(status.HTTP_403_FORBIDDEN, "No tienes acceso a esta empresa")

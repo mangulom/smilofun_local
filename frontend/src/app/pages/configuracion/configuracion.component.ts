@@ -60,6 +60,35 @@ interface EquipoUsuario {
         </div>
       </section>
 
+      <!-- Gmail campañas -->
+      @if (auth.usuario()?.rol?.nombre === 'admin') {
+        <section class="card space-y-4 border-l-4 border-l-red-500 p-5">
+          <div><h2 class="font-bold text-slate-800">✉ Remitente de campañas Gmail</h2><p class="mt-1 text-sm text-slate-500">Configura la cuenta remitente y sus credenciales OAuth. Los secretos se guardan únicamente en el backend y nunca se vuelven a mostrar.</p></div>
+          <div class="rounded-xl bg-slate-50 p-3 text-sm"><span class="font-semibold">Estado:</span> {{ gmailConfigurado() ? 'Conectado · ' + gmailSender() : 'Pendiente de configurar' }}</div>
+          <form class="grid gap-3 md:grid-cols-2" (ngSubmit)="guardarGmail()">
+            <div><label class="label">Cuenta Gmail remitente</label><input class="input" type="email" name="sender_email" [(ngModel)]="gmailForm.sender_email" required placeholder="campanas@tuclinica.com"></div>
+            <div><label class="label">OAuth Client ID</label><input class="input" name="client_id" [(ngModel)]="gmailForm.client_id" required autocomplete="off"></div>
+            <div><label class="label">OAuth Client Secret</label><input class="input" type="password" name="client_secret" [(ngModel)]="gmailForm.client_secret" required autocomplete="new-password"></div>
+            <div><label class="label">OAuth Refresh Token</label><input class="input" type="password" name="refresh_token" [(ngModel)]="gmailForm.refresh_token" required autocomplete="new-password"></div>
+            <div class="md:col-span-2 flex flex-wrap items-center justify-between gap-3"><p class="max-w-2xl text-xs text-amber-800">Configura OAuth de Google con el permiso de envío de Gmail. Usa la cuenta autorizada de la clínica; no compartas sus secretos.</p><button class="btn-primary" [disabled]="guardandoGmail()">{{ guardandoGmail() ? 'Guardando…' : 'Guardar configuración Gmail' }}</button></div>
+          </form>
+        </section>
+
+        <section class="card space-y-4 border-l-4 border-l-emerald-600 p-5">
+          <div><h2 class="font-bold text-slate-800">WhatsApp Business · campañas y recordatorios</h2><p class="mt-1 text-sm text-slate-500">Conecta WhatsApp Business Cloud API. El token se guarda solo en backend. Los envíos promocionales usan una plantilla aprobada por Meta y requieren opt-in de WhatsApp.</p></div>
+          <div class="rounded-xl border border-slate-200 p-3 text-sm"><span class="font-semibold">Número telefónico de la clínica:</span> +51 938 977 259 <span class="block text-xs text-slate-500">Referencia del número; Meta debe aprobarlo y asignarle un Phone Number ID antes de habilitar envíos.</span></div>
+          <div class="rounded-xl bg-slate-50 p-3 text-sm"><span class="font-semibold">Estado:</span> {{ whatsappConfigurado() ? 'Conectado · número ' + whatsappPhoneId() : 'Pendiente de configurar' }}</div>
+          <form class="grid gap-3 md:grid-cols-2" (ngSubmit)="guardarWhatsApp()">
+            <div><label class="label">Phone Number ID</label><input class="input" name="phone_number_id" [(ngModel)]="whatsappForm.phone_number_id" required></div>
+            <div><label class="label">WhatsApp Business Account ID</label><input class="input" name="business_account_id" [(ngModel)]="whatsappForm.business_account_id" required></div>
+            <div><label class="label">Access Token</label><input class="input" type="password" name="access_token" [(ngModel)]="whatsappForm.access_token" required autocomplete="new-password"></div>
+            <div><label class="label">Nombre de plantilla aprobada</label><input class="input" name="campaign_template" [(ngModel)]="whatsappForm.campaign_template" required placeholder="promocion_clinica"></div>
+            <div><label class="label">Idioma de plantilla</label><input class="input" name="template_language" [(ngModel)]="whatsappForm.template_language" required placeholder="es"></div>
+            <div class="flex items-end justify-end"><button class="btn-primary" [disabled]="guardandoWhatsApp()">{{ guardandoWhatsApp() ? 'Guardando…' : 'Guardar WhatsApp' }}</button></div>
+          </form>
+        </section>
+      }
+
       <!-- Equipo -->
       <section class="card p-5">
         <div class="mb-4 flex items-center justify-between">
@@ -159,12 +188,28 @@ export class ConfiguracionComponent {
   usuarios = signal<EquipoUsuario[]>([]);
   roles = signal<Rol[]>([]);
   tratamientos = signal<Tratamiento[]>([]);
+  gmailConfigurado = signal(false);
+  gmailSender = signal('');
+  guardandoGmail = signal(false);
+  gmailForm = { sender_email: '', client_id: '', client_secret: '', refresh_token: '' };
+  whatsappConfigurado = signal(false);
+  whatsappPhoneId = signal('');
+  guardandoWhatsApp = signal(false);
+  whatsappForm = { phone_number_id: '', business_account_id: '', access_token: '', campaign_template: '', template_language: 'es' };
 
   modalSede = signal(false);
   formSede: any = {};
 
   constructor() {
     this.cargar();
+    if (this.auth.usuario()?.rol?.nombre === 'admin') this.api.configGmailCampanas().subscribe({
+      next: x => { this.gmailConfigurado.set(x.configured); this.gmailSender.set(x.sender_email || ''); this.gmailForm.sender_email = x.sender_email || ''; },
+      error: e => { void this.dialog.apiError(e, 'No se pudo consultar la configuración de Gmail.'); },
+    });
+    if (this.auth.usuario()?.rol?.nombre === 'admin') this.api.configWhatsAppCampanas().subscribe({
+      next: x => { this.whatsappConfigurado.set(x.configured); this.whatsappPhoneId.set(x.phone_number_id || ''); Object.assign(this.whatsappForm, { phone_number_id: x.phone_number_id || '', business_account_id: x.business_account_id || '', campaign_template: x.campaign_template || '', template_language: x.template_language || 'es' }); },
+      error: e => { void this.dialog.apiError(e, 'No se pudo consultar la configuración de WhatsApp.'); },
+    });
   }
 
   cargar(): void {
@@ -186,6 +231,26 @@ export class ConfiguracionComponent {
         this.cargar();
       },
       error: (e) => { void this.dialog.apiError(e, 'No se pudo crear la sede.'); },
+    });
+  }
+
+  guardarGmail(): void {
+    this.guardandoGmail.set(true);
+    this.api.guardarConfigGmailCampanas(this.gmailForm).subscribe({
+      next: r => {
+        this.guardandoGmail.set(false); this.gmailConfigurado.set(r.configured); this.gmailSender.set(r.sender_email);
+        this.gmailForm.client_id = ''; this.gmailForm.client_secret = ''; this.gmailForm.refresh_token = '';
+        void this.dialog.success({ title: 'Remitente Gmail configurado', text: 'Las credenciales se guardaron en el backend.' });
+      },
+      error: e => { this.guardandoGmail.set(false); void this.dialog.apiError(e, 'No se pudo guardar la configuración Gmail.'); },
+    });
+  }
+
+  guardarWhatsApp(): void {
+    this.guardandoWhatsApp.set(true);
+    this.api.guardarConfigWhatsAppCampanas(this.whatsappForm).subscribe({
+      next: r => { this.guardandoWhatsApp.set(false); this.whatsappConfigurado.set(r.configured); this.whatsappPhoneId.set(r.phone_number_id); this.whatsappForm.access_token = ''; void this.dialog.success({ title: 'WhatsApp configurado', text: 'El token se guardó de forma segura en el backend.' }); },
+      error: e => { this.guardandoWhatsApp.set(false); void this.dialog.apiError(e, 'No se pudo guardar WhatsApp.'); },
     });
   }
 

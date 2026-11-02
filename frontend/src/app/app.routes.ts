@@ -74,6 +74,10 @@ export const routes: Routes = [
           import('./pages/reportes/reportes.component').then((m) => m.ReportesComponent),
       },
       {
+        path: 'campanas',
+        loadComponent: () => import('./pages/campanas/campanas.component').then((m) => m.CampanasComponent),
+      },
+      {
         path: 'ia/asistente',
         loadComponent: () =>
           import('./pages/ia/asistente.component').then((m) => m.IaAsistenteComponent),

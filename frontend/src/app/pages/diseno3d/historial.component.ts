@@ -69,9 +69,7 @@ import { PaginadorComponent } from '../../shared/paginador.component';
                         >
                           Ver 3D
                         </a>
-                        <a class="btn-accent !px-3 !py-1.5 text-xs" [href]="d.url_stl" download>
-                          STL
-                        </a>
+                        <button class="btn-accent !px-3 !py-1.5 text-xs" (click)="descargar(d.id)">STL</button>
                       </div>
                     </td>
                   </tr>
@@ -116,6 +114,13 @@ export class Diseno3DHistorialComponent {
         if (this.pagina() > maxPag) this.pagina.set(maxPag);
       },
       error: () => this.cargando.set(false),
+    });
+  }
+
+  descargar(id: number): void {
+    this.api.archivoDiseno3D(id).subscribe(blob => {
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a'); a.href = url; a.download = `diseno-${id}.stl`; a.click(); URL.revokeObjectURL(url);
     });
   }
 

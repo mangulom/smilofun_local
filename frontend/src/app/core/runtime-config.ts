@@ -16,6 +16,7 @@ export class RuntimeConfig {
     try {
       const url = new URL(candidate);
       if (!['http:', 'https:'].includes(url.protocol)) throw new Error('Protocolo no permitido');
+      if (url.protocol === 'http:' && !esHostLocal(url.hostname)) throw new Error('El backend remoto requiere HTTPS');
       this.base = url.toString().replace(/\/+$/, '');
     } catch {
       console.warn('[config.ini] api_url inválida; se usarán rutas relativas /api.');
@@ -67,6 +68,12 @@ export function apiUrl(path: string): string {
   try {
     const url = new URL(base);
     if (!['http:', 'https:'].includes(url.protocol)) return path;
+    if (url.protocol === 'http:' && !esHostLocal(url.hostname)) return path;
     return `${url.toString().replace(/\/+$/, '')}${path}`;
   } catch { return path; }
+}
+
+function esHostLocal(host: string): boolean {
+  const value = host.toLowerCase();
+  return value === 'localhost' || value === '127.0.0.1' || value === '::1' || value.endsWith('.localhost');
 }

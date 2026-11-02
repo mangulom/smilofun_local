@@ -56,6 +56,8 @@ def listar(
     user: Usuario = Depends(get_current_user),
 ):
     empresa_id = empresa_id or (user.empresas_link[0].empresa_id if user.empresas_link else None)
+    if empresa_id is not None and not _pertenece_a_empresa(user, empresa_id):
+        raise HTTPException(403, "No tienes acceso a esa empresa")
     stmt = select(CompraInsumo).options(
         joinedload(CompraInsumo.proveedor),
         selectinload(CompraInsumo.detalles).joinedload(DetalleCompraInsumo.producto),

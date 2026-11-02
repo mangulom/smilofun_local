@@ -118,6 +118,24 @@ import { LoadingService } from '../../shared/loading.service';
             </div>
             <div><label class="label">Teléfono</label><input class="input" name="telefono" [(ngModel)]="form.telefono"></div>
             <div><label class="label">Email</label><input class="input" type="email" name="email" [(ngModel)]="form.email"></div>
+            <div class="sm:col-span-2 rounded-xl border border-slate-200 bg-slate-50 p-4">
+              <label class="flex items-start gap-3 text-sm text-slate-700">
+                <input class="mt-1 h-4 w-4 accent-purple-700" type="checkbox" name="consentimiento_marketing_email" [(ngModel)]="form.consentimiento_marketing_email" [disabled]="form.baja_marketing_email">
+                <span><b>Autoriza comunicaciones promocionales por email</b><span class="mt-1 block text-xs text-slate-500">Marca solo con autorización verificable del paciente. No se activa por defecto.</span></span>
+              </label>
+              <label class="mt-3 flex items-start gap-3 text-sm text-slate-700">
+                <input class="mt-1 h-4 w-4 accent-red-600" type="checkbox" name="baja_marketing_email" [(ngModel)]="form.baja_marketing_email" (ngModelChange)="marcarBajaMarketing($event)">
+                <span><b>Solicitó dejar de recibir promociones</b><span class="mt-1 block text-xs text-slate-500">La baja siempre excluye al paciente de campañas.</span></span>
+              </label>
+              <label class="mt-3 flex items-start gap-3 text-sm text-slate-700">
+                <input class="mt-1 h-4 w-4 accent-purple-700" type="checkbox" name="consentimiento_marketing_whatsapp" [(ngModel)]="form.consentimiento_marketing_whatsapp" [disabled]="form.baja_marketing_whatsapp">
+                <span><b>Autoriza promociones por WhatsApp</b><span class="mt-1 block text-xs text-slate-500">Solo con opt-in explícito para este canal. No se activa por defecto.</span></span>
+              </label>
+              <label class="mt-3 flex items-start gap-3 text-sm text-slate-700">
+                <input class="mt-1 h-4 w-4 accent-red-600" type="checkbox" name="baja_marketing_whatsapp" [(ngModel)]="form.baja_marketing_whatsapp" (ngModelChange)="marcarBajaWhatsApp($event)">
+                <span><b>Solicitó dejar de recibir promociones por WhatsApp</b></span>
+              </label>
+            </div>
             <div><label class="label">Tipo de sangre</label><input class="input" name="tipo_sangre" [(ngModel)]="form.tipo_sangre" placeholder="O+"></div>
             <div class="sm:col-span-2"><label class="label">Dirección</label><input class="input" name="direccion" [(ngModel)]="form.direccion"></div>
             <div class="sm:col-span-2"><label class="label">Alergias</label><input class="input" name="alergias" [(ngModel)]="form.alergias" placeholder="Penicilina, látex…"></div>
@@ -182,6 +200,8 @@ export class PacientesComponent {
       nombres: '', apellidos: '', dni: '', fecha_nacimiento: '', sexo: '',
       telefono: '', email: '', tipo_sangre: '', direccion: '', alergias: '',
       enfermedades: '', emergencia_nombre: '', emergencia_telefono: '',
+      consentimiento_marketing_email: false, baja_marketing_email: false,
+      consentimiento_marketing_whatsapp: false, baja_marketing_whatsapp: false,
       sucursal_id: this.sucursales()[0]?.id ?? null,
     };
   }
@@ -225,6 +245,8 @@ export class PacientesComponent {
       telefono: p.telefono ?? '', email: p.email ?? '', tipo_sangre: p.tipo_sangre ?? '',
       direccion: p.direccion ?? '', alergias: p.alergias ?? '', enfermedades: p.enfermedades ?? '',
       emergencia_nombre: p.emergencia_nombre ?? '', emergencia_telefono: p.emergencia_telefono ?? '',
+      consentimiento_marketing_email: p.consentimiento_marketing_email ?? false, baja_marketing_email: p.baja_marketing_email ?? false,
+      consentimiento_marketing_whatsapp: p.consentimiento_marketing_whatsapp ?? false, baja_marketing_whatsapp: p.baja_marketing_whatsapp ?? false,
       sucursal_id: p.sucursal_id,
     };
     this.editandoId.set(p.id);
@@ -234,6 +256,13 @@ export class PacientesComponent {
 
   cerrar(): void {
     this.modalAbierto.set(false);
+  }
+
+  marcarBajaMarketing(baja: boolean): void {
+    if (baja) this.form.consentimiento_marketing_email = false;
+  }
+  marcarBajaWhatsApp(baja: boolean): void {
+    if (baja) this.form.consentimiento_marketing_whatsapp = false;
   }
 
   guardar(): void {

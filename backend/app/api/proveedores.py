@@ -23,14 +23,15 @@ def _empresa_usuario(user: Usuario, empresa_id: int | None) -> int | None:
 @router.get("", response_model=list[ProveedorOut])
 def listar(
     empresa_id: int | None = None,
-    search: str | None = None,
+    search: str | None = Query(None, max_length=120),
     activo: bool | None = True,
     skip: int = Query(0, ge=0),
     limit: int = Query(100, ge=1, le=500),
     db: Session = Depends(get_db),
     user: Usuario = Depends(get_current_user),
 ):
-    empresa_id = empresa_id or (user.empresas_link[0].empresa_id if user.empresas_link else None)
+    if empresa_id is None and user.empresas_link:
+        empresa_id = user.empresas_link[0].empresa_id
     stmt = select(Proveedor)
     if empresa_id:
         if user.empresas_link and empresa_id not in {x.empresa_id for x in user.empresas_link}:
@@ -41,8 +42,8 @@ def listar(
     if activo is not None:
         stmt = stmt.where(Proveedor.activo == activo)
     if search:
-        like = f"%{search.strip()}%"
-        stmt = stmt.where(Proveedor.nombre.ilike(like) | func.coalesce(Proveedor.ruc, "").ilike(like))
+        like = f"%{search.strip().lower().replace(chr(37), chr(92) + chr(37)).replace(chr(95), chr(92) + chr(95))}%"
+        stmt = stmt.where(Proveedor.nombre.ilike(like, escape="\\") | func.coalesce(Proveedor.ruc, "").ilike(like, escape="\\"))
     return db.execute(stmt.order_by(Proveedor.nombre).offset(skip).limit(limit)).scalars().all()
 
 

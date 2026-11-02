@@ -1,3 +1,4 @@
+import { authenticatedFetch } from './authenticated-fetch';
 import {
   AfterViewInit,
   Component,
@@ -141,6 +142,7 @@ export class DicomViewerComponent implements AfterViewInit, OnDestroy {
   private readonly toolGroupId = `dicom-tools-${this.identificador}`;
   private modules?: DicomModules;
   private engine?: any;
+  private protectedBlobUrl?: string;
   private viewport?: any;
   private destruido = false;
   private onNuevoCorte?: EventListener;
@@ -167,6 +169,7 @@ export class DicomViewerComponent implements AfterViewInit, OnDestroy {
   }
 
   ngOnDestroy(): void {
+    if (this.protectedBlobUrl) URL.revokeObjectURL(this.protectedBlobUrl);
     this.destruido = true;
     if (this.estadoAnteriorPantalla) document.body.style.overflow = this.estadoAnteriorPantalla.overflow;
     if (this.onNuevoCorte && this.modules) {
@@ -218,7 +221,12 @@ export class DicomViewerComponent implements AfterViewInit, OnDestroy {
       });
       this.viewport = this.engine.getViewport(this.viewportId);
 
-      const imageIdBase = `wadouri:${this.url}`;
+      const protegido = await authenticatedFetch(this.url);
+      if (!protegido.ok) throw new Error(`No se pudo descargar el estudio (HTTP ${protegido.status}).`);
+      const blobProtegido = await protegido.blob();
+      const urlLocal = URL.createObjectURL(blobProtegido);
+      this.protectedBlobUrl = urlLocal;
+      const imageIdBase = `wadouri:${urlLocal}`;
       await modules.core.imageLoader.loadAndCacheImage(imageIdBase);
       if (this.destruido) return;
 

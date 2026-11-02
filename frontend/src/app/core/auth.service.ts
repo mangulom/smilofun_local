@@ -37,6 +37,8 @@ export class AuthService {
         tap((res) => {
           localStorage.setItem(KEY_TOKEN, res.access_token);
           localStorage.setItem(KEY_USER, JSON.stringify(res.usuario));
+          sessionStorage.removeItem('dentamia_payload_key_session');
+          sessionStorage.removeItem('dentamia_payload_encryption_disabled');
           // Al iniciar sesión, activar la empresa principal del usuario para no
           // quedar en una sucursal sin datos por una selección anterior.
           const emp = res.usuario?.empresa_id;
@@ -64,6 +66,7 @@ export class AuthService {
   logout(): void {
     localStorage.removeItem(KEY_TOKEN);
     localStorage.removeItem(KEY_USER);
+    sessionStorage.removeItem('dentamia_payload_key_session');
     this.usuario.set(null);
     this.router.navigate(['/login']);
   }

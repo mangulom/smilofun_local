@@ -6,7 +6,7 @@ from fastapi import APIRouter, Depends, HTTPException, Query, status
 from sqlalchemy import func, select
 from sqlalchemy.orm import Session, joinedload, selectinload
 
-from app.api.deps import get_current_user
+from app.api.deps import get_current_user, require_empresa_access
 from app.core.database import get_db
 from app.models import (
     ESTADOS_DIENTE,
@@ -39,6 +39,10 @@ router = APIRouter(
 )
 
 
+def _validar_acceso_paciente(paciente: Paciente, user: Usuario) -> None:
+    require_empresa_access(paciente.empresa_id, user)
+
+
 def _siguiente_codigo(db: Session) -> str:
     total = db.scalar(select(func.count(Paciente.id))) or 0
     return f"P-{total + 1:05d}"
@@ -46,24 +50,30 @@ def _siguiente_codigo(db: Session) -> str:
 
 @router.get("", response_model=list[PacienteOut])
 def listar(
-    search: str | None = Query(None, description="Busca por nombre, DNI o código"),
+    search: str | None = Query(None, max_length=120, description="Busca por nombre, DNI o c?digo"),
     sucursal_id: int | None = None,
     empresa_id: int | None = None,
     activo: bool | None = True,
-    skip: int = 0,
-    limit: int = Query(100, le=500),
+    skip: int = Query(0, ge=0),
+    limit: int = Query(100, ge=1, le=500),
     db: Session = Depends(get_db),
+    user: Usuario = Depends(get_current_user),
 ):
     stmt = select(Paciente)
-    if empresa_id:
+    empresa_ids = {link.empresa_id for link in user.empresas_link}
+    if empresa_id is not None:
+        require_empresa_access(empresa_id, user)
         stmt = stmt.where(Paciente.empresa_id == empresa_id)
+    elif empresa_ids:
+        stmt = stmt.where(Paciente.empresa_id.in_(empresa_ids))
     if search:
-        like = f"%{search}%"
+        # SQLAlchemy binds the value, but wildcard characters are escaped to avoid broad matches.
+        like = f"%{search.replace(chr(37), chr(92) + chr(37)).replace(chr(95), chr(92) + chr(95))}%"
         stmt = stmt.where(
-            func.lower(Paciente.nombres).like(like.lower())
-            | func.lower(Paciente.apellidos).like(like.lower())
-            | func.lower(Paciente.codigo).like(like.lower())
-            | func.lower(func.coalesce(Paciente.dni, "")).like(like.lower())
+            func.lower(Paciente.nombres).like(like.lower(), escape="\\")
+            | func.lower(Paciente.apellidos).like(like.lower(), escape="\\")
+            | func.lower(Paciente.codigo).like(like.lower(), escape="\\")
+            | func.lower(func.coalesce(Paciente.dni, "")).like(like.lower(), escape="\\")
         )
     if sucursal_id:
         stmt = stmt.where(Paciente.sucursal_id == sucursal_id)
@@ -74,13 +84,20 @@ def listar(
 
 
 @router.post("", response_model=PacienteOut, status_code=status.HTTP_201_CREATED)
-def crear(data: PacienteCreate, db: Session = Depends(get_db)):
+def crear(data: PacienteCreate, db: Session = Depends(get_db), user: Usuario = Depends(get_current_user)):
     if data.dni:
-        existe = db.execute(select(Paciente).where(Paciente.dni == data.dni)).scalar_one_or_none()
+        stmt = select(Paciente.id).where(Paciente.dni == data.dni)
+        if user.empresas_link:
+            stmt = stmt.where(Paciente.empresa_id.in_([x.empresa_id for x in user.empresas_link]))
+        existe = db.scalar(stmt)
         if existe:
             raise HTTPException(status.HTTP_409_CONFLICT, f"Ya existe un paciente con DNI {data.dni}")
     payload = data.model_dump()
-    payload["empresa_id"] = payload.get("empresa_id") or 1
+    empresa_default = user.empresas_link[0].empresa_id if user.empresas_link else 1
+    payload["empresa_id"] = payload.get("empresa_id") or empresa_default
+    require_empresa_access(payload["empresa_id"], user)
+    if payload.get("empresa_id") != empresa_default and user.empresas_link:
+        raise HTTPException(status.HTTP_403_FORBIDDEN, "No puedes cambiar la empresa del paciente")
     sucursal = db.get(Sucursal, payload["sucursal_id"])
     if sucursal is None or not sucursal.activa:
         raise HTTPException(status.HTTP_404_NOT_FOUND, "Sede activa no encontrada")
@@ -94,19 +111,23 @@ def crear(data: PacienteCreate, db: Session = Depends(get_db)):
 
 
 @router.get("/{paciente_id}", response_model=PacienteOut)
-def obtener(paciente_id: int, db: Session = Depends(get_db)):
+def obtener(paciente_id: int, db: Session = Depends(get_db), user: Usuario = Depends(get_current_user)):
     paciente = db.get(Paciente, paciente_id)
     if paciente is None:
         raise HTTPException(status.HTTP_404_NOT_FOUND, "Paciente no encontrado")
+    _validar_acceso_paciente(paciente, user)
     return paciente
 
 
 @router.put("/{paciente_id}", response_model=PacienteOut)
-def actualizar(paciente_id: int, data: PacienteUpdate, db: Session = Depends(get_db)):
+def actualizar(paciente_id: int, data: PacienteUpdate, db: Session = Depends(get_db), user: Usuario = Depends(get_current_user)):
     paciente = db.get(Paciente, paciente_id)
     if paciente is None:
         raise HTTPException(status.HTTP_404_NOT_FOUND, "Paciente no encontrado")
-    for key, value in data.model_dump(exclude_unset=True).items():
+    _validar_acceso_paciente(paciente, user)
+    cambios = data.model_dump(exclude_unset=True)
+    cambios.pop("empresa_id", None)
+    for key, value in cambios.items():
         setattr(paciente, key, value)
     db.commit()
     db.refresh(paciente)
@@ -114,10 +135,11 @@ def actualizar(paciente_id: int, data: PacienteUpdate, db: Session = Depends(get
 
 
 @router.delete("/{paciente_id}", status_code=status.HTTP_204_NO_CONTENT)
-def eliminar(paciente_id: int, db: Session = Depends(get_db)):
+def eliminar(paciente_id: int, db: Session = Depends(get_db), user: Usuario = Depends(get_current_user)):
     paciente = db.get(Paciente, paciente_id)
     if paciente is None:
         raise HTTPException(status.HTTP_404_NOT_FOUND, "Paciente no encontrado")
+    _validar_acceso_paciente(paciente, user)
     paciente.activo = False
     db.commit()
 
@@ -126,10 +148,11 @@ def eliminar(paciente_id: int, db: Session = Depends(get_db)):
 # Resumen clínico/financiero del paciente
 # ---------------------------------------------------------------------------
 @router.get("/{paciente_id}/resumen", response_model=PacienteResumen)
-def resumen(paciente_id: int, db: Session = Depends(get_db)):
+def resumen(paciente_id: int, db: Session = Depends(get_db), user: Usuario = Depends(get_current_user)):
     paciente = db.get(Paciente, paciente_id)
     if paciente is None:
         raise HTTPException(status.HTTP_404_NOT_FOUND, "Paciente no encontrado")
+    _validar_acceso_paciente(paciente, user)
 
     hoy = date.today()
     total_citas = db.scalar(
@@ -209,7 +232,11 @@ def resumen(paciente_id: int, db: Session = Depends(get_db)):
 # Historial clínico
 # ---------------------------------------------------------------------------
 @router.get("/{paciente_id}/historial", response_model=list[HistorialOut])
-def historial(paciente_id: int, db: Session = Depends(get_db)):
+def historial(paciente_id: int, db: Session = Depends(get_db), user: Usuario = Depends(get_current_user)):
+    paciente = db.get(Paciente, paciente_id)
+    if paciente is None:
+        raise HTTPException(status.HTTP_404_NOT_FOUND, "Paciente no encontrado")
+    _validar_acceso_paciente(paciente, user)
     return db.execute(
         select(HistorialClinico)
         .options(joinedload(HistorialClinico.doctor))
@@ -224,12 +251,20 @@ def historial(paciente_id: int, db: Session = Depends(get_db)):
     status_code=status.HTTP_201_CREATED,
 )
 def agregar_historial(
-    paciente_id: int, data: HistorialCreate, db: Session = Depends(get_db)
+    paciente_id: int, data: HistorialCreate, db: Session = Depends(get_db), user: Usuario = Depends(get_current_user)
 ):
-    if db.get(Paciente, paciente_id) is None:
+    paciente = db.get(Paciente, paciente_id)
+    if paciente is None:
         raise HTTPException(status.HTTP_404_NOT_FOUND, "Paciente no encontrado")
-    if db.get(Doctor, data.doctor_id) is None:
+    _validar_acceso_paciente(paciente, user)
+    doctor = db.get(Doctor, data.doctor_id)
+    if doctor is None:
         raise HTTPException(status.HTTP_404_NOT_FOUND, "Doctor no encontrado")
+    if doctor.empresa_id and doctor.empresa_id != paciente.empresa_id:
+        raise HTTPException(status.HTTP_400_BAD_REQUEST, "El doctor pertenece a otra empresa")
+    cita = db.get(Cita, data.cita_id) if data.cita_id else None
+    if data.cita_id and (cita is None or cita.paciente_id != paciente_id):
+        raise HTTPException(status.HTTP_404_NOT_FOUND, "Cita no encontrada")
     nota = HistorialClinico(paciente_id=paciente_id, **data.model_dump())
     db.add(nota)
     db.commit()
@@ -245,7 +280,11 @@ def agregar_historial(
 # Odontograma
 # ---------------------------------------------------------------------------
 @router.get("/{paciente_id}/odontograma", response_model=list[OdontogramaOut])
-def obtener_odontograma(paciente_id: int, db: Session = Depends(get_db)):
+def obtener_odontograma(paciente_id: int, db: Session = Depends(get_db), user: Usuario = Depends(get_current_user)):
+    paciente = db.get(Paciente, paciente_id)
+    if paciente is None:
+        raise HTTPException(status.HTTP_404_NOT_FOUND, "Paciente no encontrado")
+    _validar_acceso_paciente(paciente, user)
     return db.execute(
         select(Odontograma)
         .where(Odontograma.paciente_id == paciente_id)
@@ -255,17 +294,25 @@ def obtener_odontograma(paciente_id: int, db: Session = Depends(get_db)):
 
 @router.put("/{paciente_id}/odontograma", response_model=list[OdontogramaOut])
 def guardar_odontograma(
-    paciente_id: int, items: list[OdontogramaItem], db: Session = Depends(get_db)
+    paciente_id: int, items: list[OdontogramaItem], db: Session = Depends(get_db), user: Usuario = Depends(get_current_user)
 ):
     """Upsert parcial: actualiza/agrega las piezas enviadas y conserva el resto."""
-    if db.get(Paciente, paciente_id) is None:
+    paciente = db.get(Paciente, paciente_id)
+    if paciente is None:
         raise HTTPException(status.HTTP_404_NOT_FOUND, "Paciente no encontrado")
+    _validar_acceso_paciente(paciente, user)
     for item in items:
         if item.estado not in ESTADOS_DIENTE:
             raise HTTPException(
                 status.HTTP_422_UNPROCESSABLE_ENTITY,
                 f"Estado '{item.estado}' inválido. Válidos: {', '.join(ESTADOS_DIENTE)}",
             )
+        if item.superficie and any(x not in {"M", "D", "O", "V", "L"} for x in item.superficie.upper()):
+            raise HTTPException(status.HTTP_422_UNPROCESSABLE_ENTITY, "Superficie dental inv?lida")
+        if item.doctor_id is not None:
+            doctor = db.get(Doctor, item.doctor_id)
+            if doctor is None or (doctor.empresa_id and doctor.empresa_id != paciente.empresa_id):
+                raise HTTPException(status.HTTP_404_NOT_FOUND, "Doctor no encontrado")
         existente = db.execute(
             select(Odontograma).where(
                 Odontograma.paciente_id == paciente_id,

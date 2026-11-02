@@ -2,9 +2,9 @@ from fastapi import APIRouter, Depends, HTTPException, Query, status
 from sqlalchemy import func, select
 from sqlalchemy.orm import Session, joinedload, selectinload
 
-from app.api.deps import get_current_user
+from app.api.deps import get_current_user, require_empresa_access, require_roles
 from app.core.database import get_db
-from app.models import Doctor, Paciente, PlanTratamiento, PlanTratamientoItem, Tratamiento
+from app.models import Doctor, Paciente, PlanTratamiento, PlanTratamientoItem, Tratamiento, Usuario
 from app.schemas import (
     PlanCreate,
     PlanOut,
@@ -24,18 +24,24 @@ router = APIRouter(tags=["Tratamientos y planes"], dependencies=[Depends(get_cur
 def listar_tratamientos(
     activo: bool | None = None,
     empresa_id: int | None = None,
-    search: str | None = None,
+    search: str | None = Query(None, max_length=120),
     skip: int = Query(0, ge=0),
     limit: int = Query(100, ge=1, le=500),
     db: Session = Depends(get_db),
+    user: Usuario = Depends(get_current_user),
 ):
     stmt = select(Tratamiento)
-    if empresa_id:
+    allowed = {x.empresa_id for x in user.empresas_link}
+    if empresa_id is not None:
+        require_empresa_access(empresa_id, user)
         stmt = stmt.where(Tratamiento.empresa_id == empresa_id)
+    elif allowed:
+        stmt = stmt.where(Tratamiento.empresa_id.in_(allowed))
     if activo is not None:
         stmt = stmt.where(Tratamiento.activo == activo)
     if search:
-        stmt = stmt.where(func.lower(Tratamiento.nombre).like(f"%{search.lower()}%"))
+        like = f"%{search.lower().replace(chr(37), chr(92) + chr(37)).replace(chr(95), chr(92) + chr(95))}%"
+        stmt = stmt.where(func.lower(Tratamiento.nombre).like(like, escape="\\"))
     return (
         db.execute(stmt.order_by(Tratamiento.categoria, Tratamiento.nombre).offset(skip).limit(limit))
         .scalars()
@@ -48,9 +54,10 @@ def listar_tratamientos(
     response_model=TratamientoOut,
     status_code=status.HTTP_201_CREATED,
 )
-def crear_tratamiento(data: TratamientoCreate, db: Session = Depends(get_db)):
+def crear_tratamiento(data: TratamientoCreate, db: Session = Depends(get_db), user: Usuario = Depends(require_roles("admin"))):
     payload = data.model_dump()
-    payload["empresa_id"] = payload.get("empresa_id") or 1
+    payload["empresa_id"] = payload.get("empresa_id") or (user.empresas_link[0].empresa_id if user.empresas_link else 1)
+    require_empresa_access(payload["empresa_id"], user)
     obj = Tratamiento(**payload)
     db.add(obj)
     db.commit()
@@ -60,12 +67,15 @@ def crear_tratamiento(data: TratamientoCreate, db: Session = Depends(get_db)):
 
 @router.put("/api/tratamientos/{tratamiento_id}", response_model=TratamientoOut)
 def actualizar_tratamiento(
-    tratamiento_id: int, data: TratamientoUpdate, db: Session = Depends(get_db)
+    tratamiento_id: int, data: TratamientoUpdate, db: Session = Depends(get_db), user: Usuario = Depends(require_roles("admin"))
 ):
     obj = db.get(Tratamiento, tratamiento_id)
     if obj is None:
         raise HTTPException(status.HTTP_404_NOT_FOUND, "Tratamiento no encontrado")
-    for key, value in data.model_dump(exclude_unset=True).items():
+    require_empresa_access(obj.empresa_id, user)
+    cambios = data.model_dump(exclude_unset=True)
+    cambios.pop("empresa_id", None)
+    for key, value in cambios.items():
         setattr(obj, key, value)
     db.commit()
     db.refresh(obj)
@@ -73,10 +83,11 @@ def actualizar_tratamiento(
 
 
 @router.delete("/api/tratamientos/{tratamiento_id}", status_code=status.HTTP_204_NO_CONTENT)
-def eliminar_tratamiento(tratamiento_id: int, db: Session = Depends(get_db)):
+def eliminar_tratamiento(tratamiento_id: int, db: Session = Depends(get_db), user: Usuario = Depends(require_roles("admin"))):
     obj = db.get(Tratamiento, tratamiento_id)
     if obj is None:
         raise HTTPException(status.HTTP_404_NOT_FOUND, "Tratamiento no encontrado")
+    require_empresa_access(obj.empresa_id, user)
     obj.activo = False
     db.commit()
 
@@ -119,14 +130,19 @@ def listar_planes(
     skip: int = Query(0, ge=0),
     limit: int = Query(100, ge=1, le=500),
     db: Session = Depends(get_db),
+    user: Usuario = Depends(get_current_user),
 ):
     stmt = select(PlanTratamiento).options(
         selectinload(PlanTratamiento.items),
         selectinload(PlanTratamiento.paciente),
         selectinload(PlanTratamiento.doctor),
     )
-    if empresa_id:
+    assigned = {x.empresa_id for x in user.empresas_link}
+    if empresa_id is not None:
+        require_empresa_access(empresa_id, user)
         stmt = stmt.where(PlanTratamiento.empresa_id == empresa_id)
+    elif assigned:
+        stmt = stmt.where(PlanTratamiento.empresa_id.in_(assigned))
     if paciente_id:
         stmt = stmt.where(PlanTratamiento.paciente_id == paciente_id)
     if doctor_id:
@@ -142,18 +158,26 @@ def listar_planes(
 
 
 @router.post("/api/planes", response_model=PlanOut, status_code=status.HTTP_201_CREATED)
-def crear_plan(data: PlanCreate, db: Session = Depends(get_db)):
+def crear_plan(data: PlanCreate, db: Session = Depends(get_db), user: Usuario = Depends(get_current_user)):
     if not data.items:
         raise HTTPException(status.HTTP_422_UNPROCESSABLE_ENTITY, "El plan debe tener al menos un item")
-    if db.get(Paciente, data.paciente_id) is None:
+    paciente = db.get(Paciente, data.paciente_id)
+    doctor = db.get(Doctor, data.doctor_id)
+    if paciente is None:
         raise HTTPException(status.HTTP_404_NOT_FOUND, "Paciente no encontrado")
-    if db.get(Doctor, data.doctor_id) is None:
+    if doctor is None:
         raise HTTPException(status.HTTP_404_NOT_FOUND, "Doctor no encontrado")
+    empresa_id = paciente.empresa_id or (user.empresas_link[0].empresa_id if user.empresas_link else 1)
+    require_empresa_access(empresa_id, user)
+    if data.empresa_id is not None and data.empresa_id != empresa_id:
+        raise HTTPException(status.HTTP_400_BAD_REQUEST, "El plan no puede pertenecer a otra empresa")
+    if (paciente.empresa_id and paciente.empresa_id != empresa_id) or (doctor.empresa_id and doctor.empresa_id != empresa_id):
+        raise HTTPException(status.HTTP_400_BAD_REQUEST, "Paciente o doctor pertenece a otra empresa")
     items_data = [i.model_dump() for i in data.items]
     subtotal, total = _calcular_totales(items_data, data.descuento)
     plan = PlanTratamiento(
         codigo=_siguiente_codigo_plan(db),
-        empresa_id=data.empresa_id or 1,
+        empresa_id=empresa_id,
         paciente_id=data.paciente_id,
         doctor_id=data.doctor_id,
         notas=data.notas,
@@ -179,8 +203,9 @@ def _reconstruir_items(db: Session, plan: PlanTratamiento, items_data: list[dict
 
 
 @router.patch("/api/planes/{plan_id}", response_model=PlanOut)
-def actualizar_plan(plan_id: int, data: PlanUpdate, db: Session = Depends(get_db)):
+def actualizar_plan(plan_id: int, data: PlanUpdate, db: Session = Depends(get_db), user: Usuario = Depends(get_current_user)):
     plan = _plan_con_relaciones(db, plan_id)
+    require_empresa_access(plan.empresa_id, user)
     cambios = data.model_dump(exclude_unset=True)
     if "estado" in cambios:
         plan.estado = cambios["estado"]
@@ -211,14 +236,17 @@ def actualizar_plan(plan_id: int, data: PlanUpdate, db: Session = Depends(get_db
 
 
 @router.get("/api/planes/{plan_id}", response_model=PlanOut)
-def obtener_plan(plan_id: int, db: Session = Depends(get_db)):
-    return _plan_con_relaciones(db, plan_id)
+def obtener_plan(plan_id: int, db: Session = Depends(get_db), user: Usuario = Depends(get_current_user)):
+    plan = _plan_con_relaciones(db, plan_id)
+    require_empresa_access(plan.empresa_id, user)
+    return plan
 
 
 @router.delete("/api/planes/{plan_id}", status_code=status.HTTP_204_NO_CONTENT)
-def eliminar_plan(plan_id: int, db: Session = Depends(get_db)):
+def eliminar_plan(plan_id: int, db: Session = Depends(get_db), user: Usuario = Depends(get_current_user)):
     plan = db.get(PlanTratamiento, plan_id)
     if plan is None:
         raise HTTPException(status.HTTP_404_NOT_FOUND, "Plan no encontrado")
+    require_empresa_access(plan.empresa_id, user)
     db.delete(plan)
     db.commit()

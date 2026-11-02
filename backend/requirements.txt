@@ -14,3 +14,6 @@ pydicom>=2.4
 SimpleITK>=2.3
 pillow>=10.4
 python-multipart>=0.0.9
+
+cryptography>=42.0
+bcrypt>=4.0,<5

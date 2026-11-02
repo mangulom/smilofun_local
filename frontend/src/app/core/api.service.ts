@@ -85,6 +85,13 @@ export class ApiService {
   examenes(id: number): Observable<ExamenImagen[]> {
     return this.http.get<ExamenImagen[]>(`/api/pacientes/${id}/examenes`);
   }
+  archivoExamen(pacienteId: number, examenId: number, nombre: string): Observable<Blob> {
+    return this.http.get(`/api/pacientes/${pacienteId}/examenes/${examenId}/archivo/${encodeURIComponent(nombre)}`, { responseType: 'blob' });
+  }
+  archivoDiseno3D(id: number): Observable<Blob> {
+    return this.http.get(`/api/diseno3d/${id}/archivo`, { responseType: 'blob' });
+  }
+
   serieDICOM(pacienteId: number, examenId: number): Observable<{ examen_id: number; formato: string; instancias: { url: string; instance_number: number }[] }> {
     return this.http.get<{ examen_id: number; formato: string; instancias: { url: string; instance_number: number }[] }>(
       `/api/pacientes/${pacienteId}/examenes/${examenId}/serie`,
@@ -195,6 +202,28 @@ export class ApiService {
   }
   crearCompra(data: any): Observable<CompraInsumo> {
     return this.http.post<CompraInsumo>('/api/compras-insumos', data);
+  }
+
+  estadoCampanas(): Observable<{ gmail: { configured: boolean; mode: string }; whatsapp?: { configured: boolean; mode: string }; meta_reels: { configured: boolean; mode: string }; sending_enabled: boolean }> {
+    return this.http.get<any>('/api/campanas/estado');
+  }
+  crearCampana(data: { empresa_id: number; nombre: string; asunto: string; html: string; canales: string[] }): Observable<{ id: number; estado: string; nombre: string; asunto: string; empresa_id: number }> {
+    return this.http.post<any>('/api/campanas', data);
+  }
+  enviarCampana(id: number, confirmar: boolean, canal = 'gmail') {
+    return this.http.post<any>(`/api/campanas/${id}/enviar`, { confirmar, solo_con_consentimiento: true, canal });
+  }
+  configGmailCampanas() {
+    return this.http.get<{ configured: boolean; sender_email: string | null; client_id: string | null; client_secret_set: boolean; refresh_token_set: boolean }>('/api/configuracion/campanas/gmail');
+  }
+  guardarConfigGmailCampanas(data: { sender_email: string; client_id: string; client_secret: string; refresh_token: string }) {
+    return this.http.put<{ configured: boolean; sender_email: string; secrets_saved: boolean }>('/api/configuracion/campanas/gmail', data);
+  }
+  configWhatsAppCampanas() {
+    return this.http.get<{ configured: boolean; phone_number_id: string | null; business_account_id: string | null; campaign_template: string | null; template_language: string; access_token_set: boolean }>('/api/configuracion/campanas/whatsapp');
+  }
+  guardarConfigWhatsAppCampanas(data: { phone_number_id: string; business_account_id: string; access_token: string; campaign_template: string; template_language: string }) {
+    return this.http.put<{ configured: boolean; phone_number_id: string; campaign_template: string; access_token_saved: boolean }>('/api/configuracion/campanas/whatsapp', data);
   }
 
   // Reportes

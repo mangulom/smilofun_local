@@ -8,12 +8,13 @@ from datetime import date
 from pathlib import Path
 
 from fastapi import APIRouter, Depends, File, Form, HTTPException, UploadFile, status
+from fastapi.responses import FileResponse
 from sqlalchemy import select
 from sqlalchemy.orm import Session
 
-from app.api.deps import get_current_user
+from app.api.deps import get_current_user, require_empresa_access
 from app.core.database import get_db
-from app.models import TIPOS_EXAMEN, ExamenImagen, Paciente
+from app.models import TIPOS_EXAMEN, ExamenImagen, Paciente, Usuario
 from app.schemas import ExamenImagenOut, ExamenImagenUpdate
 
 router = APIRouter(
@@ -42,10 +43,12 @@ MAX_VOLUMEN = 1024 * 1024 * 1024  # 1 GiB para volúmenes NIfTI/NRRD
 MIME_VIDEO = ("video/",)
 
 
-def _obtener_paciente(db: Session, paciente_id: int) -> Paciente:
+def _obtener_paciente(db: Session, paciente_id: int, user: Usuario | None = None) -> Paciente:
     paciente = db.get(Paciente, paciente_id)
     if paciente is None:
         raise HTTPException(status.HTTP_404_NOT_FOUND, "Paciente no encontrado")
+    if user is not None:
+        require_empresa_access(paciente.empresa_id, user)
     return paciente
 
 
@@ -124,8 +127,8 @@ def _extraer_serie_dicom_segura(zip_path: Path, examen_id: int) -> list[dict]:
 
 
 @router.get("/pacientes/{paciente_id}/examenes", response_model=list[ExamenImagenOut])
-def listar_examenes(paciente_id: int, db: Session = Depends(get_db)):
-    _obtener_paciente(db, paciente_id)
+def listar_examenes(paciente_id: int, db: Session = Depends(get_db), user: Usuario = Depends(get_current_user)):
+    _obtener_paciente(db, paciente_id, user)
     examenes = (
         db.execute(
             select(ExamenImagen)
@@ -177,13 +180,34 @@ def listar_examenes(paciente_id: int, db: Session = Depends(get_db)):
     return examenes
 
 
-@router.get("/pacientes/{paciente_id}/examenes/{examen_id}/serie")
-def obtener_serie_dicom(paciente_id: int, examen_id: int, db: Session = Depends(get_db)):
+@router.get("/pacientes/{paciente_id}/examenes/{examen_id}/archivo/{nombre}")
+def descargar_archivo_examen(paciente_id: int, examen_id: int, nombre: str, db: Session = Depends(get_db), user: Usuario = Depends(get_current_user)):
     examen = _obtener_examen(db, paciente_id, examen_id)
+    _obtener_paciente(db, paciente_id, user)
+    base = UPLOAD_DIR.resolve()
+    # A ZIP-series path is derived from the validated metadata, never from user input.
+    raiz_serie = (base / f"serie_{examen.id}").resolve()
+    if nombre == examen.archivo:
+        ruta = (base / examen.archivo).resolve()
+    else:
+        permitidos_serie = {item.get("archivo", "").split("/")[-1] for item in (examen.instancias_dicom or [])}
+        if nombre not in permitidos_serie:
+            raise HTTPException(status.HTTP_404_NOT_FOUND, "Archivo no encontrado")
+        ruta = (raiz_serie / nombre).resolve()
+    if ruta.parent not in {base, raiz_serie}:
+        raise HTTPException(status.HTTP_404_NOT_FOUND, "Archivo no encontrado")
+    if not ruta.is_file():
+        raise HTTPException(status.HTTP_404_NOT_FOUND, "Archivo no encontrado")
+    return FileResponse(ruta, media_type="application/octet-stream", filename=ruta.name, headers={"Cache-Control": "no-store", "X-Content-Type-Options": "nosniff"})
+
+
+@router.get("/pacientes/{paciente_id}/examenes/{examen_id}/serie")
+def obtener_serie_dicom(paciente_id: int, examen_id: int, db: Session = Depends(get_db), user: Usuario = Depends(get_current_user)):
+    examen = _obtener_examen(db, paciente_id, examen_id)
+    _obtener_paciente(db, paciente_id, user)
     if not examen.instancias_dicom:
         raise HTTPException(status.HTTP_404_NOT_FOUND, "El examen no contiene una serie DICOM ZIP")
-    base_url = f"/uploads/examenes/serie_{examen.id}"
-    from fastapi import Request
+    base_url = f"/api/pacientes/{paciente_id}/examenes/{examen.id}/archivo"
     return {
         "examen_id": examen.id,
         "formato": examen.formato_volumen,
@@ -210,8 +234,13 @@ async def subir_examen(
     notas: str | None = Form(None),
     file: UploadFile = File(...),
     db: Session = Depends(get_db),
+    user: Usuario = Depends(get_current_user),
 ):
-    _obtener_paciente(db, paciente_id)
+    paciente = _obtener_paciente(db, paciente_id, user)
+    if doctor_id is not None:
+        doctor = db.get(Doctor, doctor_id)
+        if doctor is None or (doctor.empresa_id and doctor.empresa_id != paciente.empresa_id):
+            raise HTTPException(status.HTTP_404_NOT_FOUND, "Doctor no encontrado")
 
     if tipo not in TIPOS_EXAMEN:
         raise HTTPException(status.HTTP_400_BAD_REQUEST, f"Tipo de examen inválido: {tipo}")
@@ -280,6 +309,28 @@ async def subir_examen(
         destino.unlink(missing_ok=True)
         raise HTTPException(status.HTTP_400_BAD_REQUEST, "El archivo está vacío")
 
+    mime_final_verificado = "application/octet-stream"
+    if extension in EXTENSIONES_IMAGEN:
+        try:
+            from PIL import Image
+            with Image.open(destino) as imagen:
+                formato = imagen.format or ""
+                imagen.verify()
+            mime_final_verificado = Image.MIME.get(formato, "application/octet-stream")
+            if not mime_final_verificado.startswith("image/"):
+                raise ValueError("Tipo no imagen")
+        except Exception as exc:
+            destino.unlink(missing_ok=True)
+            raise HTTPException(status.HTTP_422_UNPROCESSABLE_ENTITY, "Imagen inv?lida") from exc
+    if es_dicom_archivo:
+        try:
+            import pydicom
+            pydicom.dcmread(str(destino), stop_before_pixels=True, force=False)
+        except Exception as exc:
+            destino.unlink(missing_ok=True)
+            raise HTTPException(status.HTTP_422_UNPROCESSABLE_ENTITY, "Archivo DICOM inv?lido") from exc
+    elif extension in EXTENSIONES_VIDEO:
+        mime_final_verificado = {".mp4": "video/mp4", ".webm": "video/webm", ".mov": "video/quicktime", ".avi": "video/x-msvideo", ".mkv": "video/x-matroska", ".m4v": "video/mp4"}.get(extension, "application/octet-stream")
     dimensiones = None
     # Validar el archivo ya escrito en disco y eliminarlo solo si el volumen
     # realmente no es legible.
@@ -289,20 +340,22 @@ async def subir_examen(
             dimensiones = inspeccionar_volumen(destino, extension)
         except Exception as exc:
             destino.unlink(missing_ok=True)
-            raise HTTPException(status.HTTP_422_UNPROCESSABLE_ENTITY, f"Volumen NIfTI/NRRD inválido: {exc}")
+            raise HTTPException(status.HTTP_422_UNPROCESSABLE_ENTITY, "Volumen NIfTI/NRRD inv?lido") from exc
         mime_final = "application/octet-stream"
     elif es_zip_dicom:
         mime_final = "application/zip"
+    elif extension in EXTENSIONES_IMAGEN:
+        mime_final = mime_final_verificado
     else:
-        mime_final = "application/dicom" if es_dicom_archivo else file.content_type or "image/png"
+        mime_final = mime_final_verificado
 
     examen = ExamenImagen(
         paciente_id=paciente_id,
         doctor_id=doctor_id,
         tipo=tipo,
-        titulo=titulo.strip() or nombre_archivo,
-        descripcion=descripcion,
-        diente=diente or None,
+        titulo=(titulo.strip() or nombre_archivo)[:120],
+        descripcion=(descripcion[:4000] if descripcion else None),
+        diente=(diente[:10] if diente else None),
         fecha=fecha_examen,
         archivo=nombre_guardado,
         mime=mime_final,
@@ -310,7 +363,7 @@ async def subir_examen(
         dimensiones=dimensiones,
         formato_volumen=("NRRD" if extension == ".nrrd" else "NIfTI.GZ" if extension == ".nii.gz" else "NIfTI" if extension == ".nii" else None),
         marcas=[],
-        notas=notas,
+        notas=(notas[:4000] if notas else None),
     )
     db.add(examen)
     db.flush()
@@ -326,7 +379,7 @@ async def subir_examen(
         destino.unlink(missing_ok=True)
         if isinstance(exc, ValueError):
             raise HTTPException(status.HTTP_422_UNPROCESSABLE_ENTITY, str(exc)) from exc
-        raise HTTPException(status.HTTP_500_INTERNAL_SERVER_ERROR, f"No se pudo registrar el examen: {exc}") from exc
+        raise HTTPException(status.HTTP_500_INTERNAL_SERVER_ERROR, "No se pudo registrar el examen; revisa los registros del servidor") from exc
     db.refresh(examen)
     return examen
 
@@ -337,8 +390,10 @@ def actualizar_examen(
     examen_id: int,
     data: ExamenImagenUpdate,
     db: Session = Depends(get_db),
+    user: Usuario = Depends(get_current_user),
 ):
     examen = _obtener_examen(db, paciente_id, examen_id)
+    _obtener_paciente(db, paciente_id, user)
     for key, value in data.model_dump(exclude_unset=True).items():
         if key == "marcas" and value is not None:
             value = [m if isinstance(m, dict) else m.model_dump() for m in value]
@@ -349,8 +404,9 @@ def actualizar_examen(
 
 
 @router.delete("/pacientes/{paciente_id}/examenes/{examen_id}", status_code=status.HTTP_204_NO_CONTENT)
-def eliminar_examen(paciente_id: int, examen_id: int, db: Session = Depends(get_db)):
+def eliminar_examen(paciente_id: int, examen_id: int, db: Session = Depends(get_db), user: Usuario = Depends(get_current_user)):
     examen = _obtener_examen(db, paciente_id, examen_id)
+    _obtener_paciente(db, paciente_id, user)
     archivo = UPLOAD_DIR / examen.archivo
     carpeta_serie = UPLOAD_DIR / f"serie_{examen.id}"
     db.delete(examen)

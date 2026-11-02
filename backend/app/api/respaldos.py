@@ -71,8 +71,8 @@ def crear(datos: RespaldoIn | None = None):
         ruta = respaldo.crear(engine, etiqueta=datos.etiqueta if datos else None)
     except respaldo.RespaldoOcupado as exc:
         raise HTTPException(status.HTTP_409_CONFLICT, str(exc))
-    except Exception as exc:  # noqa: BLE001
-        raise HTTPException(status.HTTP_500_INTERNAL_SERVER_ERROR, f"No se pudo crear el respaldo: {exc}")
+    except Exception:  # noqa: BLE001
+        raise HTTPException(status.HTTP_500_INTERNAL_SERVER_ERROR, "No se pudo crear el respaldo; revisa los registros del servidor")
     return respaldo.describir(ruta)
 
 
@@ -125,10 +125,10 @@ def restaurar(nombre: str, datos: RestaurarIn):
         raise HTTPException(status.HTTP_409_CONFLICT, str(exc))
     except ValueError as exc:
         raise HTTPException(status.HTTP_422_UNPROCESSABLE_ENTITY, str(exc))
-    except Exception as exc:  # noqa: BLE001
+    except Exception:  # noqa: BLE001
         raise HTTPException(
             status.HTTP_500_INTERNAL_SERVER_ERROR,
-            f"No se pudo restaurar; la base de datos quedó sin cambios. Detalle: {exc}",
+            "No se pudo restaurar; la base de datos qued? sin cambios. Revisa los registros del servidor.",
         )
 
 

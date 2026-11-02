@@ -1,3 +1,4 @@
+import { authenticatedFetch } from './authenticated-fetch';
 import {
   AfterViewInit,
   Component,
@@ -179,6 +180,7 @@ export class TomografiaViewerComponent implements AfterViewInit, OnDestroy {
   private readonly toolGroupId = `ct-tools-${this.identificador}`;
   private modules?: DicomModules;
   private engine?: any;
+  private protectedBlobUrls: string[] = [];
   private viewport?: any;
   private destruido = false;
   private onNuevoCorte?: EventListener;
@@ -212,6 +214,8 @@ export class TomografiaViewerComponent implements AfterViewInit, OnDestroy {
 
   ngOnDestroy(): void {
     this.destruido = true;
+    for (const url of this.protectedBlobUrls) URL.revokeObjectURL(url);
+    this.protectedBlobUrls = [];
     if (this.estadoAnteriorPantalla) document.body.style.overflow = this.estadoAnteriorPantalla.overflow;
     if (this.modules) {
       if (this.onNuevoCorte) {
@@ -281,7 +285,14 @@ export class TomografiaViewerComponent implements AfterViewInit, OnDestroy {
 
       const urls = this.imageUrls.length ? this.imageUrls : [this.url];
       if (!urls[0]) throw new Error('La serie no contiene instancias DICOM.');
-      const imageIds = urls.map(url => `wadouri:${url}`);
+      const imageIds: string[] = [];
+      for (const url of urls) {
+        const response = await authenticatedFetch(url);
+        if (!response.ok) throw new Error(`No se pudo descargar la instancia (HTTP ${response.status}).`);
+        const blobUrl = URL.createObjectURL(await response.blob());
+        this.protectedBlobUrls.push(blobUrl);
+        imageIds.push(`wadouri:${blobUrl}`);
+      }
       this.estadoCarga.set(`Preparando serie de ${imageIds.length} cortes…`);
       crearGrupoHerramientas(modules, this.viewportId, this.renderingEngineId, this.toolGroupId);
       this.onNuevoCorte = () => this.corteActual.set(this.viewport.getCurrentImageIdIndex() + 1);
@@ -297,7 +308,7 @@ export class TomografiaViewerComponent implements AfterViewInit, OnDestroy {
         if (this.destruido) return;
       }
       if (this.destruido) return;
-      const dataSet = modules.loader.wadouri.dataSetCacheManager.get(urls[0]);
+      const dataSet = modules.loader.wadouri.dataSetCacheManager.get(imageIds[0].replace(/^wadouri:/, ''));
       this.cortes.set(imageIds.length);
       this.modalidad.set(dataSet?.string('x00080060') || 'CT');
       this.estadoCarga.set('Preparando visor…');

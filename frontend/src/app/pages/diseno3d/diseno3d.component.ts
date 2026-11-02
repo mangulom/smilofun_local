@@ -246,6 +246,15 @@ export class Diseno3DComponent implements AfterViewInit, OnDestroy {
     }
   }
 
+  descargarSTL(): void {
+    const id = Number(new URLSearchParams(location.search).get('diseno'));
+    if (!id) return;
+    this.api.archivoDiseno3D(id).subscribe(blob => {
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a'); a.href = url; a.download = `diseno-${id}.stl`; a.click(); URL.revokeObjectURL(url);
+    });
+  }
+
   generar(): void {
     this.generando.set(true);
     this.error.set('');

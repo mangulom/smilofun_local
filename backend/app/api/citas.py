@@ -4,7 +4,7 @@ from fastapi import APIRouter, Depends, HTTPException, Query, status
 from sqlalchemy import select
 from sqlalchemy.orm import Session, selectinload
 
-from app.api.deps import get_current_user
+from app.api.deps import get_current_user, require_empresa_access
 from app.core.database import get_db
 from app.models import ESTADOS_CITA, Cita, Doctor, Paciente, Sucursal, Usuario
 from app.schemas import CitaCreate, CitaOut, CitaUpdate, EstadoCitaUpdate
@@ -60,10 +60,15 @@ def listar(
     skip: int = Query(0, ge=0),
     limit: int = Query(100, ge=1, le=500),
     db: Session = Depends(get_db),
+    user: Usuario = Depends(get_current_user),
 ):
     stmt = _cargar(select(Cita))
-    if empresa_id:
+    assigned = {x.empresa_id for x in user.empresas_link}
+    if empresa_id is not None:
+        require_empresa_access(empresa_id, user)
         stmt = stmt.where(Cita.empresa_id == empresa_id)
+    elif assigned:
+        stmt = stmt.where(Cita.empresa_id.in_(assigned))
     if fecha:
         stmt = stmt.where(Cita.fecha == fecha)
     if desde:
@@ -85,18 +90,26 @@ def listar(
 
 
 @router.post("", response_model=CitaOut, status_code=status.HTTP_201_CREATED)
-def crear(data: CitaCreate, db: Session = Depends(get_db)):
+def crear(data: CitaCreate, db: Session = Depends(get_db), user: Usuario = Depends(get_current_user)):
     if data.estado not in ESTADOS_CITA:
         raise HTTPException(status.HTTP_422_UNPROCESSABLE_ENTITY, "Estado inválido")
-    if db.get(Paciente, data.paciente_id) is None:
+    paciente = db.get(Paciente, data.paciente_id)
+    if paciente is None:
         raise HTTPException(status.HTTP_404_NOT_FOUND, "Paciente no encontrado")
-    if db.get(Doctor, data.doctor_id) is None:
-        raise HTTPException(status.HTTP_404_NOT_FOUND, "Doctor no encontrado")
-    if db.get(Sucursal, data.sucursal_id) is None:
-        raise HTTPException(status.HTTP_404_NOT_FOUND, "Sucursal no encontrada")
+    empresa_id = data.empresa_id or paciente.empresa_id
+    if empresa_id is not None:
+        require_empresa_access(empresa_id, user)
     _validar_solape(db, data)
+    doctor = db.get(Doctor, data.doctor_id)
+    sucursal = db.get(Sucursal, data.sucursal_id)
+    if doctor is None or sucursal is None:
+        raise HTTPException(status.HTTP_404_NOT_FOUND, "Doctor o sede no encontrados")
+    if doctor.empresa_id and doctor.empresa_id != empresa_id:
+        raise HTTPException(status.HTTP_400_BAD_REQUEST, "El doctor pertenece a otra empresa")
+    if sucursal.empresa_id and sucursal.empresa_id != empresa_id:
+        raise HTTPException(status.HTTP_400_BAD_REQUEST, "La sede pertenece a otra empresa")
     payload = data.model_dump()
-    payload["empresa_id"] = payload.get("empresa_id") or 1
+    payload["empresa_id"] = empresa_id or 1
     cita = Cita(**payload)
     db.add(cita)
     db.commit()
@@ -104,19 +117,30 @@ def crear(data: CitaCreate, db: Session = Depends(get_db)):
 
 
 @router.get("/{cita_id}", response_model=CitaOut)
-def obtener(cita_id: int, db: Session = Depends(get_db)):
+def obtener(cita_id: int, db: Session = Depends(get_db), user: Usuario = Depends(get_current_user)):
     cita = db.execute(_cargar(select(Cita)).where(Cita.id == cita_id)).scalar_one_or_none()
     if cita is None:
         raise HTTPException(status.HTTP_404_NOT_FOUND, "Cita no encontrada")
+    require_empresa_access(cita.empresa_id, user)
     return cita
 
 
 @router.put("/{cita_id}", response_model=CitaOut)
-def actualizar(cita_id: int, data: CitaUpdate, db: Session = Depends(get_db)):
+def actualizar(cita_id: int, data: CitaUpdate, db: Session = Depends(get_db), user: Usuario = Depends(get_current_user)):
     cita = db.get(Cita, cita_id)
     if cita is None:
         raise HTTPException(status.HTTP_404_NOT_FOUND, "Cita no encontrada")
+    require_empresa_access(cita.empresa_id, user)
     cambios = data.model_dump(exclude_unset=True)
+    cambios.pop("empresa_id", None)
+    for attr, model, field in (("paciente_id", Paciente, "empresa_id"), ("doctor_id", Doctor, "empresa_id"), ("sucursal_id", Sucursal, "empresa_id")):
+        if attr in cambios and cambios[attr] is not None:
+            relacionado = db.get(model, cambios[attr])
+            if relacionado is None:
+                raise HTTPException(status.HTTP_404_NOT_FOUND, f"{attr} no encontrado")
+            require_empresa_access(getattr(relacionado, field), user)
+            if getattr(relacionado, field) and getattr(relacionado, field) != cita.empresa_id:
+                raise HTTPException(status.HTTP_400_BAD_REQUEST, "No se puede mover una cita a otra empresa")
     if "estado" in cambios and cambios["estado"] not in ESTADOS_CITA:
         raise HTTPException(status.HTTP_422_UNPROCESSABLE_ENTITY, "Estado inválido")
     _validar_solape(db, data, cita_id=cita_id)
@@ -127,10 +151,11 @@ def actualizar(cita_id: int, data: CitaUpdate, db: Session = Depends(get_db)):
 
 
 @router.patch("/{cita_id}/estado", response_model=CitaOut)
-def cambiar_estado(cita_id: int, data: EstadoCitaUpdate, db: Session = Depends(get_db)):
+def cambiar_estado(cita_id: int, data: EstadoCitaUpdate, db: Session = Depends(get_db), user: Usuario = Depends(get_current_user)):
     cita = db.get(Cita, cita_id)
     if cita is None:
         raise HTTPException(status.HTTP_404_NOT_FOUND, "Cita no encontrada")
+    require_empresa_access(cita.empresa_id, user)
     if data.estado not in ESTADOS_CITA:
         raise HTTPException(status.HTTP_422_UNPROCESSABLE_ENTITY, "Estado inválido")
     cita.estado = data.estado
@@ -139,9 +164,10 @@ def cambiar_estado(cita_id: int, data: EstadoCitaUpdate, db: Session = Depends(g
 
 
 @router.delete("/{cita_id}", status_code=status.HTTP_204_NO_CONTENT)
-def eliminar(cita_id: int, db: Session = Depends(get_db)):
+def eliminar(cita_id: int, db: Session = Depends(get_db), user: Usuario = Depends(get_current_user)):
     cita = db.get(Cita, cita_id)
     if cita is None:
         raise HTTPException(status.HTTP_404_NOT_FOUND, "Cita no encontrada")
+    require_empresa_access(cita.empresa_id, user)
     db.delete(cita)
     db.commit()

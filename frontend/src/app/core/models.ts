@@ -94,6 +94,10 @@ export interface Paciente {
   dni?: string;
   telefono?: string;
   email?: string;
+  consentimiento_marketing_email?: boolean;
+  baja_marketing_email?: boolean;
+  consentimiento_marketing_whatsapp?: boolean;
+  baja_marketing_whatsapp?: boolean;
   direccion?: string;
   ocupacion?: string;
   tipo_sangre?: string;

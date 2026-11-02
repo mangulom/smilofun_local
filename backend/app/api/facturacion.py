@@ -4,9 +4,9 @@ from fastapi import APIRouter, Depends, HTTPException, Query, status
 from sqlalchemy import func, select
 from sqlalchemy.orm import Session, selectinload
 
-from app.api.deps import get_current_user
+from app.api.deps import get_current_user, require_empresa_access, require_roles
 from app.core.database import get_db
-from app.models import DetalleFactura, Factura, Paciente, Pago, PlanTratamiento, Sucursal
+from app.models import DetalleFactura, Factura, Paciente, Pago, PlanTratamiento, Sucursal, Usuario
 from app.schemas import (
     FacturaCreate,
     FacturaOut,
@@ -48,21 +48,26 @@ def _cargar(db: Session, factura_id: int) -> Factura:
 def listar(
     estado: str | None = None,
     paciente_id: int | None = None,
-    search: str | None = Query(None, description="Número de factura o nombre del paciente"),
+    search: str | None = Query(None, max_length=120, description="Número de factura o nombre del paciente"),
     empresa_id: int | None = None,
     desde: date | None = None,
     hasta: date | None = None,
     skip: int = Query(0, ge=0),
     limit: int = Query(100, ge=1, le=500),
     db: Session = Depends(get_db),
+    user: Usuario = Depends(get_current_user),
 ):
     stmt = select(Factura).options(
         selectinload(Factura.detalles),
         selectinload(Factura.pagos),
         selectinload(Factura.paciente),
     )
-    if empresa_id:
+    allowed = {x.empresa_id for x in user.empresas_link}
+    if empresa_id is not None:
+        require_empresa_access(empresa_id, user)
         stmt = stmt.where(Factura.empresa_id == empresa_id)
+    elif allowed:
+        stmt = stmt.where(Factura.empresa_id.in_(allowed))
     if estado:
         stmt = stmt.where(Factura.estado == estado)
     if paciente_id:
@@ -72,11 +77,11 @@ def listar(
     if hasta:
         stmt = stmt.where(func.date(Factura.fecha) <= hasta)
     if search:
-        like = f"%{search.lower()}%"
+        like = f"%{search.lower().replace(chr(37), chr(92) + chr(37)).replace(chr(95), chr(92) + chr(95))}%"
         stmt = stmt.join(Paciente, Factura.paciente_id == Paciente.id).where(
-            func.lower(Factura.numero).like(like)
-            | func.lower(Paciente.nombres).like(like)
-            | func.lower(Paciente.apellidos).like(like)
+            func.lower(Factura.numero).like(like, escape="\\")
+            | func.lower(Paciente.nombres).like(like, escape="\\")
+            | func.lower(Paciente.apellidos).like(like, escape="\\")
         )
     return (
         db.execute(stmt.order_by(Factura.fecha.desc()).offset(skip).limit(limit))
@@ -87,20 +92,30 @@ def listar(
 
 
 @router.post("", response_model=FacturaOut, status_code=status.HTTP_201_CREATED)
-def crear(data: FacturaCreate, db: Session = Depends(get_db)):
+def crear(data: FacturaCreate, db: Session = Depends(get_db), user: Usuario = Depends(get_current_user)):
     if not data.detalles:
         raise HTTPException(status.HTTP_422_UNPROCESSABLE_ENTITY, "La factura debe tener detalles")
-    if db.get(Paciente, data.paciente_id) is None:
+    paciente = db.get(Paciente, data.paciente_id)
+    if paciente is None:
         raise HTTPException(status.HTTP_404_NOT_FOUND, "Paciente no encontrado")
-    if db.get(Sucursal, data.sucursal_id) is None:
+    empresa_id = paciente.empresa_id or (user.empresas_link[0].empresa_id if user.empresas_link else 1)
+    require_empresa_access(empresa_id, user)
+    if data.empresa_id is not None and data.empresa_id != empresa_id:
+        raise HTTPException(status.HTTP_400_BAD_REQUEST, "La factura no puede pertenecer a otra empresa")
+    sucursal = db.get(Sucursal, data.sucursal_id)
+    if sucursal is None:
         raise HTTPException(status.HTTP_404_NOT_FOUND, "Sucursal no encontrada")
-    if data.plan_id and db.get(PlanTratamiento, data.plan_id) is None:
-        raise HTTPException(status.HTTP_404_NOT_FOUND, "Plan no encontrado")
+    if sucursal.empresa_id and sucursal.empresa_id != empresa_id:
+        raise HTTPException(status.HTTP_400_BAD_REQUEST, "La sede pertenece a otra empresa")
+    if data.plan_id:
+        plan = db.get(PlanTratamiento, data.plan_id)
+        if plan is None or plan.empresa_id and plan.empresa_id != empresa_id:
+            raise HTTPException(status.HTTP_404_NOT_FOUND, "Plan no encontrado")
     subtotal = sum(d.cantidad * float(d.precio_unitario) for d in data.detalles)
     total = round(subtotal - data.descuento + data.impuesto, 2)
     factura = Factura(
         numero=_siguiente_numero(db, date.today().year),
-        empresa_id=data.empresa_id or 1,
+        empresa_id=empresa_id,
         paciente_id=data.paciente_id,
         sucursal_id=data.sucursal_id,
         plan_id=data.plan_id,
@@ -131,18 +146,20 @@ def resumen(
     desde: date | None = None,
     hasta: date | None = None,
     db: Session = Depends(get_db),
+    user: Usuario = Depends(get_current_user),
 ):
     desde = desde or date(date.today().year, 1, 1)
     hasta = hasta or date.today()
     stmt = (
         select(
-            func.to_char(Factura.fecha, "YYYY-MM").label("mes"),
+            func.strftime("%Y-%m", Factura.fecha).label("mes"),
             func.coalesce(func.sum(Factura.total), 0).label("total"),
         )
         .where(
             Factura.estado.in_(["pagada", "parcial"]),
             func.date(Factura.fecha) >= desde,
             func.date(Factura.fecha) <= hasta,
+            *([Factura.empresa_id.in_([x.empresa_id for x in user.empresas_link])] if user.empresas_link else []),
         )
         .group_by("mes")
         .order_by("mes")
@@ -158,13 +175,16 @@ def resumen(
 
 
 @router.get("/{factura_id}", response_model=FacturaOut)
-def obtener(factura_id: int, db: Session = Depends(get_db)):
-    return _cargar(db, factura_id)
+def obtener(factura_id: int, db: Session = Depends(get_db), user: Usuario = Depends(get_current_user)):
+    factura = _cargar(db, factura_id)
+    require_empresa_access(factura.empresa_id, user)
+    return factura
 
 
 @router.post("/{factura_id}/pagos", response_model=FacturaOut)
-def registrar_pago(factura_id: int, data: PagoIn, db: Session = Depends(get_db)):
+def registrar_pago(factura_id: int, data: PagoIn, db: Session = Depends(get_db), user: Usuario = Depends(get_current_user)):
     factura = _cargar(db, factura_id)
+    require_empresa_access(factura.empresa_id, user)
     if factura.estado == "anulada":
         raise HTTPException(status.HTTP_409_CONFLICT, "No se puede pagar una factura anulada")
     if factura.estado == "pagada":
@@ -186,8 +206,9 @@ def registrar_pago(factura_id: int, data: PagoIn, db: Session = Depends(get_db))
 
 
 @router.patch("/{factura_id}/anular", response_model=FacturaOut)
-def anular(factura_id: int, db: Session = Depends(get_db)):
+def anular(factura_id: int, db: Session = Depends(get_db), user: Usuario = Depends(require_roles("admin"))):
     factura = _cargar(db, factura_id)
+    require_empresa_access(factura.empresa_id, user)
     if factura.estado == "pagada":
         raise HTTPException(
             status.HTTP_409_CONFLICT, "No se puede anular una factura pagada"

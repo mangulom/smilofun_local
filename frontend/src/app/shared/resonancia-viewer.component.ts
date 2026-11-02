@@ -1,3 +1,4 @@
+import { authenticatedFetch } from './authenticated-fetch';
 import {
   AfterViewInit,
   Component,
@@ -221,6 +222,7 @@ export class ResonanciaViewerComponent implements AfterViewInit, OnDestroy {
   private readonly toolGroupId = `mr-tools-${this.identificador}`;
   private modules?: DicomModules;
   private engine?: any;
+  private protectedBlobUrls: string[] = [];
   private viewport?: any;
   private destruido = false;
   private onNuevoCorte?: EventListener;
@@ -255,6 +257,8 @@ export class ResonanciaViewerComponent implements AfterViewInit, OnDestroy {
 
   ngOnDestroy(): void {
     this.destruido = true;
+    for (const url of this.protectedBlobUrls) URL.revokeObjectURL(url);
+    this.protectedBlobUrls = [];
     if (this.estadoAnteriorPantalla) document.body.style.overflow = this.estadoAnteriorPantalla.overflow;
     this.detenerCine();
     this.nativo?.limpiar();
@@ -384,7 +388,14 @@ export class ResonanciaViewerComponent implements AfterViewInit, OnDestroy {
       });
       this.viewport = this.engine.getViewport(this.viewportId);
 
-      const imageIds = urls.map(url => `wadouri:${url}`);
+      const imageIds: string[] = [];
+      for (const url of urls) {
+        const response = await authenticatedFetch(url);
+        if (!response.ok) throw new Error(`No se pudo descargar la instancia (HTTP ${response.status}).`);
+        const blobUrl = URL.createObjectURL(await response.blob());
+        this.protectedBlobUrls.push(blobUrl);
+        imageIds.push(`wadouri:${blobUrl}`);
+      }
       this.estadoCarga.set(`Preparando serie de ${imageIds.length} cortes…`);
       crearGrupoHerramientas(modules, this.viewportId, this.renderingEngineId, this.toolGroupId);
       this.onNuevoCorte = () => this.corteActual.set(this.viewport.getCurrentImageIdIndex() + 1);
@@ -402,7 +413,7 @@ export class ResonanciaViewerComponent implements AfterViewInit, OnDestroy {
         if (this.destruido) return;
       }
 
-      const dataSet = modules.loader.wadouri.dataSetCacheManager.get(urls[0]);
+      const dataSet = modules.loader.wadouri.dataSetCacheManager.get(imageIds[0].replace(/^wadouri:/, ''));
       this.cortes.set(imageIds.length);
       this.modalidad.set(dataSet?.string('x00080060') || 'MR');
       this.estadoCarga.set('Preparando visor…');
@@ -466,7 +477,7 @@ export class ResonanciaViewerComponent implements AfterViewInit, OnDestroy {
     const control = new AbortController();
     const temporizador = setTimeout(() => control.abort(), 30000);
     try {
-      const respuesta = await fetch(url, { signal: control.signal });
+      const respuesta = await authenticatedFetch(url, { signal: control.signal });
       if (!respuesta.ok) {
         throw new Error(`No se pudo descargar el corte ${numero} (HTTP ${respuesta.status}).`);
       }

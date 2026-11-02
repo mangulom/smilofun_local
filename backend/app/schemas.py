@@ -27,7 +27,7 @@ class ORMModel(BaseModel):
 # ---------------------------------------------------------------------------
 class LoginRequest(BaseModel):
     email: EmailStr
-    password: str
+    password: str = Field(min_length=1, max_length=72)
 
 
 class UsuarioOut(ORMModel):
@@ -50,7 +50,7 @@ class TokenResponse(BaseModel):
 class UsuarioCreate(BaseModel):
     email: EmailStr
     nombre: str = Field(min_length=3, max_length=120)
-    password: str = Field(min_length=6, max_length=128)
+    password: str = Field(min_length=12, max_length=72)
     rol_id: int
     doctor_id: int | None = None
     activo: bool = True
@@ -60,7 +60,7 @@ class UsuarioCreate(BaseModel):
 class UsuarioUpdate(BaseModel):
     email: EmailStr | None = None
     nombre: str | None = Field(default=None, min_length=3, max_length=120)
-    password: str | None = Field(default=None, min_length=6, max_length=128)
+    password: str | None = Field(default=None, min_length=12, max_length=72)
     rol_id: int | None = None
     doctor_id: int | None = None
     activo: bool | None = None
@@ -78,7 +78,7 @@ class EmpresaCreate(BaseModel):
     ruc: str | None = None
     telefono: str | None = None
     email: EmailStr | None = None
-    direccion: str | None = None
+    direccion: str | None = Field(default=None, max_length=200)
     color: str = "#7C3AED"
     activo: bool = True
 
@@ -88,7 +88,7 @@ class EmpresaUpdate(BaseModel):
     ruc: str | None = None
     telefono: str | None = None
     email: EmailStr | None = None
-    direccion: str | None = None
+    direccion: str | None = Field(default=None, max_length=200)
     color: str | None = None
     activo: bool | None = None
 
@@ -99,7 +99,7 @@ class EmpresaOut(ORMModel):
     ruc: str | None = None
     telefono: str | None = None
     email: str | None = None
-    direccion: str | None = None
+    direccion: str | None = Field(default=None, max_length=200)
     color: str = "#7C3AED"
     activo: bool = True
     creado_en: datetime | None = None
@@ -119,7 +119,7 @@ class EmpresaResumen(BaseModel):
 class SucursalBase(BaseModel):
     empresa_id: int | None = None
     nombre: str
-    direccion: str | None = None
+    direccion: str | None = Field(default=None, max_length=200)
     telefono: str | None = None
     email: str | None = None
     ruc: str | None = None
@@ -135,7 +135,7 @@ class SucursalCreate(SucursalBase):
 class SucursalUpdate(BaseModel):
     empresa_id: int | None = None
     nombre: str | None = None
-    direccion: str | None = None
+    direccion: str | None = Field(default=None, max_length=200)
     telefono: str | None = None
     email: str | None = None
     ruc: str | None = None
@@ -229,16 +229,16 @@ class PacienteBase(BaseModel):
     dni: str | None = None
     telefono: str | None = None
     email: EmailStr | None = None
-    direccion: str | None = None
+    direccion: str | None = Field(default=None, max_length=200)
     ocupacion: str | None = None
     tipo_sangre: str | None = None
-    alergias: str | None = None
-    enfermedades: str | None = None
-    medicamentos: str | None = None
-    antecedentes: str | None = None
-    emergencia_nombre: str | None = None
-    emergencia_telefono: str | None = None
-    notas: str | None = None
+    alergias: str | None = Field(default=None, max_length=4000)
+    enfermedades: str | None = Field(default=None, max_length=4000)
+    medicamentos: str | None = Field(default=None, max_length=4000)
+    antecedentes: str | None = Field(default=None, max_length=8000)
+    emergencia_nombre: str | None = Field(default=None, max_length=120)
+    emergencia_telefono: str | None = Field(default=None, max_length=30)
+    notas: str | None = Field(default=None, max_length=8000)
     sucursal_id: int
     activo: bool = True
 
@@ -256,16 +256,16 @@ class PacienteUpdate(BaseModel):
     dni: str | None = None
     telefono: str | None = None
     email: EmailStr | None = None
-    direccion: str | None = None
+    direccion: str | None = Field(default=None, max_length=200)
     ocupacion: str | None = None
     tipo_sangre: str | None = None
-    alergias: str | None = None
-    enfermedades: str | None = None
-    medicamentos: str | None = None
-    antecedentes: str | None = None
-    emergencia_nombre: str | None = None
-    emergencia_telefono: str | None = None
-    notas: str | None = None
+    alergias: str | None = Field(default=None, max_length=4000)
+    enfermedades: str | None = Field(default=None, max_length=4000)
+    medicamentos: str | None = Field(default=None, max_length=4000)
+    antecedentes: str | None = Field(default=None, max_length=8000)
+    emergencia_nombre: str | None = Field(default=None, max_length=120)
+    emergencia_telefono: str | None = Field(default=None, max_length=30)
+    notas: str | None = Field(default=None, max_length=8000)
     sucursal_id: int | None = None
     activo: bool | None = None
 
@@ -314,11 +314,11 @@ class PacienteResumen(BaseModel):
 class HistorialCreate(BaseModel):
     doctor_id: int
     cita_id: int | None = None
-    motivo: str | None = None
-    diagnostico: str | None = None
-    tratamiento: str | None = None
-    indicaciones: str | None = None
-    notas: str | None = None
+    motivo: str | None = Field(default=None, max_length=200)
+    diagnostico: str | None = Field(default=None, max_length=8000)
+    tratamiento: str | None = Field(default=None, max_length=8000)
+    indicaciones: str | None = Field(default=None, max_length=8000)
+    notas: str | None = Field(default=None, max_length=8000)
 
 
 class HistorialOut(ORMModel):
@@ -339,7 +339,7 @@ class OdontogramaItem(BaseModel):
     diente: int = Field(ge=11, le=85)
     superficie: str = ""
     estado: str = "sano"
-    notas: str | None = None
+    notas: str | None = Field(default=None, max_length=8000)
     doctor_id: int | None = None
 
 
@@ -366,7 +366,7 @@ class CitaBase(BaseModel):
     hora_inicio: time
     hora_fin: time
     motivo: str | None = None
-    notas: str | None = None
+    notas: str | None = Field(default=None, max_length=8000)
     estado: EstadoCita = "programada"
 
 
@@ -383,7 +383,7 @@ class CitaUpdate(BaseModel):
     hora_inicio: time | None = None
     hora_fin: time | None = None
     motivo: str | None = None
-    notas: str | None = None
+    notas: str | None = Field(default=None, max_length=8000)
     estado: EstadoCita | None = None
 
 
@@ -471,7 +471,7 @@ class PlanCreate(BaseModel):
     empresa_id: int | None = None
     paciente_id: int
     doctor_id: int
-    notas: str | None = None
+    notas: str | None = Field(default=None, max_length=8000)
     descuento: float = 0
     items: list[PlanItemIn]
 
@@ -479,7 +479,7 @@ class PlanCreate(BaseModel):
 class PlanUpdate(BaseModel):
     empresa_id: int | None = None
     estado: EstadoPlan | None = None
-    notas: str | None = None
+    notas: str | None = Field(default=None, max_length=8000)
     descuento: float | None = None
     items: list[PlanItemIn] | None = None
 
@@ -538,7 +538,7 @@ class FacturaCreate(BaseModel):
     plan_id: int | None = None
     descuento: float = 0
     impuesto: float = 0  # monto calculado por el cliente o 0
-    notas: str | None = None
+    notas: str | None = Field(default=None, max_length=8000)
     detalles: list[DetalleIn]
 
 
@@ -638,8 +638,8 @@ class ProveedorBase(BaseModel):
     contacto: str | None = None
     telefono: str | None = None
     email: EmailStr | None = None
-    direccion: str | None = None
-    notas: str | None = None
+    direccion: str | None = Field(default=None, max_length=200)
+    notas: str | None = Field(default=None, max_length=8000)
     activo: bool = True
 
 
@@ -653,8 +653,8 @@ class ProveedorUpdate(BaseModel):
     contacto: str | None = None
     telefono: str | None = None
     email: EmailStr | None = None
-    direccion: str | None = None
-    notas: str | None = None
+    direccion: str | None = Field(default=None, max_length=200)
+    notas: str | None = Field(default=None, max_length=8000)
     activo: bool | None = None
 
 
@@ -676,7 +676,7 @@ class CompraInsumoCreate(BaseModel):
     referencia: str | None = None
     fecha: date = Field(default_factory=date.today)
     impuesto: float = Field(default=0, ge=0, le=99_999_999.99)
-    notas: str | None = None
+    notas: str | None = Field(default=None, max_length=8000)
     detalles: list[DetalleCompraCreate] = Field(min_length=1, max_length=200)
 
     @field_validator("fecha")
@@ -869,5 +869,5 @@ class ExamenImagenUpdate(BaseModel):
     tipo: TipoExamen | None = None
     descripcion: str | None = None
     diente: str | None = None
-    notas: str | None = None
+    notas: str | None = Field(default=None, max_length=8000)
     marcas: list[ExamenMarca] | None = None

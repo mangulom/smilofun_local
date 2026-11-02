@@ -21,15 +21,12 @@ export class AppComponent implements OnInit {
 
   constructor(private router: Router, private auth: AuthService) {}
 
-  /** Intro de SmiloFun: 5 s de pantalla inicial y luego al panel o al login. */
+
   ngOnInit(): void {
     setTimeout(() => {
       this.showIntro.set(false);
-      if (this.auth.autenticado) {
-        this.router.navigate(['/']);
-      } else {
-        this.router.navigate(['/login']);
-      }
+      if (this.auth.autenticado) this.router.navigate(['/']);
+      else this.router.navigate(['/login']);
     }, 5000);
   }
 }

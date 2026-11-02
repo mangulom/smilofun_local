@@ -1,5 +1,5 @@
 {
-  "fecha": "2026-10-26T23:52:07",
+  "fecha": "2026-10-27T16:59:10",
   "base_url": "http://localhost:4200",
   "resolucion": {
     "ancho": 1600,
@@ -10,253 +10,5864 @@
       "nombre": "Dashboard",
       "ruta": "dashboard",
       "url_solicitada": "http://localhost:4200/dashboard",
-      "estado": "sesion_no_reconocida",
-      "url_final": "http://localhost:4200/login?redirect=%2Fdashboard",
+      "estado": "visitada",
+      "url_final": "http://localhost:4200/dashboard",
       "captura": "D:\\WorkSpace\\dentamia\\ReelOdontologia\\capturas\\01_dashboard.png",
       "componentes": {
-        "url": "http://localhost:4200/login?redirect=%2Fdashboard",
+        "url": "http://localhost:4200/dashboard",
         "titulo": "SmiloFun · Centro Odontológico Inteligente",
-        "enlaces": [],
-        "botones": [],
-        "campos": [],
+        "enlaces": [
+          {
+            "texto": "Dashboard",
+            "href": "/dashboard"
+          },
+          {
+            "texto": "Pacientes",
+            "href": "/pacientes"
+          },
+          {
+            "texto": "Agenda / Citas",
+            "href": "/citas"
+          },
+          {
+            "texto": "Doctores",
+            "href": "/doctores"
+          },
+          {
+            "texto": "Tratamientos",
+            "href": "/tratamientos"
+          },
+          {
+            "texto": "Panel IA",
+            "href": "/ia"
+          },
+          {
+            "texto": "Asistente IA",
+            "href": "/ia/asistente"
+          },
+          {
+            "texto": "Riesgo de Inasistencia",
+            "href": "/ia/no-show"
+          },
+          {
+            "texto": "Proyección de Ingresos",
+            "href": "/ia/ingresos"
+          },
+          {
+            "texto": "Segmentación de Pacientes",
+            "href": "/ia/pacientes"
+          },
+          {
+            "texto": "Inventario Predictivo",
+            "href": "/ia/inventario"
+          },
+          {
+            "texto": "Agenda Inteligente",
+            "href": "/ia/agenda"
+          },
+          {
+            "texto": "Historial de Predicciones",
+            "href": "/ia/historial"
+          },
+          {
+            "texto": "Diseño de Prótesis",
+            "href": "/diseno3d"
+          },
+          {
+            "texto": "Catálogo de Piezas",
+            "href": "/diseno3d/catalogo"
+          },
+          {
+            "texto": "Historial de Diseños",
+            "href": "/diseno3d/historial"
+          },
+          {
+            "texto": "Facturación",
+            "href": "/facturacion"
+          },
+          {
+            "texto": "Insumos",
+            "href": "/inventario"
+          },
+          {
+            "texto": "Proveedores",
+            "href": "/inventario/proveedores"
+          },
+          {
+            "texto": "Compras de insumos",
+            "href": "/inventario/compras"
+          },
+          {
+            "texto": "Reportes",
+            "href": "/reportes"
+          },
+          {
+            "texto": "Campañas",
+            "href": "/campanas"
+          },
+          {
+            "texto": "Empresas",
+            "href": "/empresas"
+          },
+          {
+            "texto": "Usuarios",
+            "href": "/usuarios"
+          },
+          {
+            "texto": "Configuración",
+            "href": "/configuracion"
+          },
+          {
+            "texto": "Copia de Respaldo de Base de Datos",
+            "href": "/mantenimiento/respaldo"
+          },
+          {
+            "texto": "Restaurar Base de Datos",
+            "href": "/mantenimiento/restaurar"
+          },
+          {
+            "texto": "Contáctenos",
+            "href": "/contacto"
+          },
+          {
+            "texto": "+ Nueva cita",
+            "href": "/citas"
+          },
+          {
+            "texto": "Ver reportes →",
+            "href": "/reportes"
+          },
+          {
+            "texto": "Agenda →",
+            "href": "/citas"
+          },
+          {
+            "texto": "Ver recomendaciones de IA →",
+            "href": "/ia"
+          }
+        ],
+        "botones": [
+          {
+            "texto": "",
+            "deshabilitado": false
+          },
+          {
+            "texto": "?",
+            "deshabilitado": false
+          },
+          {
+            "texto": "4",
+            "deshabilitado": false
+          },
+          {
+            "texto": "AS\n\nAdministrador SmiloFun\n\nADMIN",
+            "deshabilitado": false
+          }
+        ],
+        "campos": [
+          {
+            "tipo": null,
+            "nombre": null,
+            "placeholder": null,
+            "deshabilitado": false
+          }
+        ],
         "errores_consola": [],
         "errores_pagina": []
       },
-      "error": "La aplicación redirigió al inicio de sesión. Revisa cómo conserva la autenticación."
+      "error": null
     },
     {
       "nombre": "Pacientes",
       "ruta": "pacientes",
       "url_solicitada": "http://localhost:4200/pacientes",
-      "estado": "sesion_no_reconocida",
-      "url_final": "http://localhost:4200/login?redirect=%2Fpacientes",
+      "estado": "visitada",
+      "url_final": "http://localhost:4200/pacientes",
       "captura": "D:\\WorkSpace\\dentamia\\ReelOdontologia\\capturas\\02_pacientes.png",
       "componentes": {
-        "url": "http://localhost:4200/login?redirect=%2Fpacientes",
+        "url": "http://localhost:4200/pacientes",
         "titulo": "SmiloFun · Centro Odontológico Inteligente",
-        "enlaces": [],
-        "botones": [],
-        "campos": [],
+        "enlaces": [
+          {
+            "texto": "Dashboard",
+            "href": "/dashboard"
+          },
+          {
+            "texto": "Pacientes",
+            "href": "/pacientes"
+          },
+          {
+            "texto": "Agenda / Citas",
+            "href": "/citas"
+          },
+          {
+            "texto": "Doctores",
+            "href": "/doctores"
+          },
+          {
+            "texto": "Tratamientos",
+            "href": "/tratamientos"
+          },
+          {
+            "texto": "Panel IA",
+            "href": "/ia"
+          },
+          {
+            "texto": "Asistente IA",
+            "href": "/ia/asistente"
+          },
+          {
+            "texto": "Riesgo de Inasistencia",
+            "href": "/ia/no-show"
+          },
+          {
+            "texto": "Proyección de Ingresos",
+            "href": "/ia/ingresos"
+          },
+          {
+            "texto": "Segmentación de Pacientes",
+            "href": "/ia/pacientes"
+          },
+          {
+            "texto": "Inventario Predictivo",
+            "href": "/ia/inventario"
+          },
+          {
+            "texto": "Agenda Inteligente",
+            "href": "/ia/agenda"
+          },
+          {
+            "texto": "Historial de Predicciones",
+            "href": "/ia/historial"
+          },
+          {
+            "texto": "Diseño de Prótesis",
+            "href": "/diseno3d"
+          },
+          {
+            "texto": "Catálogo de Piezas",
+            "href": "/diseno3d/catalogo"
+          },
+          {
+            "texto": "Historial de Diseños",
+            "href": "/diseno3d/historial"
+          },
+          {
+            "texto": "Facturación",
+            "href": "/facturacion"
+          },
+          {
+            "texto": "Insumos",
+            "href": "/inventario"
+          },
+          {
+            "texto": "Proveedores",
+            "href": "/inventario/proveedores"
+          },
+          {
+            "texto": "Compras de insumos",
+            "href": "/inventario/compras"
+          },
+          {
+            "texto": "Reportes",
+            "href": "/reportes"
+          },
+          {
+            "texto": "Campañas",
+            "href": "/campanas"
+          },
+          {
+            "texto": "Empresas",
+            "href": "/empresas"
+          },
+          {
+            "texto": "Usuarios",
+            "href": "/usuarios"
+          },
+          {
+            "texto": "Configuración",
+            "href": "/configuracion"
+          },
+          {
+            "texto": "Copia de Respaldo de Base de Datos",
+            "href": "/mantenimiento/respaldo"
+          },
+          {
+            "texto": "Restaurar Base de Datos",
+            "href": "/mantenimiento/restaurar"
+          },
+          {
+            "texto": "Contáctenos",
+            "href": "/contacto"
+          },
+          {
+            "texto": "Mauricio Antonio Angulo Martínez",
+            "href": "/pacientes/141"
+          },
+          {
+            "texto": "Ficha",
+            "href": "/pacientes/141"
+          },
+          {
+            "texto": "Gabriela Navarro Castro",
+            "href": "/pacientes/46"
+          },
+          {
+            "texto": "Ficha",
+            "href": "/pacientes/46"
+          },
+          {
+            "texto": "Camila Quispe Castro",
+            "href": "/pacientes/49"
+          },
+          {
+            "texto": "Ficha",
+            "href": "/pacientes/49"
+          },
+          {
+            "texto": "Diego Castro Quispe",
+            "href": "/pacientes/66"
+          },
+          {
+            "texto": "Ficha",
+            "href": "/pacientes/66"
+          },
+          {
+            "texto": "Alejandro Mendoza Chávez",
+            "href": "/pacientes/58"
+          },
+          {
+            "texto": "Ficha",
+            "href": "/pacientes/58"
+          },
+          {
+            "texto": "Fernando Quispe Huamán",
+            "href": "/pacientes/52"
+          },
+          {
+            "texto": "Ficha",
+            "href": "/pacientes/52"
+          },
+          {
+            "texto": "Miguel Soto Salazar",
+            "href": "/pacientes/44"
+          },
+          {
+            "texto": "Ficha",
+            "href": "/pacientes/44"
+          },
+          {
+            "texto": "Sofía Castro Ríos",
+            "href": "/pacientes/41"
+          },
+          {
+            "texto": "Ficha",
+            "href": "/pacientes/41"
+          },
+          {
+            "texto": "Diego Rojas Flores",
+            "href": "/pacientes/62"
+          },
+          {
+            "texto": "Ficha",
+            "href": "/pacientes/62"
+          },
+          {
+            "texto": "Rosa Torres Quispe",
+            "href": "/pacientes/55"
+          },
+          {
+            "texto": "Ficha",
+            "href": "/pacientes/55"
+          }
+        ],
+        "botones": [
+          {
+            "texto": "",
+            "deshabilitado": false
+          },
+          {
+            "texto": "?",
+            "deshabilitado": false
+          },
+          {
+            "texto": "4",
+            "deshabilitado": false
+          },
+          {
+            "texto": "AS\n\nAdministrador SmiloFun\n\nADMIN",
+            "deshabilitado": false
+          },
+          {
+            "texto": "+ Nuevo paciente",
+            "deshabilitado": false
+          },
+          {
+            "texto": "Editar",
+            "deshabilitado": false
+          },
+          {
+            "texto": "Editar",
+            "deshabilitado": false
+          },
+          {
+            "texto": "Editar",
+            "deshabilitado": false
+          },
+          {
+            "texto": "Editar",
+            "deshabilitado": false
+          },
+          {
+            "texto": "Editar",
+            "deshabilitado": false
+          },
+          {
+            "texto": "Editar",
+            "deshabilitado": false
+          },
+          {
+            "texto": "Editar",
+            "deshabilitado": false
+          },
+          {
+            "texto": "Editar",
+            "deshabilitado": false
+          },
+          {
+            "texto": "Editar",
+            "deshabilitado": false
+          },
+          {
+            "texto": "Editar",
+            "deshabilitado": false
+          },
+          {
+            "texto": "‹ Anterior",
+            "deshabilitado": true
+          },
+          {
+            "texto": "Siguiente ›",
+            "deshabilitado": false
+          }
+        ],
+        "campos": [
+          {
+            "tipo": null,
+            "nombre": null,
+            "placeholder": null,
+            "deshabilitado": false
+          },
+          {
+            "tipo": null,
+            "nombre": null,
+            "placeholder": "🔍 Buscar nombre, DNI o código…",
+            "deshabilitado": false
+          },
+          {
+            "tipo": null,
+            "nombre": null,
+            "placeholder": null,
+            "deshabilitado": false
+          }
+        ],
         "errores_consola": [],
         "errores_pagina": []
       },
-      "error": "La aplicación redirigió al inicio de sesión. Revisa cómo conserva la autenticación."
+      "error": null
     },
     {
       "nombre": "Detalle de paciente",
       "ruta": "pacientes/1",
       "url_solicitada": "http://localhost:4200/pacientes/1",
-      "estado": "sesion_no_reconocida",
-      "url_final": "http://localhost:4200/login?redirect=%2Fpacientes%2F1",
+      "estado": "visitada",
+      "url_final": "http://localhost:4200/pacientes/1",
       "captura": "D:\\WorkSpace\\dentamia\\ReelOdontologia\\capturas\\03_pacientes_1.png",
       "componentes": {
-        "url": "http://localhost:4200/login?redirect=%2Fpacientes%2F1",
+        "url": "http://localhost:4200/pacientes/1",
         "titulo": "SmiloFun · Centro Odontológico Inteligente",
-        "enlaces": [],
-        "botones": [],
-        "campos": [],
+        "enlaces": [
+          {
+            "texto": "Dashboard",
+            "href": "/dashboard"
+          },
+          {
+            "texto": "Pacientes",
+            "href": "/pacientes"
+          },
+          {
+            "texto": "Agenda / Citas",
+            "href": "/citas"
+          },
+          {
+            "texto": "Doctores",
+            "href": "/doctores"
+          },
+          {
+            "texto": "Tratamientos",
+            "href": "/tratamientos"
+          },
+          {
+            "texto": "Panel IA",
+            "href": "/ia"
+          },
+          {
+            "texto": "Asistente IA",
+            "href": "/ia/asistente"
+          },
+          {
+            "texto": "Riesgo de Inasistencia",
+            "href": "/ia/no-show"
+          },
+          {
+            "texto": "Proyección de Ingresos",
+            "href": "/ia/ingresos"
+          },
+          {
+            "texto": "Segmentación de Pacientes",
+            "href": "/ia/pacientes"
+          },
+          {
+            "texto": "Inventario Predictivo",
+            "href": "/ia/inventario"
+          },
+          {
+            "texto": "Agenda Inteligente",
+            "href": "/ia/agenda"
+          },
+          {
+            "texto": "Historial de Predicciones",
+            "href": "/ia/historial"
+          },
+          {
+            "texto": "Diseño de Prótesis",
+            "href": "/diseno3d"
+          },
+          {
+            "texto": "Catálogo de Piezas",
+            "href": "/diseno3d/catalogo"
+          },
+          {
+            "texto": "Historial de Diseños",
+            "href": "/diseno3d/historial"
+          },
+          {
+            "texto": "Facturación",
+            "href": "/facturacion"
+          },
+          {
+            "texto": "Insumos",
+            "href": "/inventario"
+          },
+          {
+            "texto": "Proveedores",
+            "href": "/inventario/proveedores"
+          },
+          {
+            "texto": "Compras de insumos",
+            "href": "/inventario/compras"
+          },
+          {
+            "texto": "Reportes",
+            "href": "/reportes"
+          },
+          {
+            "texto": "Campañas",
+            "href": "/campanas"
+          },
+          {
+            "texto": "Empresas",
+            "href": "/empresas"
+          },
+          {
+            "texto": "Usuarios",
+            "href": "/usuarios"
+          },
+          {
+            "texto": "Configuración",
+            "href": "/configuracion"
+          },
+          {
+            "texto": "Copia de Respaldo de Base de Datos",
+            "href": "/mantenimiento/respaldo"
+          },
+          {
+            "texto": "Restaurar Base de Datos",
+            "href": "/mantenimiento/restaurar"
+          },
+          {
+            "texto": "Contáctenos",
+            "href": "/contacto"
+          }
+        ],
+        "botones": [
+          {
+            "texto": "",
+            "deshabilitado": false
+          },
+          {
+            "texto": "?",
+            "deshabilitado": false
+          },
+          {
+            "texto": "4",
+            "deshabilitado": false
+          },
+          {
+            "texto": "AS\n\nAdministrador SmiloFun\n\nADMIN",
+            "deshabilitado": false
+          }
+        ],
+        "campos": [
+          {
+            "tipo": null,
+            "nombre": null,
+            "placeholder": null,
+            "deshabilitado": false
+          }
+        ],
         "errores_consola": [],
         "errores_pagina": []
       },
-      "error": "La aplicación redirigió al inicio de sesión. Revisa cómo conserva la autenticación."
+      "error": null
     },
     {
       "nombre": "Citas",
       "ruta": "citas",
       "url_solicitada": "http://localhost:4200/citas",
-      "estado": "sesion_no_reconocida",
-      "url_final": "http://localhost:4200/login?redirect=%2Fcitas",
+      "estado": "visitada",
+      "url_final": "http://localhost:4200/citas",
       "captura": "D:\\WorkSpace\\dentamia\\ReelOdontologia\\capturas\\04_citas.png",
       "componentes": {
-        "url": "http://localhost:4200/login?redirect=%2Fcitas",
+        "url": "http://localhost:4200/citas",
         "titulo": "SmiloFun · Centro Odontológico Inteligente",
-        "enlaces": [],
-        "botones": [],
-        "campos": [],
+        "enlaces": [
+          {
+            "texto": "Dashboard",
+            "href": "/dashboard"
+          },
+          {
+            "texto": "Pacientes",
+            "href": "/pacientes"
+          },
+          {
+            "texto": "Agenda / Citas",
+            "href": "/citas"
+          },
+          {
+            "texto": "Doctores",
+            "href": "/doctores"
+          },
+          {
+            "texto": "Tratamientos",
+            "href": "/tratamientos"
+          },
+          {
+            "texto": "Panel IA",
+            "href": "/ia"
+          },
+          {
+            "texto": "Asistente IA",
+            "href": "/ia/asistente"
+          },
+          {
+            "texto": "Riesgo de Inasistencia",
+            "href": "/ia/no-show"
+          },
+          {
+            "texto": "Proyección de Ingresos",
+            "href": "/ia/ingresos"
+          },
+          {
+            "texto": "Segmentación de Pacientes",
+            "href": "/ia/pacientes"
+          },
+          {
+            "texto": "Inventario Predictivo",
+            "href": "/ia/inventario"
+          },
+          {
+            "texto": "Agenda Inteligente",
+            "href": "/ia/agenda"
+          },
+          {
+            "texto": "Historial de Predicciones",
+            "href": "/ia/historial"
+          },
+          {
+            "texto": "Diseño de Prótesis",
+            "href": "/diseno3d"
+          },
+          {
+            "texto": "Catálogo de Piezas",
+            "href": "/diseno3d/catalogo"
+          },
+          {
+            "texto": "Historial de Diseños",
+            "href": "/diseno3d/historial"
+          },
+          {
+            "texto": "Facturación",
+            "href": "/facturacion"
+          },
+          {
+            "texto": "Insumos",
+            "href": "/inventario"
+          },
+          {
+            "texto": "Proveedores",
+            "href": "/inventario/proveedores"
+          },
+          {
+            "texto": "Compras de insumos",
+            "href": "/inventario/compras"
+          },
+          {
+            "texto": "Reportes",
+            "href": "/reportes"
+          },
+          {
+            "texto": "Campañas",
+            "href": "/campanas"
+          },
+          {
+            "texto": "Empresas",
+            "href": "/empresas"
+          },
+          {
+            "texto": "Usuarios",
+            "href": "/usuarios"
+          },
+          {
+            "texto": "Configuración",
+            "href": "/configuracion"
+          },
+          {
+            "texto": "Copia de Respaldo de Base de Datos",
+            "href": "/mantenimiento/respaldo"
+          },
+          {
+            "texto": "Restaurar Base de Datos",
+            "href": "/mantenimiento/restaurar"
+          },
+          {
+            "texto": "Contáctenos",
+            "href": "/contacto"
+          }
+        ],
+        "botones": [
+          {
+            "texto": "",
+            "deshabilitado": false
+          },
+          {
+            "texto": "?",
+            "deshabilitado": false
+          },
+          {
+            "texto": "4",
+            "deshabilitado": false
+          },
+          {
+            "texto": "AS\n\nAdministrador SmiloFun\n\nADMIN",
+            "deshabilitado": false
+          },
+          {
+            "texto": "← Ayer",
+            "deshabilitado": false
+          },
+          {
+            "texto": "Hoy",
+            "deshabilitado": false
+          },
+          {
+            "texto": "Mañana →",
+            "deshabilitado": false
+          },
+          {
+            "texto": "+ Nueva cita",
+            "deshabilitado": false
+          }
+        ],
+        "campos": [
+          {
+            "tipo": null,
+            "nombre": null,
+            "placeholder": null,
+            "deshabilitado": false
+          },
+          {
+            "tipo": "date",
+            "nombre": null,
+            "placeholder": null,
+            "deshabilitado": false
+          }
+        ],
         "errores_consola": [],
         "errores_pagina": []
       },
-      "error": "La aplicación redirigió al inicio de sesión. Revisa cómo conserva la autenticación."
+      "error": null
     },
     {
       "nombre": "Doctores",
       "ruta": "doctores",
       "url_solicitada": "http://localhost:4200/doctores",
-      "estado": "sesion_no_reconocida",
-      "url_final": "http://localhost:4200/login?redirect=%2Fdoctores",
+      "estado": "visitada",
+      "url_final": "http://localhost:4200/doctores",
       "captura": "D:\\WorkSpace\\dentamia\\ReelOdontologia\\capturas\\05_doctores.png",
       "componentes": {
-        "url": "http://localhost:4200/login?redirect=%2Fdoctores",
+        "url": "http://localhost:4200/doctores",
         "titulo": "SmiloFun · Centro Odontológico Inteligente",
-        "enlaces": [],
-        "botones": [],
-        "campos": [],
+        "enlaces": [
+          {
+            "texto": "Dashboard",
+            "href": "/dashboard"
+          },
+          {
+            "texto": "Pacientes",
+            "href": "/pacientes"
+          },
+          {
+            "texto": "Agenda / Citas",
+            "href": "/citas"
+          },
+          {
+            "texto": "Doctores",
+            "href": "/doctores"
+          },
+          {
+            "texto": "Tratamientos",
+            "href": "/tratamientos"
+          },
+          {
+            "texto": "Panel IA",
+            "href": "/ia"
+          },
+          {
+            "texto": "Asistente IA",
+            "href": "/ia/asistente"
+          },
+          {
+            "texto": "Riesgo de Inasistencia",
+            "href": "/ia/no-show"
+          },
+          {
+            "texto": "Proyección de Ingresos",
+            "href": "/ia/ingresos"
+          },
+          {
+            "texto": "Segmentación de Pacientes",
+            "href": "/ia/pacientes"
+          },
+          {
+            "texto": "Inventario Predictivo",
+            "href": "/ia/inventario"
+          },
+          {
+            "texto": "Agenda Inteligente",
+            "href": "/ia/agenda"
+          },
+          {
+            "texto": "Historial de Predicciones",
+            "href": "/ia/historial"
+          },
+          {
+            "texto": "Diseño de Prótesis",
+            "href": "/diseno3d"
+          },
+          {
+            "texto": "Catálogo de Piezas",
+            "href": "/diseno3d/catalogo"
+          },
+          {
+            "texto": "Historial de Diseños",
+            "href": "/diseno3d/historial"
+          },
+          {
+            "texto": "Facturación",
+            "href": "/facturacion"
+          },
+          {
+            "texto": "Insumos",
+            "href": "/inventario"
+          },
+          {
+            "texto": "Proveedores",
+            "href": "/inventario/proveedores"
+          },
+          {
+            "texto": "Compras de insumos",
+            "href": "/inventario/compras"
+          },
+          {
+            "texto": "Reportes",
+            "href": "/reportes"
+          },
+          {
+            "texto": "Campañas",
+            "href": "/campanas"
+          },
+          {
+            "texto": "Empresas",
+            "href": "/empresas"
+          },
+          {
+            "texto": "Usuarios",
+            "href": "/usuarios"
+          },
+          {
+            "texto": "Configuración",
+            "href": "/configuracion"
+          },
+          {
+            "texto": "Copia de Respaldo de Base de Datos",
+            "href": "/mantenimiento/respaldo"
+          },
+          {
+            "texto": "Restaurar Base de Datos",
+            "href": "/mantenimiento/restaurar"
+          },
+          {
+            "texto": "Contáctenos",
+            "href": "/contacto"
+          }
+        ],
+        "botones": [
+          {
+            "texto": "",
+            "deshabilitado": false
+          },
+          {
+            "texto": "?",
+            "deshabilitado": false
+          },
+          {
+            "texto": "4",
+            "deshabilitado": false
+          },
+          {
+            "texto": "AS\n\nAdministrador SmiloFun\n\nADMIN",
+            "deshabilitado": false
+          },
+          {
+            "texto": "+ Nuevo doctor",
+            "deshabilitado": false
+          },
+          {
+            "texto": "Editar",
+            "deshabilitado": false
+          },
+          {
+            "texto": "Desactivar",
+            "deshabilitado": false
+          },
+          {
+            "texto": "Editar",
+            "deshabilitado": false
+          },
+          {
+            "texto": "Desactivar",
+            "deshabilitado": false
+          },
+          {
+            "texto": "Editar",
+            "deshabilitado": false
+          },
+          {
+            "texto": "Desactivar",
+            "deshabilitado": false
+          },
+          {
+            "texto": "Editar",
+            "deshabilitado": false
+          },
+          {
+            "texto": "Desactivar",
+            "deshabilitado": false
+          },
+          {
+            "texto": "Editar",
+            "deshabilitado": false
+          },
+          {
+            "texto": "Desactivar",
+            "deshabilitado": false
+          },
+          {
+            "texto": "‹ Anterior",
+            "deshabilitado": true
+          },
+          {
+            "texto": "Siguiente ›",
+            "deshabilitado": true
+          }
+        ],
+        "campos": [
+          {
+            "tipo": null,
+            "nombre": null,
+            "placeholder": null,
+            "deshabilitado": false
+          },
+          {
+            "tipo": null,
+            "nombre": null,
+            "placeholder": null,
+            "deshabilitado": false
+          }
+        ],
         "errores_consola": [],
         "errores_pagina": []
       },
-      "error": "La aplicación redirigió al inicio de sesión. Revisa cómo conserva la autenticación."
+      "error": null
     },
     {
       "nombre": "Tratamientos",
       "ruta": "tratamientos",
       "url_solicitada": "http://localhost:4200/tratamientos",
-      "estado": "sesion_no_reconocida",
-      "url_final": "http://localhost:4200/login?redirect=%2Ftratamientos",
+      "estado": "visitada",
+      "url_final": "http://localhost:4200/tratamientos",
       "captura": "D:\\WorkSpace\\dentamia\\ReelOdontologia\\capturas\\06_tratamientos.png",
       "componentes": {
-        "url": "http://localhost:4200/login?redirect=%2Ftratamientos",
+        "url": "http://localhost:4200/tratamientos",
         "titulo": "SmiloFun · Centro Odontológico Inteligente",
-        "enlaces": [],
-        "botones": [],
-        "campos": [],
+        "enlaces": [
+          {
+            "texto": "Dashboard",
+            "href": "/dashboard"
+          },
+          {
+            "texto": "Pacientes",
+            "href": "/pacientes"
+          },
+          {
+            "texto": "Agenda / Citas",
+            "href": "/citas"
+          },
+          {
+            "texto": "Doctores",
+            "href": "/doctores"
+          },
+          {
+            "texto": "Tratamientos",
+            "href": "/tratamientos"
+          },
+          {
+            "texto": "Panel IA",
+            "href": "/ia"
+          },
+          {
+            "texto": "Asistente IA",
+            "href": "/ia/asistente"
+          },
+          {
+            "texto": "Riesgo de Inasistencia",
+            "href": "/ia/no-show"
+          },
+          {
+            "texto": "Proyección de Ingresos",
+            "href": "/ia/ingresos"
+          },
+          {
+            "texto": "Segmentación de Pacientes",
+            "href": "/ia/pacientes"
+          },
+          {
+            "texto": "Inventario Predictivo",
+            "href": "/ia/inventario"
+          },
+          {
+            "texto": "Agenda Inteligente",
+            "href": "/ia/agenda"
+          },
+          {
+            "texto": "Historial de Predicciones",
+            "href": "/ia/historial"
+          },
+          {
+            "texto": "Diseño de Prótesis",
+            "href": "/diseno3d"
+          },
+          {
+            "texto": "Catálogo de Piezas",
+            "href": "/diseno3d/catalogo"
+          },
+          {
+            "texto": "Historial de Diseños",
+            "href": "/diseno3d/historial"
+          },
+          {
+            "texto": "Facturación",
+            "href": "/facturacion"
+          },
+          {
+            "texto": "Insumos",
+            "href": "/inventario"
+          },
+          {
+            "texto": "Proveedores",
+            "href": "/inventario/proveedores"
+          },
+          {
+            "texto": "Compras de insumos",
+            "href": "/inventario/compras"
+          },
+          {
+            "texto": "Reportes",
+            "href": "/reportes"
+          },
+          {
+            "texto": "Campañas",
+            "href": "/campanas"
+          },
+          {
+            "texto": "Empresas",
+            "href": "/empresas"
+          },
+          {
+            "texto": "Usuarios",
+            "href": "/usuarios"
+          },
+          {
+            "texto": "Configuración",
+            "href": "/configuracion"
+          },
+          {
+            "texto": "Copia de Respaldo de Base de Datos",
+            "href": "/mantenimiento/respaldo"
+          },
+          {
+            "texto": "Restaurar Base de Datos",
+            "href": "/mantenimiento/restaurar"
+          },
+          {
+            "texto": "Contáctenos",
+            "href": "/contacto"
+          }
+        ],
+        "botones": [
+          {
+            "texto": "",
+            "deshabilitado": false
+          },
+          {
+            "texto": "?",
+            "deshabilitado": false
+          },
+          {
+            "texto": "4",
+            "deshabilitado": false
+          },
+          {
+            "texto": "AS\n\nAdministrador SmiloFun\n\nADMIN",
+            "deshabilitado": false
+          },
+          {
+            "texto": "+ Tratamiento",
+            "deshabilitado": false
+          },
+          {
+            "texto": "+ Nuevo plan",
+            "deshabilitado": false
+          },
+          {
+            "texto": "Catálogo",
+            "deshabilitado": false
+          },
+          {
+            "texto": "Planes de tratamiento (10)",
+            "deshabilitado": false
+          },
+          {
+            "texto": "Editar",
+            "deshabilitado": false
+          },
+          {
+            "texto": "Editar",
+            "deshabilitado": false
+          },
+          {
+            "texto": "Editar",
+            "deshabilitado": false
+          },
+          {
+            "texto": "Editar",
+            "deshabilitado": false
+          },
+          {
+            "texto": "Editar",
+            "deshabilitado": false
+          },
+          {
+            "texto": "Editar",
+            "deshabilitado": false
+          },
+          {
+            "texto": "Editar",
+            "deshabilitado": false
+          },
+          {
+            "texto": "Editar",
+            "deshabilitado": false
+          },
+          {
+            "texto": "Editar",
+            "deshabilitado": false
+          },
+          {
+            "texto": "Editar",
+            "deshabilitado": false
+          },
+          {
+            "texto": "‹ Anterior",
+            "deshabilitado": true
+          },
+          {
+            "texto": "Siguiente ›",
+            "deshabilitado": false
+          }
+        ],
+        "campos": [
+          {
+            "tipo": null,
+            "nombre": null,
+            "placeholder": null,
+            "deshabilitado": false
+          },
+          {
+            "tipo": null,
+            "nombre": null,
+            "placeholder": null,
+            "deshabilitado": false
+          }
+        ],
         "errores_consola": [],
         "errores_pagina": []
       },
-      "error": "La aplicación redirigió al inicio de sesión. Revisa cómo conserva la autenticación."
+      "error": null
     },
     {
       "nombre": "Facturación",
       "ruta": "facturacion",
       "url_solicitada": "http://localhost:4200/facturacion",
-      "estado": "sesion_no_reconocida",
-      "url_final": "http://localhost:4200/login?redirect=%2Ffacturacion",
+      "estado": "visitada",
+      "url_final": "http://localhost:4200/facturacion",
       "captura": "D:\\WorkSpace\\dentamia\\ReelOdontologia\\capturas\\07_facturacion.png",
       "componentes": {
-        "url": "http://localhost:4200/login?redirect=%2Ffacturacion",
+        "url": "http://localhost:4200/facturacion",
         "titulo": "SmiloFun · Centro Odontológico Inteligente",
-        "enlaces": [],
-        "botones": [],
-        "campos": [],
+        "enlaces": [
+          {
+            "texto": "Dashboard",
+            "href": "/dashboard"
+          },
+          {
+            "texto": "Pacientes",
+            "href": "/pacientes"
+          },
+          {
+            "texto": "Agenda / Citas",
+            "href": "/citas"
+          },
+          {
+            "texto": "Doctores",
+            "href": "/doctores"
+          },
+          {
+            "texto": "Tratamientos",
+            "href": "/tratamientos"
+          },
+          {
+            "texto": "Panel IA",
+            "href": "/ia"
+          },
+          {
+            "texto": "Asistente IA",
+            "href": "/ia/asistente"
+          },
+          {
+            "texto": "Riesgo de Inasistencia",
+            "href": "/ia/no-show"
+          },
+          {
+            "texto": "Proyección de Ingresos",
+            "href": "/ia/ingresos"
+          },
+          {
+            "texto": "Segmentación de Pacientes",
+            "href": "/ia/pacientes"
+          },
+          {
+            "texto": "Inventario Predictivo",
+            "href": "/ia/inventario"
+          },
+          {
+            "texto": "Agenda Inteligente",
+            "href": "/ia/agenda"
+          },
+          {
+            "texto": "Historial de Predicciones",
+            "href": "/ia/historial"
+          },
+          {
+            "texto": "Diseño de Prótesis",
+            "href": "/diseno3d"
+          },
+          {
+            "texto": "Catálogo de Piezas",
+            "href": "/diseno3d/catalogo"
+          },
+          {
+            "texto": "Historial de Diseños",
+            "href": "/diseno3d/historial"
+          },
+          {
+            "texto": "Facturación",
+            "href": "/facturacion"
+          },
+          {
+            "texto": "Insumos",
+            "href": "/inventario"
+          },
+          {
+            "texto": "Proveedores",
+            "href": "/inventario/proveedores"
+          },
+          {
+            "texto": "Compras de insumos",
+            "href": "/inventario/compras"
+          },
+          {
+            "texto": "Reportes",
+            "href": "/reportes"
+          },
+          {
+            "texto": "Campañas",
+            "href": "/campanas"
+          },
+          {
+            "texto": "Empresas",
+            "href": "/empresas"
+          },
+          {
+            "texto": "Usuarios",
+            "href": "/usuarios"
+          },
+          {
+            "texto": "Configuración",
+            "href": "/configuracion"
+          },
+          {
+            "texto": "Copia de Respaldo de Base de Datos",
+            "href": "/mantenimiento/respaldo"
+          },
+          {
+            "texto": "Restaurar Base de Datos",
+            "href": "/mantenimiento/restaurar"
+          },
+          {
+            "texto": "Contáctenos",
+            "href": "/contacto"
+          }
+        ],
+        "botones": [
+          {
+            "texto": "",
+            "deshabilitado": false
+          },
+          {
+            "texto": "?",
+            "deshabilitado": false
+          },
+          {
+            "texto": "4",
+            "deshabilitado": false
+          },
+          {
+            "texto": "AS\n\nAdministrador SmiloFun\n\nADMIN",
+            "deshabilitado": false
+          },
+          {
+            "texto": "+ Nueva factura",
+            "deshabilitado": false
+          },
+          {
+            "texto": "Registrar pago",
+            "deshabilitado": false
+          },
+          {
+            "texto": "Anular",
+            "deshabilitado": false
+          },
+          {
+            "texto": "Registrar pago",
+            "deshabilitado": false
+          },
+          {
+            "texto": "Anular",
+            "deshabilitado": false
+          },
+          {
+            "texto": "Registrar pago",
+            "deshabilitado": false
+          },
+          {
+            "texto": "Anular",
+            "deshabilitado": false
+          },
+          {
+            "texto": "‹ Anterior",
+            "deshabilitado": true
+          },
+          {
+            "texto": "Siguiente ›",
+            "deshabilitado": false
+          }
+        ],
+        "campos": [
+          {
+            "tipo": null,
+            "nombre": null,
+            "placeholder": null,
+            "deshabilitado": false
+          },
+          {
+            "tipo": null,
+            "nombre": null,
+            "placeholder": "🔍 Número o paciente…",
+            "deshabilitado": false
+          },
+          {
+            "tipo": null,
+            "nombre": null,
+            "placeholder": null,
+            "deshabilitado": false
+          }
+        ],
         "errores_consola": [],
         "errores_pagina": []
       },
-      "error": "La aplicación redirigió al inicio de sesión. Revisa cómo conserva la autenticación."
+      "error": null
     },
     {
       "nombre": "Inventario",
       "ruta": "inventario",
       "url_solicitada": "http://localhost:4200/inventario",
-      "estado": "sesion_no_reconocida",
-      "url_final": "http://localhost:4200/login?redirect=%2Finventario",
+      "estado": "visitada",
+      "url_final": "http://localhost:4200/inventario",
       "captura": "D:\\WorkSpace\\dentamia\\ReelOdontologia\\capturas\\08_inventario.png",
       "componentes": {
-        "url": "http://localhost:4200/login?redirect=%2Finventario",
+        "url": "http://localhost:4200/inventario",
         "titulo": "SmiloFun · Centro Odontológico Inteligente",
-        "enlaces": [],
-        "botones": [],
-        "campos": [],
+        "enlaces": [
+          {
+            "texto": "Dashboard",
+            "href": "/dashboard"
+          },
+          {
+            "texto": "Pacientes",
+            "href": "/pacientes"
+          },
+          {
+            "texto": "Agenda / Citas",
+            "href": "/citas"
+          },
+          {
+            "texto": "Doctores",
+            "href": "/doctores"
+          },
+          {
+            "texto": "Tratamientos",
+            "href": "/tratamientos"
+          },
+          {
+            "texto": "Panel IA",
+            "href": "/ia"
+          },
+          {
+            "texto": "Asistente IA",
+            "href": "/ia/asistente"
+          },
+          {
+            "texto": "Riesgo de Inasistencia",
+            "href": "/ia/no-show"
+          },
+          {
+            "texto": "Proyección de Ingresos",
+            "href": "/ia/ingresos"
+          },
+          {
+            "texto": "Segmentación de Pacientes",
+            "href": "/ia/pacientes"
+          },
+          {
+            "texto": "Inventario Predictivo",
+            "href": "/ia/inventario"
+          },
+          {
+            "texto": "Agenda Inteligente",
+            "href": "/ia/agenda"
+          },
+          {
+            "texto": "Historial de Predicciones",
+            "href": "/ia/historial"
+          },
+          {
+            "texto": "Diseño de Prótesis",
+            "href": "/diseno3d"
+          },
+          {
+            "texto": "Catálogo de Piezas",
+            "href": "/diseno3d/catalogo"
+          },
+          {
+            "texto": "Historial de Diseños",
+            "href": "/diseno3d/historial"
+          },
+          {
+            "texto": "Facturación",
+            "href": "/facturacion"
+          },
+          {
+            "texto": "Insumos",
+            "href": "/inventario"
+          },
+          {
+            "texto": "Proveedores",
+            "href": "/inventario/proveedores"
+          },
+          {
+            "texto": "Compras de insumos",
+            "href": "/inventario/compras"
+          },
+          {
+            "texto": "Reportes",
+            "href": "/reportes"
+          },
+          {
+            "texto": "Campañas",
+            "href": "/campanas"
+          },
+          {
+            "texto": "Empresas",
+            "href": "/empresas"
+          },
+          {
+            "texto": "Usuarios",
+            "href": "/usuarios"
+          },
+          {
+            "texto": "Configuración",
+            "href": "/configuracion"
+          },
+          {
+            "texto": "Copia de Respaldo de Base de Datos",
+            "href": "/mantenimiento/respaldo"
+          },
+          {
+            "texto": "Restaurar Base de Datos",
+            "href": "/mantenimiento/restaurar"
+          },
+          {
+            "texto": "Contáctenos",
+            "href": "/contacto"
+          },
+          {
+            "texto": "Insumos",
+            "href": "/inventario"
+          },
+          {
+            "texto": "Proveedores",
+            "href": "/inventario/proveedores"
+          },
+          {
+            "texto": "Compras",
+            "href": "/inventario/compras"
+          }
+        ],
+        "botones": [
+          {
+            "texto": "",
+            "deshabilitado": false
+          },
+          {
+            "texto": "?",
+            "deshabilitado": false
+          },
+          {
+            "texto": "4",
+            "deshabilitado": false
+          },
+          {
+            "texto": "AS\n\nAdministrador SmiloFun\n\nADMIN",
+            "deshabilitado": false
+          },
+          {
+            "texto": "+ Insumo",
+            "deshabilitado": false
+          },
+          {
+            "texto": "+ Entrada",
+            "deshabilitado": false
+          },
+          {
+            "texto": "− Salida",
+            "deshabilitado": false
+          },
+          {
+            "texto": "Editar",
+            "deshabilitado": false
+          },
+          {
+            "texto": "Eliminar",
+            "deshabilitado": false
+          },
+          {
+            "texto": "+ Entrada",
+            "deshabilitado": false
+          },
+          {
+            "texto": "− Salida",
+            "deshabilitado": false
+          },
+          {
+            "texto": "Editar",
+            "deshabilitado": false
+          },
+          {
+            "texto": "Eliminar",
+            "deshabilitado": false
+          },
+          {
+            "texto": "+ Entrada",
+            "deshabilitado": false
+          },
+          {
+            "texto": "− Salida",
+            "deshabilitado": false
+          },
+          {
+            "texto": "Editar",
+            "deshabilitado": false
+          },
+          {
+            "texto": "Eliminar",
+            "deshabilitado": false
+          },
+          {
+            "texto": "+ Entrada",
+            "deshabilitado": false
+          },
+          {
+            "texto": "− Salida",
+            "deshabilitado": false
+          },
+          {
+            "texto": "Editar",
+            "deshabilitado": false
+          },
+          {
+            "texto": "Eliminar",
+            "deshabilitado": false
+          },
+          {
+            "texto": "+ Entrada",
+            "deshabilitado": false
+          },
+          {
+            "texto": "− Salida",
+            "deshabilitado": false
+          },
+          {
+            "texto": "Editar",
+            "deshabilitado": false
+          },
+          {
+            "texto": "Eliminar",
+            "deshabilitado": false
+          },
+          {
+            "texto": "+ Entrada",
+            "deshabilitado": false
+          },
+          {
+            "texto": "− Salida",
+            "deshabilitado": false
+          },
+          {
+            "texto": "Editar",
+            "deshabilitado": false
+          },
+          {
+            "texto": "Eliminar",
+            "deshabilitado": false
+          },
+          {
+            "texto": "+ Entrada",
+            "deshabilitado": false
+          },
+          {
+            "texto": "− Salida",
+            "deshabilitado": false
+          },
+          {
+            "texto": "Editar",
+            "deshabilitado": false
+          },
+          {
+            "texto": "Eliminar",
+            "deshabilitado": false
+          },
+          {
+            "texto": "+ Entrada",
+            "deshabilitado": false
+          },
+          {
+            "texto": "− Salida",
+            "deshabilitado": false
+          },
+          {
+            "texto": "Editar",
+            "deshabilitado": false
+          },
+          {
+            "texto": "Eliminar",
+            "deshabilitado": false
+          },
+          {
+            "texto": "+ Entrada",
+            "deshabilitado": false
+          },
+          {
+            "texto": "− Salida",
+            "deshabilitado": false
+          },
+          {
+            "texto": "Editar",
+            "deshabilitado": false
+          },
+          {
+            "texto": "Eliminar",
+            "deshabilitado": false
+          },
+          {
+            "texto": "+ Entrada",
+            "deshabilitado": false
+          },
+          {
+            "texto": "− Salida",
+            "deshabilitado": false
+          },
+          {
+            "texto": "Editar",
+            "deshabilitado": false
+          },
+          {
+            "texto": "Eliminar",
+            "deshabilitado": false
+          },
+          {
+            "texto": "‹ Anterior",
+            "deshabilitado": true
+          },
+          {
+            "texto": "Siguiente ›",
+            "deshabilitado": false
+          }
+        ],
+        "campos": [
+          {
+            "tipo": null,
+            "nombre": null,
+            "placeholder": null,
+            "deshabilitado": false
+          },
+          {
+            "tipo": null,
+            "nombre": null,
+            "placeholder": "🔍 Buscar insumo…",
+            "deshabilitado": false
+          },
+          {
+            "tipo": "checkbox",
+            "nombre": null,
+            "placeholder": null,
+            "deshabilitado": false
+          },
+          {
+            "tipo": null,
+            "nombre": null,
+            "placeholder": null,
+            "deshabilitado": false
+          }
+        ],
         "errores_consola": [],
         "errores_pagina": []
       },
-      "error": "La aplicación redirigió al inicio de sesión. Revisa cómo conserva la autenticación."
+      "error": null
     },
     {
       "nombre": "Proveedores",
       "ruta": "inventario/proveedores",
       "url_solicitada": "http://localhost:4200/inventario/proveedores",
-      "estado": "sesion_no_reconocida",
-      "url_final": "http://localhost:4200/login?redirect=%2Finventario%2Fproveedores",
+      "estado": "visitada",
+      "url_final": "http://localhost:4200/inventario/proveedores",
       "captura": "D:\\WorkSpace\\dentamia\\ReelOdontologia\\capturas\\09_inventario_proveedores.png",
       "componentes": {
-        "url": "http://localhost:4200/login?redirect=%2Finventario%2Fproveedores",
+        "url": "http://localhost:4200/inventario/proveedores",
         "titulo": "SmiloFun · Centro Odontológico Inteligente",
-        "enlaces": [],
-        "botones": [],
-        "campos": [],
+        "enlaces": [
+          {
+            "texto": "Dashboard",
+            "href": "/dashboard"
+          },
+          {
+            "texto": "Pacientes",
+            "href": "/pacientes"
+          },
+          {
+            "texto": "Agenda / Citas",
+            "href": "/citas"
+          },
+          {
+            "texto": "Doctores",
+            "href": "/doctores"
+          },
+          {
+            "texto": "Tratamientos",
+            "href": "/tratamientos"
+          },
+          {
+            "texto": "Panel IA",
+            "href": "/ia"
+          },
+          {
+            "texto": "Asistente IA",
+            "href": "/ia/asistente"
+          },
+          {
+            "texto": "Riesgo de Inasistencia",
+            "href": "/ia/no-show"
+          },
+          {
+            "texto": "Proyección de Ingresos",
+            "href": "/ia/ingresos"
+          },
+          {
+            "texto": "Segmentación de Pacientes",
+            "href": "/ia/pacientes"
+          },
+          {
+            "texto": "Inventario Predictivo",
+            "href": "/ia/inventario"
+          },
+          {
+            "texto": "Agenda Inteligente",
+            "href": "/ia/agenda"
+          },
+          {
+            "texto": "Historial de Predicciones",
+            "href": "/ia/historial"
+          },
+          {
+            "texto": "Diseño de Prótesis",
+            "href": "/diseno3d"
+          },
+          {
+            "texto": "Catálogo de Piezas",
+            "href": "/diseno3d/catalogo"
+          },
+          {
+            "texto": "Historial de Diseños",
+            "href": "/diseno3d/historial"
+          },
+          {
+            "texto": "Facturación",
+            "href": "/facturacion"
+          },
+          {
+            "texto": "Insumos",
+            "href": "/inventario"
+          },
+          {
+            "texto": "Proveedores",
+            "href": "/inventario/proveedores"
+          },
+          {
+            "texto": "Compras de insumos",
+            "href": "/inventario/compras"
+          },
+          {
+            "texto": "Reportes",
+            "href": "/reportes"
+          },
+          {
+            "texto": "Campañas",
+            "href": "/campanas"
+          },
+          {
+            "texto": "Empresas",
+            "href": "/empresas"
+          },
+          {
+            "texto": "Usuarios",
+            "href": "/usuarios"
+          },
+          {
+            "texto": "Configuración",
+            "href": "/configuracion"
+          },
+          {
+            "texto": "Copia de Respaldo de Base de Datos",
+            "href": "/mantenimiento/respaldo"
+          },
+          {
+            "texto": "Restaurar Base de Datos",
+            "href": "/mantenimiento/restaurar"
+          },
+          {
+            "texto": "Contáctenos",
+            "href": "/contacto"
+          },
+          {
+            "texto": "Insumos",
+            "href": "/inventario"
+          },
+          {
+            "texto": "Proveedores",
+            "href": "/inventario/proveedores"
+          },
+          {
+            "texto": "Compras",
+            "href": "/inventario/compras"
+          }
+        ],
+        "botones": [
+          {
+            "texto": "",
+            "deshabilitado": false
+          },
+          {
+            "texto": "?",
+            "deshabilitado": false
+          },
+          {
+            "texto": "4",
+            "deshabilitado": false
+          },
+          {
+            "texto": "AS\n\nAdministrador SmiloFun\n\nADMIN",
+            "deshabilitado": false
+          },
+          {
+            "texto": "+ Proveedor",
+            "deshabilitado": false
+          },
+          {
+            "texto": "Editar",
+            "deshabilitado": false
+          },
+          {
+            "texto": "Dar de baja",
+            "deshabilitado": false
+          },
+          {
+            "texto": "Editar",
+            "deshabilitado": false
+          },
+          {
+            "texto": "Dar de baja",
+            "deshabilitado": false
+          },
+          {
+            "texto": "Editar",
+            "deshabilitado": false
+          },
+          {
+            "texto": "Dar de baja",
+            "deshabilitado": false
+          }
+        ],
+        "campos": [
+          {
+            "tipo": null,
+            "nombre": null,
+            "placeholder": null,
+            "deshabilitado": false
+          },
+          {
+            "tipo": null,
+            "nombre": null,
+            "placeholder": "Buscar nombre o RUC",
+            "deshabilitado": false
+          },
+          {
+            "tipo": null,
+            "nombre": null,
+            "placeholder": null,
+            "deshabilitado": false
+          }
+        ],
         "errores_consola": [],
         "errores_pagina": []
       },
-      "error": "La aplicación redirigió al inicio de sesión. Revisa cómo conserva la autenticación."
+      "error": null
     },
     {
       "nombre": "Compras",
       "ruta": "inventario/compras",
       "url_solicitada": "http://localhost:4200/inventario/compras",
-      "estado": "sesion_no_reconocida",
-      "url_final": "http://localhost:4200/login?redirect=%2Finventario%2Fcompras",
+      "estado": "visitada",
+      "url_final": "http://localhost:4200/inventario/compras",
       "captura": "D:\\WorkSpace\\dentamia\\ReelOdontologia\\capturas\\10_inventario_compras.png",
       "componentes": {
-        "url": "http://localhost:4200/login?redirect=%2Finventario%2Fcompras",
+        "url": "http://localhost:4200/inventario/compras",
         "titulo": "SmiloFun · Centro Odontológico Inteligente",
-        "enlaces": [],
-        "botones": [],
-        "campos": [],
+        "enlaces": [
+          {
+            "texto": "Dashboard",
+            "href": "/dashboard"
+          },
+          {
+            "texto": "Pacientes",
+            "href": "/pacientes"
+          },
+          {
+            "texto": "Agenda / Citas",
+            "href": "/citas"
+          },
+          {
+            "texto": "Doctores",
+            "href": "/doctores"
+          },
+          {
+            "texto": "Tratamientos",
+            "href": "/tratamientos"
+          },
+          {
+            "texto": "Panel IA",
+            "href": "/ia"
+          },
+          {
+            "texto": "Asistente IA",
+            "href": "/ia/asistente"
+          },
+          {
+            "texto": "Riesgo de Inasistencia",
+            "href": "/ia/no-show"
+          },
+          {
+            "texto": "Proyección de Ingresos",
+            "href": "/ia/ingresos"
+          },
+          {
+            "texto": "Segmentación de Pacientes",
+            "href": "/ia/pacientes"
+          },
+          {
+            "texto": "Inventario Predictivo",
+            "href": "/ia/inventario"
+          },
+          {
+            "texto": "Agenda Inteligente",
+            "href": "/ia/agenda"
+          },
+          {
+            "texto": "Historial de Predicciones",
+            "href": "/ia/historial"
+          },
+          {
+            "texto": "Diseño de Prótesis",
+            "href": "/diseno3d"
+          },
+          {
+            "texto": "Catálogo de Piezas",
+            "href": "/diseno3d/catalogo"
+          },
+          {
+            "texto": "Historial de Diseños",
+            "href": "/diseno3d/historial"
+          },
+          {
+            "texto": "Facturación",
+            "href": "/facturacion"
+          },
+          {
+            "texto": "Insumos",
+            "href": "/inventario"
+          },
+          {
+            "texto": "Proveedores",
+            "href": "/inventario/proveedores"
+          },
+          {
+            "texto": "Compras de insumos",
+            "href": "/inventario/compras"
+          },
+          {
+            "texto": "Reportes",
+            "href": "/reportes"
+          },
+          {
+            "texto": "Campañas",
+            "href": "/campanas"
+          },
+          {
+            "texto": "Empresas",
+            "href": "/empresas"
+          },
+          {
+            "texto": "Usuarios",
+            "href": "/usuarios"
+          },
+          {
+            "texto": "Configuración",
+            "href": "/configuracion"
+          },
+          {
+            "texto": "Copia de Respaldo de Base de Datos",
+            "href": "/mantenimiento/respaldo"
+          },
+          {
+            "texto": "Restaurar Base de Datos",
+            "href": "/mantenimiento/restaurar"
+          },
+          {
+            "texto": "Contáctenos",
+            "href": "/contacto"
+          },
+          {
+            "texto": "Insumos",
+            "href": "/inventario"
+          },
+          {
+            "texto": "Proveedores",
+            "href": "/inventario/proveedores"
+          },
+          {
+            "texto": "Compras",
+            "href": "/inventario/compras"
+          }
+        ],
+        "botones": [
+          {
+            "texto": "",
+            "deshabilitado": false
+          },
+          {
+            "texto": "?",
+            "deshabilitado": false
+          },
+          {
+            "texto": "4",
+            "deshabilitado": false
+          },
+          {
+            "texto": "AS\n\nAdministrador SmiloFun\n\nADMIN",
+            "deshabilitado": false
+          },
+          {
+            "texto": "+ Registrar compra",
+            "deshabilitado": false
+          }
+        ],
+        "campos": [
+          {
+            "tipo": null,
+            "nombre": null,
+            "placeholder": null,
+            "deshabilitado": false
+          }
+        ],
         "errores_consola": [],
         "errores_pagina": []
       },
-      "error": "La aplicación redirigió al inicio de sesión. Revisa cómo conserva la autenticación."
+      "error": null
     },
     {
       "nombre": "Reportes",
       "ruta": "reportes",
       "url_solicitada": "http://localhost:4200/reportes",
-      "estado": "sesion_no_reconocida",
-      "url_final": "http://localhost:4200/login?redirect=%2Freportes",
+      "estado": "visitada",
+      "url_final": "http://localhost:4200/reportes",
       "captura": "D:\\WorkSpace\\dentamia\\ReelOdontologia\\capturas\\11_reportes.png",
       "componentes": {
-        "url": "http://localhost:4200/login?redirect=%2Freportes",
+        "url": "http://localhost:4200/reportes",
         "titulo": "SmiloFun · Centro Odontológico Inteligente",
-        "enlaces": [],
-        "botones": [],
-        "campos": [],
+        "enlaces": [
+          {
+            "texto": "Dashboard",
+            "href": "/dashboard"
+          },
+          {
+            "texto": "Pacientes",
+            "href": "/pacientes"
+          },
+          {
+            "texto": "Agenda / Citas",
+            "href": "/citas"
+          },
+          {
+            "texto": "Doctores",
+            "href": "/doctores"
+          },
+          {
+            "texto": "Tratamientos",
+            "href": "/tratamientos"
+          },
+          {
+            "texto": "Panel IA",
+            "href": "/ia"
+          },
+          {
+            "texto": "Asistente IA",
+            "href": "/ia/asistente"
+          },
+          {
+            "texto": "Riesgo de Inasistencia",
+            "href": "/ia/no-show"
+          },
+          {
+            "texto": "Proyección de Ingresos",
+            "href": "/ia/ingresos"
+          },
+          {
+            "texto": "Segmentación de Pacientes",
+            "href": "/ia/pacientes"
+          },
+          {
+            "texto": "Inventario Predictivo",
+            "href": "/ia/inventario"
+          },
+          {
+            "texto": "Agenda Inteligente",
+            "href": "/ia/agenda"
+          },
+          {
+            "texto": "Historial de Predicciones",
+            "href": "/ia/historial"
+          },
+          {
+            "texto": "Diseño de Prótesis",
+            "href": "/diseno3d"
+          },
+          {
+            "texto": "Catálogo de Piezas",
+            "href": "/diseno3d/catalogo"
+          },
+          {
+            "texto": "Historial de Diseños",
+            "href": "/diseno3d/historial"
+          },
+          {
+            "texto": "Facturación",
+            "href": "/facturacion"
+          },
+          {
+            "texto": "Insumos",
+            "href": "/inventario"
+          },
+          {
+            "texto": "Proveedores",
+            "href": "/inventario/proveedores"
+          },
+          {
+            "texto": "Compras de insumos",
+            "href": "/inventario/compras"
+          },
+          {
+            "texto": "Reportes",
+            "href": "/reportes"
+          },
+          {
+            "texto": "Campañas",
+            "href": "/campanas"
+          },
+          {
+            "texto": "Empresas",
+            "href": "/empresas"
+          },
+          {
+            "texto": "Usuarios",
+            "href": "/usuarios"
+          },
+          {
+            "texto": "Configuración",
+            "href": "/configuracion"
+          },
+          {
+            "texto": "Copia de Respaldo de Base de Datos",
+            "href": "/mantenimiento/respaldo"
+          },
+          {
+            "texto": "Restaurar Base de Datos",
+            "href": "/mantenimiento/restaurar"
+          },
+          {
+            "texto": "Contáctenos",
+            "href": "/contacto"
+          }
+        ],
+        "botones": [
+          {
+            "texto": "",
+            "deshabilitado": false
+          },
+          {
+            "texto": "?",
+            "deshabilitado": false
+          },
+          {
+            "texto": "4",
+            "deshabilitado": false
+          },
+          {
+            "texto": "AS\n\nAdministrador SmiloFun\n\nADMIN",
+            "deshabilitado": false
+          }
+        ],
+        "campos": [
+          {
+            "tipo": null,
+            "nombre": null,
+            "placeholder": null,
+            "deshabilitado": false
+          },
+          {
+            "tipo": "date",
+            "nombre": null,
+            "placeholder": null,
+            "deshabilitado": false
+          },
+          {
+            "tipo": "date",
+            "nombre": null,
+            "placeholder": null,
+            "deshabilitado": false
+          }
+        ],
         "errores_consola": [],
         "errores_pagina": []
       },
-      "error": "La aplicación redirigió al inicio de sesión. Revisa cómo conserva la autenticación."
+      "error": null
     },
     {
       "nombre": "Asistente IA",
       "ruta": "ia/asistente",
       "url_solicitada": "http://localhost:4200/ia/asistente",
-      "estado": "sesion_no_reconocida",
-      "url_final": "http://localhost:4200/login?redirect=%2Fia%2Fasistente",
+      "estado": "visitada",
+      "url_final": "http://localhost:4200/ia/asistente",
       "captura": "D:\\WorkSpace\\dentamia\\ReelOdontologia\\capturas\\12_ia_asistente.png",
       "componentes": {
-        "url": "http://localhost:4200/login?redirect=%2Fia%2Fasistente",
+        "url": "http://localhost:4200/ia/asistente",
         "titulo": "SmiloFun · Centro Odontológico Inteligente",
-        "enlaces": [],
-        "botones": [],
-        "campos": [],
+        "enlaces": [
+          {
+            "texto": "Dashboard",
+            "href": "/dashboard"
+          },
+          {
+            "texto": "Pacientes",
+            "href": "/pacientes"
+          },
+          {
+            "texto": "Agenda / Citas",
+            "href": "/citas"
+          },
+          {
+            "texto": "Doctores",
+            "href": "/doctores"
+          },
+          {
+            "texto": "Tratamientos",
+            "href": "/tratamientos"
+          },
+          {
+            "texto": "Panel IA",
+            "href": "/ia"
+          },
+          {
+            "texto": "Asistente IA",
+            "href": "/ia/asistente"
+          },
+          {
+            "texto": "Riesgo de Inasistencia",
+            "href": "/ia/no-show"
+          },
+          {
+            "texto": "Proyección de Ingresos",
+            "href": "/ia/ingresos"
+          },
+          {
+            "texto": "Segmentación de Pacientes",
+            "href": "/ia/pacientes"
+          },
+          {
+            "texto": "Inventario Predictivo",
+            "href": "/ia/inventario"
+          },
+          {
+            "texto": "Agenda Inteligente",
+            "href": "/ia/agenda"
+          },
+          {
+            "texto": "Historial de Predicciones",
+            "href": "/ia/historial"
+          },
+          {
+            "texto": "Diseño de Prótesis",
+            "href": "/diseno3d"
+          },
+          {
+            "texto": "Catálogo de Piezas",
+            "href": "/diseno3d/catalogo"
+          },
+          {
+            "texto": "Historial de Diseños",
+            "href": "/diseno3d/historial"
+          },
+          {
+            "texto": "Facturación",
+            "href": "/facturacion"
+          },
+          {
+            "texto": "Insumos",
+            "href": "/inventario"
+          },
+          {
+            "texto": "Proveedores",
+            "href": "/inventario/proveedores"
+          },
+          {
+            "texto": "Compras de insumos",
+            "href": "/inventario/compras"
+          },
+          {
+            "texto": "Reportes",
+            "href": "/reportes"
+          },
+          {
+            "texto": "Campañas",
+            "href": "/campanas"
+          },
+          {
+            "texto": "Empresas",
+            "href": "/empresas"
+          },
+          {
+            "texto": "Usuarios",
+            "href": "/usuarios"
+          },
+          {
+            "texto": "Configuración",
+            "href": "/configuracion"
+          },
+          {
+            "texto": "Copia de Respaldo de Base de Datos",
+            "href": "/mantenimiento/respaldo"
+          },
+          {
+            "texto": "Restaurar Base de Datos",
+            "href": "/mantenimiento/restaurar"
+          },
+          {
+            "texto": "Contáctenos",
+            "href": "/contacto"
+          }
+        ],
+        "botones": [
+          {
+            "texto": "",
+            "deshabilitado": false
+          },
+          {
+            "texto": "?",
+            "deshabilitado": false
+          },
+          {
+            "texto": "4",
+            "deshabilitado": false
+          },
+          {
+            "texto": "AS\n\nAdministrador SmiloFun\n\nADMIN",
+            "deshabilitado": false
+          },
+          {
+            "texto": "Limpiar",
+            "deshabilitado": false
+          },
+          {
+            "texto": "¿Cuántos pacientes tengo?",
+            "deshabilitado": false
+          },
+          {
+            "texto": "¿Cuánto voy a facturar?",
+            "deshabilitado": false
+          },
+          {
+            "texto": "Riesgo de inasistencia",
+            "deshabilitado": false
+          },
+          {
+            "texto": "Stock bajo",
+            "deshabilitado": false
+          },
+          {
+            "texto": "Tratamientos más rentables",
+            "deshabilitado": false
+          },
+          {
+            "texto": "¿Qué me recomiendas?",
+            "deshabilitado": false
+          },
+          {
+            "texto": "Enviar",
+            "deshabilitado": true
+          }
+        ],
+        "campos": [
+          {
+            "tipo": null,
+            "nombre": null,
+            "placeholder": null,
+            "deshabilitado": false
+          },
+          {
+            "tipo": "text",
+            "nombre": "pregunta",
+            "placeholder": "Escribe tu pregunta…",
+            "deshabilitado": false
+          }
+        ],
         "errores_consola": [],
         "errores_pagina": []
       },
-      "error": "La aplicación redirigió al inicio de sesión. Revisa cómo conserva la autenticación."
+      "error": null
     },
     {
       "nombre": "IA No-show",
       "ruta": "ia/no-show",
       "url_solicitada": "http://localhost:4200/ia/no-show",
-      "estado": "sesion_no_reconocida",
-      "url_final": "http://localhost:4200/login?redirect=%2Fia%2Fno-show",
+      "estado": "visitada",
+      "url_final": "http://localhost:4200/ia/no-show",
       "captura": "D:\\WorkSpace\\dentamia\\ReelOdontologia\\capturas\\13_ia_no-show.png",
       "componentes": {
-        "url": "http://localhost:4200/login?redirect=%2Fia%2Fno-show",
+        "url": "http://localhost:4200/ia/no-show",
         "titulo": "SmiloFun · Centro Odontológico Inteligente",
-        "enlaces": [],
-        "botones": [],
-        "campos": [],
+        "enlaces": [
+          {
+            "texto": "Dashboard",
+            "href": "/dashboard"
+          },
+          {
+            "texto": "Pacientes",
+            "href": "/pacientes"
+          },
+          {
+            "texto": "Agenda / Citas",
+            "href": "/citas"
+          },
+          {
+            "texto": "Doctores",
+            "href": "/doctores"
+          },
+          {
+            "texto": "Tratamientos",
+            "href": "/tratamientos"
+          },
+          {
+            "texto": "Panel IA",
+            "href": "/ia"
+          },
+          {
+            "texto": "Asistente IA",
+            "href": "/ia/asistente"
+          },
+          {
+            "texto": "Riesgo de Inasistencia",
+            "href": "/ia/no-show"
+          },
+          {
+            "texto": "Proyección de Ingresos",
+            "href": "/ia/ingresos"
+          },
+          {
+            "texto": "Segmentación de Pacientes",
+            "href": "/ia/pacientes"
+          },
+          {
+            "texto": "Inventario Predictivo",
+            "href": "/ia/inventario"
+          },
+          {
+            "texto": "Agenda Inteligente",
+            "href": "/ia/agenda"
+          },
+          {
+            "texto": "Historial de Predicciones",
+            "href": "/ia/historial"
+          },
+          {
+            "texto": "Diseño de Prótesis",
+            "href": "/diseno3d"
+          },
+          {
+            "texto": "Catálogo de Piezas",
+            "href": "/diseno3d/catalogo"
+          },
+          {
+            "texto": "Historial de Diseños",
+            "href": "/diseno3d/historial"
+          },
+          {
+            "texto": "Facturación",
+            "href": "/facturacion"
+          },
+          {
+            "texto": "Insumos",
+            "href": "/inventario"
+          },
+          {
+            "texto": "Proveedores",
+            "href": "/inventario/proveedores"
+          },
+          {
+            "texto": "Compras de insumos",
+            "href": "/inventario/compras"
+          },
+          {
+            "texto": "Reportes",
+            "href": "/reportes"
+          },
+          {
+            "texto": "Campañas",
+            "href": "/campanas"
+          },
+          {
+            "texto": "Empresas",
+            "href": "/empresas"
+          },
+          {
+            "texto": "Usuarios",
+            "href": "/usuarios"
+          },
+          {
+            "texto": "Configuración",
+            "href": "/configuracion"
+          },
+          {
+            "texto": "Copia de Respaldo de Base de Datos",
+            "href": "/mantenimiento/respaldo"
+          },
+          {
+            "texto": "Restaurar Base de Datos",
+            "href": "/mantenimiento/restaurar"
+          },
+          {
+            "texto": "Contáctenos",
+            "href": "/contacto"
+          }
+        ],
+        "botones": [
+          {
+            "texto": "",
+            "deshabilitado": false
+          },
+          {
+            "texto": "?",
+            "deshabilitado": false
+          },
+          {
+            "texto": "4",
+            "deshabilitado": false
+          },
+          {
+            "texto": "AS\n\nAdministrador SmiloFun\n\nADMIN",
+            "deshabilitado": false
+          },
+          {
+            "texto": "⟳ Actualizar",
+            "deshabilitado": false
+          },
+          {
+            "texto": "Todos",
+            "deshabilitado": false
+          },
+          {
+            "texto": "Alto",
+            "deshabilitado": false
+          },
+          {
+            "texto": "Medio",
+            "deshabilitado": false
+          },
+          {
+            "texto": "Bajo",
+            "deshabilitado": false
+          },
+          {
+            "texto": "‹ Anterior",
+            "deshabilitado": true
+          },
+          {
+            "texto": "Siguiente ›",
+            "deshabilitado": true
+          }
+        ],
+        "campos": [
+          {
+            "tipo": null,
+            "nombre": null,
+            "placeholder": null,
+            "deshabilitado": false
+          },
+          {
+            "tipo": null,
+            "nombre": null,
+            "placeholder": null,
+            "deshabilitado": false
+          },
+          {
+            "tipo": "number",
+            "nombre": null,
+            "placeholder": null,
+            "deshabilitado": false
+          },
+          {
+            "tipo": null,
+            "nombre": null,
+            "placeholder": null,
+            "deshabilitado": false
+          }
+        ],
         "errores_consola": [],
         "errores_pagina": []
       },
-      "error": "La aplicación redirigió al inicio de sesión. Revisa cómo conserva la autenticación."
+      "error": null
     },
     {
       "nombre": "IA Ingresos",
       "ruta": "ia/ingresos",
       "url_solicitada": "http://localhost:4200/ia/ingresos",
-      "estado": "sesion_no_reconocida",
-      "url_final": "http://localhost:4200/login?redirect=%2Fia%2Fingresos",
+      "estado": "visitada",
+      "url_final": "http://localhost:4200/ia/ingresos",
       "captura": "D:\\WorkSpace\\dentamia\\ReelOdontologia\\capturas\\14_ia_ingresos.png",
       "componentes": {
-        "url": "http://localhost:4200/login?redirect=%2Fia%2Fingresos",
+        "url": "http://localhost:4200/ia/ingresos",
         "titulo": "SmiloFun · Centro Odontológico Inteligente",
-        "enlaces": [],
-        "botones": [],
-        "campos": [],
+        "enlaces": [
+          {
+            "texto": "Dashboard",
+            "href": "/dashboard"
+          },
+          {
+            "texto": "Pacientes",
+            "href": "/pacientes"
+          },
+          {
+            "texto": "Agenda / Citas",
+            "href": "/citas"
+          },
+          {
+            "texto": "Doctores",
+            "href": "/doctores"
+          },
+          {
+            "texto": "Tratamientos",
+            "href": "/tratamientos"
+          },
+          {
+            "texto": "Panel IA",
+            "href": "/ia"
+          },
+          {
+            "texto": "Asistente IA",
+            "href": "/ia/asistente"
+          },
+          {
+            "texto": "Riesgo de Inasistencia",
+            "href": "/ia/no-show"
+          },
+          {
+            "texto": "Proyección de Ingresos",
+            "href": "/ia/ingresos"
+          },
+          {
+            "texto": "Segmentación de Pacientes",
+            "href": "/ia/pacientes"
+          },
+          {
+            "texto": "Inventario Predictivo",
+            "href": "/ia/inventario"
+          },
+          {
+            "texto": "Agenda Inteligente",
+            "href": "/ia/agenda"
+          },
+          {
+            "texto": "Historial de Predicciones",
+            "href": "/ia/historial"
+          },
+          {
+            "texto": "Diseño de Prótesis",
+            "href": "/diseno3d"
+          },
+          {
+            "texto": "Catálogo de Piezas",
+            "href": "/diseno3d/catalogo"
+          },
+          {
+            "texto": "Historial de Diseños",
+            "href": "/diseno3d/historial"
+          },
+          {
+            "texto": "Facturación",
+            "href": "/facturacion"
+          },
+          {
+            "texto": "Insumos",
+            "href": "/inventario"
+          },
+          {
+            "texto": "Proveedores",
+            "href": "/inventario/proveedores"
+          },
+          {
+            "texto": "Compras de insumos",
+            "href": "/inventario/compras"
+          },
+          {
+            "texto": "Reportes",
+            "href": "/reportes"
+          },
+          {
+            "texto": "Campañas",
+            "href": "/campanas"
+          },
+          {
+            "texto": "Empresas",
+            "href": "/empresas"
+          },
+          {
+            "texto": "Usuarios",
+            "href": "/usuarios"
+          },
+          {
+            "texto": "Configuración",
+            "href": "/configuracion"
+          },
+          {
+            "texto": "Copia de Respaldo de Base de Datos",
+            "href": "/mantenimiento/respaldo"
+          },
+          {
+            "texto": "Restaurar Base de Datos",
+            "href": "/mantenimiento/restaurar"
+          },
+          {
+            "texto": "Contáctenos",
+            "href": "/contacto"
+          }
+        ],
+        "botones": [
+          {
+            "texto": "",
+            "deshabilitado": false
+          },
+          {
+            "texto": "?",
+            "deshabilitado": false
+          },
+          {
+            "texto": "4",
+            "deshabilitado": false
+          },
+          {
+            "texto": "AS\n\nAdministrador SmiloFun\n\nADMIN",
+            "deshabilitado": false
+          },
+          {
+            "texto": "⟳ Actualizar",
+            "deshabilitado": false
+          }
+        ],
+        "campos": [
+          {
+            "tipo": null,
+            "nombre": null,
+            "placeholder": null,
+            "deshabilitado": false
+          },
+          {
+            "tipo": null,
+            "nombre": null,
+            "placeholder": null,
+            "deshabilitado": false
+          }
+        ],
         "errores_consola": [],
         "errores_pagina": []
       },
-      "error": "La aplicación redirigió al inicio de sesión. Revisa cómo conserva la autenticación."
+      "error": null
+    },
+    {
+      "nombre": "IA Pacientes",
+      "ruta": "ia/pacientes",
+      "url_solicitada": "http://localhost:4200/ia/pacientes",
+      "estado": "visitada",
+      "url_final": "http://localhost:4200/ia/pacientes",
+      "captura": "D:\\WorkSpace\\dentamia\\ReelOdontologia\\capturas\\15_ia_pacientes.png",
+      "componentes": {
+        "url": "http://localhost:4200/ia/pacientes",
+        "titulo": "SmiloFun · Centro Odontológico Inteligente",
+        "enlaces": [
+          {
+            "texto": "Dashboard",
+            "href": "/dashboard"
+          },
+          {
+            "texto": "Pacientes",
+            "href": "/pacientes"
+          },
+          {
+            "texto": "Agenda / Citas",
+            "href": "/citas"
+          },
+          {
+            "texto": "Doctores",
+            "href": "/doctores"
+          },
+          {
+            "texto": "Tratamientos",
+            "href": "/tratamientos"
+          },
+          {
+            "texto": "Panel IA",
+            "href": "/ia"
+          },
+          {
+            "texto": "Asistente IA",
+            "href": "/ia/asistente"
+          },
+          {
+            "texto": "Riesgo de Inasistencia",
+            "href": "/ia/no-show"
+          },
+          {
+            "texto": "Proyección de Ingresos",
+            "href": "/ia/ingresos"
+          },
+          {
+            "texto": "Segmentación de Pacientes",
+            "href": "/ia/pacientes"
+          },
+          {
+            "texto": "Inventario Predictivo",
+            "href": "/ia/inventario"
+          },
+          {
+            "texto": "Agenda Inteligente",
+            "href": "/ia/agenda"
+          },
+          {
+            "texto": "Historial de Predicciones",
+            "href": "/ia/historial"
+          },
+          {
+            "texto": "Diseño de Prótesis",
+            "href": "/diseno3d"
+          },
+          {
+            "texto": "Catálogo de Piezas",
+            "href": "/diseno3d/catalogo"
+          },
+          {
+            "texto": "Historial de Diseños",
+            "href": "/diseno3d/historial"
+          },
+          {
+            "texto": "Facturación",
+            "href": "/facturacion"
+          },
+          {
+            "texto": "Insumos",
+            "href": "/inventario"
+          },
+          {
+            "texto": "Proveedores",
+            "href": "/inventario/proveedores"
+          },
+          {
+            "texto": "Compras de insumos",
+            "href": "/inventario/compras"
+          },
+          {
+            "texto": "Reportes",
+            "href": "/reportes"
+          },
+          {
+            "texto": "Campañas",
+            "href": "/campanas"
+          },
+          {
+            "texto": "Empresas",
+            "href": "/empresas"
+          },
+          {
+            "texto": "Usuarios",
+            "href": "/usuarios"
+          },
+          {
+            "texto": "Configuración",
+            "href": "/configuracion"
+          },
+          {
+            "texto": "Copia de Respaldo de Base de Datos",
+            "href": "/mantenimiento/respaldo"
+          },
+          {
+            "texto": "Restaurar Base de Datos",
+            "href": "/mantenimiento/restaurar"
+          },
+          {
+            "texto": "Contáctenos",
+            "href": "/contacto"
+          }
+        ],
+        "botones": [
+          {
+            "texto": "",
+            "deshabilitado": false
+          },
+          {
+            "texto": "?",
+            "deshabilitado": false
+          },
+          {
+            "texto": "4",
+            "deshabilitado": false
+          },
+          {
+            "texto": "AS\n\nAdministrador SmiloFun\n\nADMIN",
+            "deshabilitado": false
+          },
+          {
+            "texto": "⟳ Actualizar",
+            "deshabilitado": false
+          },
+          {
+            "texto": "Dormidos\n4\n\nSin visitas hace más de un año\n\nValor histórico: S/13,667",
+            "deshabilitado": false
+          },
+          {
+            "texto": "En riesgo de fuga\n5\n\nSin visitas entre 6 y 12 meses\n\nValor histórico: S/20,776",
+            "deshabilitado": false
+          },
+          {
+            "texto": "VIP\n8\n\nAlto gasto y recurrencia\n\nValor histórico: S/65,524",
+            "deshabilitado": false
+          },
+          {
+            "texto": "Activos\n12\n\nPacientes en seguimiento\n\nValor histórico: S/49,757",
+            "deshabilitado": false
+          },
+          {
+            "texto": "Nuevos\n7\n\nSin visitas completadas o una sola\n\nValor histórico: S/21,299",
+            "deshabilitado": false
+          }
+        ],
+        "campos": [
+          {
+            "tipo": null,
+            "nombre": null,
+            "placeholder": null,
+            "deshabilitado": false
+          }
+        ],
+        "errores_consola": [],
+        "errores_pagina": []
+      },
+      "error": null
+    },
+    {
+      "nombre": "IA Inventario",
+      "ruta": "ia/inventario",
+      "url_solicitada": "http://localhost:4200/ia/inventario",
+      "estado": "visitada",
+      "url_final": "http://localhost:4200/ia/inventario",
+      "captura": "D:\\WorkSpace\\dentamia\\ReelOdontologia\\capturas\\16_ia_inventario.png",
+      "componentes": {
+        "url": "http://localhost:4200/ia/inventario",
+        "titulo": "SmiloFun · Centro Odontológico Inteligente",
+        "enlaces": [
+          {
+            "texto": "Dashboard",
+            "href": "/dashboard"
+          },
+          {
+            "texto": "Pacientes",
+            "href": "/pacientes"
+          },
+          {
+            "texto": "Agenda / Citas",
+            "href": "/citas"
+          },
+          {
+            "texto": "Doctores",
+            "href": "/doctores"
+          },
+          {
+            "texto": "Tratamientos",
+            "href": "/tratamientos"
+          },
+          {
+            "texto": "Panel IA",
+            "href": "/ia"
+          },
+          {
+            "texto": "Asistente IA",
+            "href": "/ia/asistente"
+          },
+          {
+            "texto": "Riesgo de Inasistencia",
+            "href": "/ia/no-show"
+          },
+          {
+            "texto": "Proyección de Ingresos",
+            "href": "/ia/ingresos"
+          },
+          {
+            "texto": "Segmentación de Pacientes",
+            "href": "/ia/pacientes"
+          },
+          {
+            "texto": "Inventario Predictivo",
+            "href": "/ia/inventario"
+          },
+          {
+            "texto": "Agenda Inteligente",
+            "href": "/ia/agenda"
+          },
+          {
+            "texto": "Historial de Predicciones",
+            "href": "/ia/historial"
+          },
+          {
+            "texto": "Diseño de Prótesis",
+            "href": "/diseno3d"
+          },
+          {
+            "texto": "Catálogo de Piezas",
+            "href": "/diseno3d/catalogo"
+          },
+          {
+            "texto": "Historial de Diseños",
+            "href": "/diseno3d/historial"
+          },
+          {
+            "texto": "Facturación",
+            "href": "/facturacion"
+          },
+          {
+            "texto": "Insumos",
+            "href": "/inventario"
+          },
+          {
+            "texto": "Proveedores",
+            "href": "/inventario/proveedores"
+          },
+          {
+            "texto": "Compras de insumos",
+            "href": "/inventario/compras"
+          },
+          {
+            "texto": "Reportes",
+            "href": "/reportes"
+          },
+          {
+            "texto": "Campañas",
+            "href": "/campanas"
+          },
+          {
+            "texto": "Empresas",
+            "href": "/empresas"
+          },
+          {
+            "texto": "Usuarios",
+            "href": "/usuarios"
+          },
+          {
+            "texto": "Configuración",
+            "href": "/configuracion"
+          },
+          {
+            "texto": "Copia de Respaldo de Base de Datos",
+            "href": "/mantenimiento/respaldo"
+          },
+          {
+            "texto": "Restaurar Base de Datos",
+            "href": "/mantenimiento/restaurar"
+          },
+          {
+            "texto": "Contáctenos",
+            "href": "/contacto"
+          }
+        ],
+        "botones": [
+          {
+            "texto": "",
+            "deshabilitado": false
+          },
+          {
+            "texto": "?",
+            "deshabilitado": false
+          },
+          {
+            "texto": "4",
+            "deshabilitado": false
+          },
+          {
+            "texto": "AS\n\nAdministrador SmiloFun\n\nADMIN",
+            "deshabilitado": false
+          },
+          {
+            "texto": "⟳ Actualizar",
+            "deshabilitado": false
+          },
+          {
+            "texto": "‹ Anterior",
+            "deshabilitado": true
+          },
+          {
+            "texto": "Siguiente ›",
+            "deshabilitado": false
+          }
+        ],
+        "campos": [
+          {
+            "tipo": null,
+            "nombre": null,
+            "placeholder": null,
+            "deshabilitado": false
+          },
+          {
+            "tipo": null,
+            "nombre": null,
+            "placeholder": null,
+            "deshabilitado": false
+          }
+        ],
+        "errores_consola": [],
+        "errores_pagina": []
+      },
+      "error": null
+    },
+    {
+      "nombre": "IA Agenda",
+      "ruta": "ia/agenda",
+      "url_solicitada": "http://localhost:4200/ia/agenda",
+      "estado": "visitada",
+      "url_final": "http://localhost:4200/ia/agenda",
+      "captura": "D:\\WorkSpace\\dentamia\\ReelOdontologia\\capturas\\17_ia_agenda.png",
+      "componentes": {
+        "url": "http://localhost:4200/ia/agenda",
+        "titulo": "SmiloFun · Centro Odontológico Inteligente",
+        "enlaces": [
+          {
+            "texto": "Dashboard",
+            "href": "/dashboard"
+          },
+          {
+            "texto": "Pacientes",
+            "href": "/pacientes"
+          },
+          {
+            "texto": "Agenda / Citas",
+            "href": "/citas"
+          },
+          {
+            "texto": "Doctores",
+            "href": "/doctores"
+          },
+          {
+            "texto": "Tratamientos",
+            "href": "/tratamientos"
+          },
+          {
+            "texto": "Panel IA",
+            "href": "/ia"
+          },
+          {
+            "texto": "Asistente IA",
+            "href": "/ia/asistente"
+          },
+          {
+            "texto": "Riesgo de Inasistencia",
+            "href": "/ia/no-show"
+          },
+          {
+            "texto": "Proyección de Ingresos",
+            "href": "/ia/ingresos"
+          },
+          {
+            "texto": "Segmentación de Pacientes",
+            "href": "/ia/pacientes"
+          },
+          {
+            "texto": "Inventario Predictivo",
+            "href": "/ia/inventario"
+          },
+          {
+            "texto": "Agenda Inteligente",
+            "href": "/ia/agenda"
+          },
+          {
+            "texto": "Historial de Predicciones",
+            "href": "/ia/historial"
+          },
+          {
+            "texto": "Diseño de Prótesis",
+            "href": "/diseno3d"
+          },
+          {
+            "texto": "Catálogo de Piezas",
+            "href": "/diseno3d/catalogo"
+          },
+          {
+            "texto": "Historial de Diseños",
+            "href": "/diseno3d/historial"
+          },
+          {
+            "texto": "Facturación",
+            "href": "/facturacion"
+          },
+          {
+            "texto": "Insumos",
+            "href": "/inventario"
+          },
+          {
+            "texto": "Proveedores",
+            "href": "/inventario/proveedores"
+          },
+          {
+            "texto": "Compras de insumos",
+            "href": "/inventario/compras"
+          },
+          {
+            "texto": "Reportes",
+            "href": "/reportes"
+          },
+          {
+            "texto": "Campañas",
+            "href": "/campanas"
+          },
+          {
+            "texto": "Empresas",
+            "href": "/empresas"
+          },
+          {
+            "texto": "Usuarios",
+            "href": "/usuarios"
+          },
+          {
+            "texto": "Configuración",
+            "href": "/configuracion"
+          },
+          {
+            "texto": "Copia de Respaldo de Base de Datos",
+            "href": "/mantenimiento/respaldo"
+          },
+          {
+            "texto": "Restaurar Base de Datos",
+            "href": "/mantenimiento/restaurar"
+          },
+          {
+            "texto": "Contáctenos",
+            "href": "/contacto"
+          }
+        ],
+        "botones": [
+          {
+            "texto": "",
+            "deshabilitado": false
+          },
+          {
+            "texto": "?",
+            "deshabilitado": false
+          },
+          {
+            "texto": "4",
+            "deshabilitado": false
+          },
+          {
+            "texto": "AS\n\nAdministrador SmiloFun\n\nADMIN",
+            "deshabilitado": false
+          },
+          {
+            "texto": "⟳ Actualizar",
+            "deshabilitado": false
+          }
+        ],
+        "campos": [
+          {
+            "tipo": null,
+            "nombre": null,
+            "placeholder": null,
+            "deshabilitado": false
+          },
+          {
+            "tipo": null,
+            "nombre": null,
+            "placeholder": null,
+            "deshabilitado": false
+          }
+        ],
+        "errores_consola": [],
+        "errores_pagina": []
+      },
+      "error": null
+    },
+    {
+      "nombre": "Historial IA",
+      "ruta": "ia/historial",
+      "url_solicitada": "http://localhost:4200/ia/historial",
+      "estado": "visitada",
+      "url_final": "http://localhost:4200/ia/historial",
+      "captura": "D:\\WorkSpace\\dentamia\\ReelOdontologia\\capturas\\18_ia_historial.png",
+      "componentes": {
+        "url": "http://localhost:4200/ia/historial",
+        "titulo": "SmiloFun · Centro Odontológico Inteligente",
+        "enlaces": [
+          {
+            "texto": "Dashboard",
+            "href": "/dashboard"
+          },
+          {
+            "texto": "Pacientes",
+            "href": "/pacientes"
+          },
+          {
+            "texto": "Agenda / Citas",
+            "href": "/citas"
+          },
+          {
+            "texto": "Doctores",
+            "href": "/doctores"
+          },
+          {
+            "texto": "Tratamientos",
+            "href": "/tratamientos"
+          },
+          {
+            "texto": "Panel IA",
+            "href": "/ia"
+          },
+          {
+            "texto": "Asistente IA",
+            "href": "/ia/asistente"
+          },
+          {
+            "texto": "Riesgo de Inasistencia",
+            "href": "/ia/no-show"
+          },
+          {
+            "texto": "Proyección de Ingresos",
+            "href": "/ia/ingresos"
+          },
+          {
+            "texto": "Segmentación de Pacientes",
+            "href": "/ia/pacientes"
+          },
+          {
+            "texto": "Inventario Predictivo",
+            "href": "/ia/inventario"
+          },
+          {
+            "texto": "Agenda Inteligente",
+            "href": "/ia/agenda"
+          },
+          {
+            "texto": "Historial de Predicciones",
+            "href": "/ia/historial"
+          },
+          {
+            "texto": "Diseño de Prótesis",
+            "href": "/diseno3d"
+          },
+          {
+            "texto": "Catálogo de Piezas",
+            "href": "/diseno3d/catalogo"
+          },
+          {
+            "texto": "Historial de Diseños",
+            "href": "/diseno3d/historial"
+          },
+          {
+            "texto": "Facturación",
+            "href": "/facturacion"
+          },
+          {
+            "texto": "Insumos",
+            "href": "/inventario"
+          },
+          {
+            "texto": "Proveedores",
+            "href": "/inventario/proveedores"
+          },
+          {
+            "texto": "Compras de insumos",
+            "href": "/inventario/compras"
+          },
+          {
+            "texto": "Reportes",
+            "href": "/reportes"
+          },
+          {
+            "texto": "Campañas",
+            "href": "/campanas"
+          },
+          {
+            "texto": "Empresas",
+            "href": "/empresas"
+          },
+          {
+            "texto": "Usuarios",
+            "href": "/usuarios"
+          },
+          {
+            "texto": "Configuración",
+            "href": "/configuracion"
+          },
+          {
+            "texto": "Copia de Respaldo de Base de Datos",
+            "href": "/mantenimiento/respaldo"
+          },
+          {
+            "texto": "Restaurar Base de Datos",
+            "href": "/mantenimiento/restaurar"
+          },
+          {
+            "texto": "Contáctenos",
+            "href": "/contacto"
+          }
+        ],
+        "botones": [
+          {
+            "texto": "",
+            "deshabilitado": false
+          },
+          {
+            "texto": "?",
+            "deshabilitado": false
+          },
+          {
+            "texto": "4",
+            "deshabilitado": false
+          },
+          {
+            "texto": "AS\n\nAdministrador SmiloFun\n\nADMIN",
+            "deshabilitado": false
+          },
+          {
+            "texto": "⟳ Actualizar",
+            "deshabilitado": false
+          },
+          {
+            "texto": "‹ Anterior",
+            "deshabilitado": true
+          },
+          {
+            "texto": "Siguiente ›",
+            "deshabilitado": false
+          }
+        ],
+        "campos": [
+          {
+            "tipo": null,
+            "nombre": null,
+            "placeholder": null,
+            "deshabilitado": false
+          },
+          {
+            "tipo": null,
+            "nombre": null,
+            "placeholder": null,
+            "deshabilitado": false
+          },
+          {
+            "tipo": null,
+            "nombre": null,
+            "placeholder": null,
+            "deshabilitado": false
+          }
+        ],
+        "errores_consola": [],
+        "errores_pagina": []
+      },
+      "error": null
+    },
+    {
+      "nombre": "Módulo IA",
+      "ruta": "ia",
+      "url_solicitada": "http://localhost:4200/ia",
+      "estado": "visitada",
+      "url_final": "http://localhost:4200/ia",
+      "captura": "D:\\WorkSpace\\dentamia\\ReelOdontologia\\capturas\\19_ia.png",
+      "componentes": {
+        "url": "http://localhost:4200/ia",
+        "titulo": "SmiloFun · Centro Odontológico Inteligente",
+        "enlaces": [
+          {
+            "texto": "Dashboard",
+            "href": "/dashboard"
+          },
+          {
+            "texto": "Pacientes",
+            "href": "/pacientes"
+          },
+          {
+            "texto": "Agenda / Citas",
+            "href": "/citas"
+          },
+          {
+            "texto": "Doctores",
+            "href": "/doctores"
+          },
+          {
+            "texto": "Tratamientos",
+            "href": "/tratamientos"
+          },
+          {
+            "texto": "Panel IA",
+            "href": "/ia"
+          },
+          {
+            "texto": "Asistente IA",
+            "href": "/ia/asistente"
+          },
+          {
+            "texto": "Riesgo de Inasistencia",
+            "href": "/ia/no-show"
+          },
+          {
+            "texto": "Proyección de Ingresos",
+            "href": "/ia/ingresos"
+          },
+          {
+            "texto": "Segmentación de Pacientes",
+            "href": "/ia/pacientes"
+          },
+          {
+            "texto": "Inventario Predictivo",
+            "href": "/ia/inventario"
+          },
+          {
+            "texto": "Agenda Inteligente",
+            "href": "/ia/agenda"
+          },
+          {
+            "texto": "Historial de Predicciones",
+            "href": "/ia/historial"
+          },
+          {
+            "texto": "Diseño de Prótesis",
+            "href": "/diseno3d"
+          },
+          {
+            "texto": "Historial de Diseños",
+            "href": "/diseno3d/historial"
+          },
+          {
+            "texto": "Facturación",
+            "href": "/facturacion"
+          },
+          {
+            "texto": "Insumos",
+            "href": "/inventario"
+          },
+          {
+            "texto": "Proveedores",
+            "href": "/inventario/proveedores"
+          },
+          {
+            "texto": "Compras de insumos",
+            "href": "/inventario/compras"
+          },
+          {
+            "texto": "Reportes",
+            "href": "/reportes"
+          },
+          {
+            "texto": "Campañas",
+            "href": "/campanas"
+          },
+          {
+            "texto": "Empresas",
+            "href": "/empresas"
+          },
+          {
+            "texto": "Usuarios",
+            "href": "/usuarios"
+          },
+          {
+            "texto": "Configuración",
+            "href": "/configuracion"
+          },
+          {
+            "texto": "Copia de Respaldo de Base de Datos",
+            "href": "/mantenimiento/respaldo"
+          },
+          {
+            "texto": "Restaurar Base de Datos",
+            "href": "/mantenimiento/restaurar"
+          },
+          {
+            "texto": "Contáctenos",
+            "href": "/contacto"
+          }
+        ],
+        "botones": [
+          {
+            "texto": "",
+            "deshabilitado": false
+          },
+          {
+            "texto": "?",
+            "deshabilitado": false
+          },
+          {
+            "texto": "4",
+            "deshabilitado": false
+          },
+          {
+            "texto": "AS\n\nAdministrador SmiloFun\n\nADMIN",
+            "deshabilitado": false
+          },
+          {
+            "texto": "⟳ Actualizar",
+            "deshabilitado": false
+          },
+          {
+            "texto": "↻ Re-entrenar modelos",
+            "deshabilitado": false
+          },
+          {
+            "texto": "Todos (0)",
+            "deshabilitado": false
+          },
+          {
+            "texto": "Alto (0)",
+            "deshabilitado": false
+          },
+          {
+            "texto": "Medio (0)",
+            "deshabilitado": false
+          },
+          {
+            "texto": "Bajo (0)",
+            "deshabilitado": false
+          },
+          {
+            "texto": "Gabriela Navarro Castro\n\n3 pieza(s) con caries sin tratar · 6 piezas restauradas (historial de caries) · Última visita h",
+            "deshabilitado": false
+          },
+          {
+            "texto": "Pedro Zegarra Miranda\n\n3 pieza(s) con caries sin tratar · 2 pieza(s) ausente(s) · Última visita hace 92 días · Alta inas",
+            "deshabilitado": false
+          },
+          {
+            "texto": "Renzo Cruz Mendoza\n\n2 pieza(s) con caries sin tratar · Sin control odontológico desde hace 620 días · Alta inasistencia ",
+            "deshabilitado": false
+          },
+          {
+            "texto": "Sofía Castro Ríos\n\n2 pieza(s) con caries sin tratar · Sin control odontológico desde hace 751 días · Alta inasistencia a",
+            "deshabilitado": false
+          },
+          {
+            "texto": "Miguel Soto Salazar\n\n2 pieza(s) con caries sin tratar · Última visita hace 355 días · Alta inasistencia a citas (80%)\n\nm",
+            "deshabilitado": false
+          },
+          {
+            "texto": "Luis Huamán Ríos\n\n3 pieza(s) con caries sin tratar · 1 pieza(s) ausente(s)\n\nmedio\n50/100",
+            "deshabilitado": false
+          },
+          {
+            "texto": "Pedro García Espinoza\n\n2 pieza(s) con caries sin tratar · 1 pieza(s) ausente(s) · Alta inasistencia a citas (39%)\n\nmedio",
+            "deshabilitado": false
+          },
+          {
+            "texto": "Sebastián Espinoza Vargas\n\n2 pieza(s) ausente(s) · 4 piezas restauradas (historial de caries) · Última visita hace 236 d",
+            "deshabilitado": false
+          },
+          {
+            "texto": "Renzo Mendoza Ríos\n\n1 pieza(s) con caries sin tratar · Última visita hace 230 días · Alta inasistencia a citas (88%)\n\nme",
+            "deshabilitado": false
+          },
+          {
+            "texto": "Juan Vargas Cruz\n\nSin control odontológico desde hace 583 días · Alta inasistencia a citas (67%)\n\nmedio\n37/100",
+            "deshabilitado": false
+          },
+          {
+            "texto": "Rosa Torres Quispe\n\n1 pieza(s) con caries sin tratar · 4 piezas restauradas (historial de caries) · Alta inasistencia a ",
+            "deshabilitado": false
+          },
+          {
+            "texto": "Diego Rojas Flores\n\n2 pieza(s) con caries sin tratar · 1 pieza(s) ausente(s)\n\nmedio\n35/100",
+            "deshabilitado": false
+          },
+          {
+            "texto": "Ver inventario →",
+            "deshabilitado": false
+          },
+          {
+            "texto": "Ver inventario →",
+            "deshabilitado": false
+          },
+          {
+            "texto": "Ver facturación →",
+            "deshabilitado": false
+          },
+          {
+            "texto": "Ver planes →",
+            "deshabilitado": false
+          },
+          {
+            "texto": "Ficha",
+            "deshabilitado": false
+          },
+          {
+            "texto": "Ficha",
+            "deshabilitado": false
+          },
+          {
+            "texto": "Ficha",
+            "deshabilitado": false
+          },
+          {
+            "texto": "Ficha",
+            "deshabilitado": false
+          },
+          {
+            "texto": "Ficha",
+            "deshabilitado": false
+          },
+          {
+            "texto": "Ficha",
+            "deshabilitado": false
+          },
+          {
+            "texto": "Ficha",
+            "deshabilitado": false
+          },
+          {
+            "texto": "Ficha",
+            "deshabilitado": false
+          },
+          {
+            "texto": "Ficha",
+            "deshabilitado": false
+          },
+          {
+            "texto": "Ficha",
+            "deshabilitado": false
+          },
+          {
+            "texto": "Ficha",
+            "deshabilitado": false
+          },
+          {
+            "texto": "Ficha",
+            "deshabilitado": false
+          },
+          {
+            "texto": "Ficha",
+            "deshabilitado": false
+          },
+          {
+            "texto": "Ficha",
+            "deshabilitado": false
+          },
+          {
+            "texto": "Ficha",
+            "deshabilitado": false
+          },
+          {
+            "texto": "Ficha",
+            "deshabilitado": false
+          },
+          {
+            "texto": "Ficha",
+            "deshabilitado": false
+          },
+          {
+            "texto": "Ficha",
+            "deshabilitado": false
+          },
+          {
+            "texto": "Ficha",
+            "deshabilitado": false
+          },
+          {
+            "texto": "Ficha",
+            "deshabilitado": false
+          },
+          {
+            "texto": "Ficha",
+            "deshabilitado": false
+          },
+          {
+            "texto": "Ficha",
+            "deshabilitado": false
+          },
+          {
+            "texto": "Ficha",
+            "deshabilitado": false
+          },
+          {
+            "texto": "Ficha",
+            "deshabilitado": false
+          },
+          {
+            "texto": "Ficha",
+            "deshabilitado": false
+          },
+          {
+            "texto": "Ficha",
+            "deshabilitado": false
+          },
+          {
+            "texto": "Ficha",
+            "deshabilitado": false
+          },
+          {
+            "texto": "Ficha",
+            "deshabilitado": false
+          },
+          {
+            "texto": "Ficha",
+            "deshabilitado": false
+          },
+          {
+            "texto": "Ficha",
+            "deshabilitado": false
+          },
+          {
+            "texto": "Ficha",
+            "deshabilitado": false
+          },
+          {
+            "texto": "Ficha",
+            "deshabilitado": false
+          },
+          {
+            "texto": "Ficha",
+            "deshabilitado": false
+          },
+          {
+            "texto": "Ficha",
+            "deshabilitado": false
+          },
+          {
+            "texto": "Ficha",
+            "deshabilitado": false
+          },
+          {
+            "texto": "Ficha",
+            "deshabilitado": false
+          },
+          {
+            "texto": "Ficha",
+            "deshabilitado": false
+          },
+          {
+            "texto": "Ficha",
+            "deshabilitado": false
+          },
+          {
+            "texto": "Ficha",
+            "deshabilitado": false
+          },
+          {
+            "texto": "Ficha",
+            "deshabilitado": false
+          },
+          {
+            "texto": "Ficha",
+            "deshabilitado": false
+          },
+          {
+            "texto": "Ficha",
+            "deshabilitado": false
+          },
+          {
+            "texto": "Ficha",
+            "deshabilitado": false
+          },
+          {
+            "texto": "Ficha",
+            "deshabilitado": false
+          },
+          {
+            "texto": "Ficha",
+            "deshabilitado": false
+          },
+          {
+            "texto": "Ficha",
+            "deshabilitado": false
+          },
+          {
+            "texto": "Ficha",
+            "deshabilitado": false
+          }
+        ],
+        "campos": [
+          {
+            "tipo": null,
+            "nombre": null,
+            "placeholder": null,
+            "deshabilitado": false
+          },
+          {
+            "tipo": null,
+            "nombre": null,
+            "placeholder": null,
+            "deshabilitado": false
+          }
+        ],
+        "errores_consola": [],
+        "errores_pagina": []
+      },
+      "error": null
+    },
+    {
+      "nombre": "Catálogo 3D",
+      "ruta": "diseno3d/catalogo",
+      "url_solicitada": "http://localhost:4200/diseno3d/catalogo",
+      "estado": "visitada",
+      "url_final": "http://localhost:4200/diseno3d/catalogo",
+      "captura": "D:\\WorkSpace\\dentamia\\ReelOdontologia\\capturas\\20_diseno3d_catalogo.png",
+      "componentes": {
+        "url": "http://localhost:4200/diseno3d/catalogo",
+        "titulo": "SmiloFun · Centro Odontológico Inteligente",
+        "enlaces": [
+          {
+            "texto": "Dashboard",
+            "href": "/dashboard"
+          },
+          {
+            "texto": "Pacientes",
+            "href": "/pacientes"
+          },
+          {
+            "texto": "Agenda / Citas",
+            "href": "/citas"
+          },
+          {
+            "texto": "Doctores",
+            "href": "/doctores"
+          },
+          {
+            "texto": "Tratamientos",
+            "href": "/tratamientos"
+          },
+          {
+            "texto": "Panel IA",
+            "href": "/ia"
+          },
+          {
+            "texto": "Asistente IA",
+            "href": "/ia/asistente"
+          },
+          {
+            "texto": "Riesgo de Inasistencia",
+            "href": "/ia/no-show"
+          },
+          {
+            "texto": "Proyección de Ingresos",
+            "href": "/ia/ingresos"
+          },
+          {
+            "texto": "Segmentación de Pacientes",
+            "href": "/ia/pacientes"
+          },
+          {
+            "texto": "Inventario Predictivo",
+            "href": "/ia/inventario"
+          },
+          {
+            "texto": "Agenda Inteligente",
+            "href": "/ia/agenda"
+          },
+          {
+            "texto": "Historial de Predicciones",
+            "href": "/ia/historial"
+          },
+          {
+            "texto": "Diseño de Prótesis",
+            "href": "/diseno3d"
+          },
+          {
+            "texto": "Catálogo de Piezas",
+            "href": "/diseno3d/catalogo"
+          },
+          {
+            "texto": "Historial de Diseños",
+            "href": "/diseno3d/historial"
+          },
+          {
+            "texto": "Facturación",
+            "href": "/facturacion"
+          },
+          {
+            "texto": "Insumos",
+            "href": "/inventario"
+          },
+          {
+            "texto": "Proveedores",
+            "href": "/inventario/proveedores"
+          },
+          {
+            "texto": "Compras de insumos",
+            "href": "/inventario/compras"
+          },
+          {
+            "texto": "Reportes",
+            "href": "/reportes"
+          },
+          {
+            "texto": "Campañas",
+            "href": "/campanas"
+          },
+          {
+            "texto": "Empresas",
+            "href": "/empresas"
+          },
+          {
+            "texto": "Usuarios",
+            "href": "/usuarios"
+          },
+          {
+            "texto": "Configuración",
+            "href": "/configuracion"
+          },
+          {
+            "texto": "Copia de Respaldo de Base de Datos",
+            "href": "/mantenimiento/respaldo"
+          },
+          {
+            "texto": "Restaurar Base de Datos",
+            "href": "/mantenimiento/restaurar"
+          },
+          {
+            "texto": "Contáctenos",
+            "href": "/contacto"
+          }
+        ],
+        "botones": [
+          {
+            "texto": "",
+            "deshabilitado": false
+          },
+          {
+            "texto": "?",
+            "deshabilitado": false
+          },
+          {
+            "texto": "4",
+            "deshabilitado": false
+          },
+          {
+            "texto": "AS\n\nAdministrador SmiloFun\n\nADMIN",
+            "deshabilitado": false
+          },
+          {
+            "texto": "Diseñar esta pieza",
+            "deshabilitado": false
+          },
+          {
+            "texto": "Diseñar esta pieza",
+            "deshabilitado": false
+          },
+          {
+            "texto": "Diseñar esta pieza",
+            "deshabilitado": false
+          },
+          {
+            "texto": "Diseñar esta pieza",
+            "deshabilitado": false
+          }
+        ],
+        "campos": [
+          {
+            "tipo": null,
+            "nombre": null,
+            "placeholder": null,
+            "deshabilitado": false
+          }
+        ],
+        "errores_consola": [],
+        "errores_pagina": []
+      },
+      "error": null
+    },
+    {
+      "nombre": "Historial 3D",
+      "ruta": "diseno3d/historial",
+      "url_solicitada": "http://localhost:4200/diseno3d/historial",
+      "estado": "visitada",
+      "url_final": "http://localhost:4200/diseno3d/historial",
+      "captura": "D:\\WorkSpace\\dentamia\\ReelOdontologia\\capturas\\21_diseno3d_historial.png",
+      "componentes": {
+        "url": "http://localhost:4200/diseno3d/historial",
+        "titulo": "SmiloFun · Centro Odontológico Inteligente",
+        "enlaces": [
+          {
+            "texto": "Dashboard",
+            "href": "/dashboard"
+          },
+          {
+            "texto": "Pacientes",
+            "href": "/pacientes"
+          },
+          {
+            "texto": "Agenda / Citas",
+            "href": "/citas"
+          },
+          {
+            "texto": "Doctores",
+            "href": "/doctores"
+          },
+          {
+            "texto": "Tratamientos",
+            "href": "/tratamientos"
+          },
+          {
+            "texto": "Panel IA",
+            "href": "/ia"
+          },
+          {
+            "texto": "Asistente IA",
+            "href": "/ia/asistente"
+          },
+          {
+            "texto": "Riesgo de Inasistencia",
+            "href": "/ia/no-show"
+          },
+          {
+            "texto": "Proyección de Ingresos",
+            "href": "/ia/ingresos"
+          },
+          {
+            "texto": "Segmentación de Pacientes",
+            "href": "/ia/pacientes"
+          },
+          {
+            "texto": "Inventario Predictivo",
+            "href": "/ia/inventario"
+          },
+          {
+            "texto": "Agenda Inteligente",
+            "href": "/ia/agenda"
+          },
+          {
+            "texto": "Historial de Predicciones",
+            "href": "/ia/historial"
+          },
+          {
+            "texto": "Diseño de Prótesis",
+            "href": "/diseno3d"
+          },
+          {
+            "texto": "Catálogo de Piezas",
+            "href": "/diseno3d/catalogo"
+          },
+          {
+            "texto": "Historial de Diseños",
+            "href": "/diseno3d/historial"
+          },
+          {
+            "texto": "Facturación",
+            "href": "/facturacion"
+          },
+          {
+            "texto": "Insumos",
+            "href": "/inventario"
+          },
+          {
+            "texto": "Proveedores",
+            "href": "/inventario/proveedores"
+          },
+          {
+            "texto": "Compras de insumos",
+            "href": "/inventario/compras"
+          },
+          {
+            "texto": "Reportes",
+            "href": "/reportes"
+          },
+          {
+            "texto": "Campañas",
+            "href": "/campanas"
+          },
+          {
+            "texto": "Empresas",
+            "href": "/empresas"
+          },
+          {
+            "texto": "Usuarios",
+            "href": "/usuarios"
+          },
+          {
+            "texto": "Configuración",
+            "href": "/configuracion"
+          },
+          {
+            "texto": "Copia de Respaldo de Base de Datos",
+            "href": "/mantenimiento/respaldo"
+          },
+          {
+            "texto": "Restaurar Base de Datos",
+            "href": "/mantenimiento/restaurar"
+          },
+          {
+            "texto": "Contáctenos",
+            "href": "/contacto"
+          },
+          {
+            "texto": "Ver 3D",
+            "href": "/diseno3d?diseno=25"
+          },
+          {
+            "texto": "STL",
+            "href": "/uploads/diseno3d/molar_4ebf2e48ae.stl"
+          },
+          {
+            "texto": "Ver 3D",
+            "href": "/diseno3d?diseno=24"
+          },
+          {
+            "texto": "STL",
+            "href": "/uploads/diseno3d/molar_d7b1771612.stl"
+          },
+          {
+            "texto": "Ver 3D",
+            "href": "/diseno3d?diseno=23"
+          },
+          {
+            "texto": "STL",
+            "href": "/uploads/diseno3d/molar_2a28417d1a.stl"
+          },
+          {
+            "texto": "Ver 3D",
+            "href": "/diseno3d?diseno=22"
+          },
+          {
+            "texto": "STL",
+            "href": "/uploads/diseno3d/molar_bd5b3f37c0.stl"
+          },
+          {
+            "texto": "Ver 3D",
+            "href": "/diseno3d?diseno=21"
+          },
+          {
+            "texto": "STL",
+            "href": "/uploads/diseno3d/molar_e75ef0afa8.stl"
+          },
+          {
+            "texto": "Ver 3D",
+            "href": "/diseno3d?diseno=20"
+          },
+          {
+            "texto": "STL",
+            "href": "/uploads/diseno3d/molar_5b7562dc71.stl"
+          },
+          {
+            "texto": "Ver 3D",
+            "href": "/diseno3d?diseno=19"
+          },
+          {
+            "texto": "STL",
+            "href": "/uploads/diseno3d/molar_1c12049383.stl"
+          },
+          {
+            "texto": "Ver 3D",
+            "href": "/diseno3d?diseno=18"
+          },
+          {
+            "texto": "STL",
+            "href": "/uploads/diseno3d/incisivo_a2da038048.stl"
+          },
+          {
+            "texto": "Ver 3D",
+            "href": "/diseno3d?diseno=17"
+          },
+          {
+            "texto": "STL",
+            "href": "/uploads/diseno3d/incisivo_fd80c38b9f.stl"
+          },
+          {
+            "texto": "Ver 3D",
+            "href": "/diseno3d?diseno=16"
+          },
+          {
+            "texto": "STL",
+            "href": "/uploads/diseno3d/incisivo_1b8443d3b7.stl"
+          }
+        ],
+        "botones": [
+          {
+            "texto": "",
+            "deshabilitado": false
+          },
+          {
+            "texto": "?",
+            "deshabilitado": false
+          },
+          {
+            "texto": "4",
+            "deshabilitado": false
+          },
+          {
+            "texto": "AS\n\nAdministrador SmiloFun\n\nADMIN",
+            "deshabilitado": false
+          },
+          {
+            "texto": "‹ Anterior",
+            "deshabilitado": true
+          },
+          {
+            "texto": "Siguiente ›",
+            "deshabilitado": false
+          }
+        ],
+        "campos": [
+          {
+            "tipo": null,
+            "nombre": null,
+            "placeholder": null,
+            "deshabilitado": false
+          },
+          {
+            "tipo": null,
+            "nombre": null,
+            "placeholder": null,
+            "deshabilitado": false
+          }
+        ],
+        "errores_consola": [],
+        "errores_pagina": []
+      },
+      "error": null
+    },
+    {
+      "nombre": "Diseño 3D",
+      "ruta": "diseno3d",
+      "url_solicitada": "http://localhost:4200/diseno3d",
+      "estado": "visitada",
+      "url_final": "http://localhost:4200/diseno3d",
+      "captura": "D:\\WorkSpace\\dentamia\\ReelOdontologia\\capturas\\22_diseno3d.png",
+      "componentes": {
+        "url": "http://localhost:4200/diseno3d",
+        "titulo": "SmiloFun · Centro Odontológico Inteligente",
+        "enlaces": [
+          {
+            "texto": "Dashboard",
+            "href": "/dashboard"
+          },
+          {
+            "texto": "Pacientes",
+            "href": "/pacientes"
+          },
+          {
+            "texto": "Agenda / Citas",
+            "href": "/citas"
+          },
+          {
+            "texto": "Doctores",
+            "href": "/doctores"
+          },
+          {
+            "texto": "Tratamientos",
+            "href": "/tratamientos"
+          },
+          {
+            "texto": "Panel IA",
+            "href": "/ia"
+          },
+          {
+            "texto": "Asistente IA",
+            "href": "/ia/asistente"
+          },
+          {
+            "texto": "Riesgo de Inasistencia",
+            "href": "/ia/no-show"
+          },
+          {
+            "texto": "Proyección de Ingresos",
+            "href": "/ia/ingresos"
+          },
+          {
+            "texto": "Segmentación de Pacientes",
+            "href": "/ia/pacientes"
+          },
+          {
+            "texto": "Inventario Predictivo",
+            "href": "/ia/inventario"
+          },
+          {
+            "texto": "Agenda Inteligente",
+            "href": "/ia/agenda"
+          },
+          {
+            "texto": "Historial de Predicciones",
+            "href": "/ia/historial"
+          },
+          {
+            "texto": "Diseño de Prótesis",
+            "href": "/diseno3d"
+          },
+          {
+            "texto": "Catálogo de Piezas",
+            "href": "/diseno3d/catalogo"
+          },
+          {
+            "texto": "Historial de Diseños",
+            "href": "/diseno3d/historial"
+          },
+          {
+            "texto": "Facturación",
+            "href": "/facturacion"
+          },
+          {
+            "texto": "Insumos",
+            "href": "/inventario"
+          },
+          {
+            "texto": "Proveedores",
+            "href": "/inventario/proveedores"
+          },
+          {
+            "texto": "Compras de insumos",
+            "href": "/inventario/compras"
+          },
+          {
+            "texto": "Reportes",
+            "href": "/reportes"
+          },
+          {
+            "texto": "Campañas",
+            "href": "/campanas"
+          },
+          {
+            "texto": "Empresas",
+            "href": "/empresas"
+          },
+          {
+            "texto": "Usuarios",
+            "href": "/usuarios"
+          },
+          {
+            "texto": "Configuración",
+            "href": "/configuracion"
+          },
+          {
+            "texto": "Copia de Respaldo de Base de Datos",
+            "href": "/mantenimiento/respaldo"
+          },
+          {
+            "texto": "Restaurar Base de Datos",
+            "href": "/mantenimiento/restaurar"
+          },
+          {
+            "texto": "Contáctenos",
+            "href": "/contacto"
+          }
+        ],
+        "botones": [
+          {
+            "texto": "",
+            "deshabilitado": false
+          },
+          {
+            "texto": "?",
+            "deshabilitado": false
+          },
+          {
+            "texto": "4",
+            "deshabilitado": false
+          },
+          {
+            "texto": "AS\n\nAdministrador SmiloFun\n\nADMIN",
+            "deshabilitado": false
+          },
+          {
+            "texto": "Generar diseño 3D",
+            "deshabilitado": false
+          }
+        ],
+        "campos": [
+          {
+            "tipo": null,
+            "nombre": null,
+            "placeholder": null,
+            "deshabilitado": false
+          },
+          {
+            "tipo": null,
+            "nombre": null,
+            "placeholder": null,
+            "deshabilitado": false
+          },
+          {
+            "tipo": null,
+            "nombre": null,
+            "placeholder": null,
+            "deshabilitado": false
+          },
+          {
+            "tipo": "number",
+            "nombre": null,
+            "placeholder": null,
+            "deshabilitado": false
+          },
+          {
+            "tipo": "number",
+            "nombre": null,
+            "placeholder": null,
+            "deshabilitado": false
+          },
+          {
+            "tipo": "number",
+            "nombre": null,
+            "placeholder": null,
+            "deshabilitado": false
+          },
+          {
+            "tipo": null,
+            "nombre": null,
+            "placeholder": null,
+            "deshabilitado": false
+          },
+          {
+            "tipo": "checkbox",
+            "nombre": null,
+            "placeholder": null,
+            "deshabilitado": false
+          }
+        ],
+        "errores_consola": [],
+        "errores_pagina": []
+      },
+      "error": null
+    },
+    {
+      "nombre": "Respaldo",
+      "ruta": "mantenimiento/respaldo",
+      "url_solicitada": "http://localhost:4200/mantenimiento/respaldo",
+      "estado": "visitada",
+      "url_final": "http://localhost:4200/mantenimiento/respaldo",
+      "captura": "D:\\WorkSpace\\dentamia\\ReelOdontologia\\capturas\\23_mantenimiento_respaldo.png",
+      "componentes": {
+        "url": "http://localhost:4200/mantenimiento/respaldo",
+        "titulo": "SmiloFun · Centro Odontológico Inteligente",
+        "enlaces": [
+          {
+            "texto": "Dashboard",
+            "href": "/dashboard"
+          },
+          {
+            "texto": "Pacientes",
+            "href": "/pacientes"
+          },
+          {
+            "texto": "Agenda / Citas",
+            "href": "/citas"
+          },
+          {
+            "texto": "Doctores",
+            "href": "/doctores"
+          },
+          {
+            "texto": "Tratamientos",
+            "href": "/tratamientos"
+          },
+          {
+            "texto": "Panel IA",
+            "href": "/ia"
+          },
+          {
+            "texto": "Asistente IA",
+            "href": "/ia/asistente"
+          },
+          {
+            "texto": "Riesgo de Inasistencia",
+            "href": "/ia/no-show"
+          },
+          {
+            "texto": "Proyección de Ingresos",
+            "href": "/ia/ingresos"
+          },
+          {
+            "texto": "Segmentación de Pacientes",
+            "href": "/ia/pacientes"
+          },
+          {
+            "texto": "Inventario Predictivo",
+            "href": "/ia/inventario"
+          },
+          {
+            "texto": "Agenda Inteligente",
+            "href": "/ia/agenda"
+          },
+          {
+            "texto": "Historial de Predicciones",
+            "href": "/ia/historial"
+          },
+          {
+            "texto": "Diseño de Prótesis",
+            "href": "/diseno3d"
+          },
+          {
+            "texto": "Catálogo de Piezas",
+            "href": "/diseno3d/catalogo"
+          },
+          {
+            "texto": "Historial de Diseños",
+            "href": "/diseno3d/historial"
+          },
+          {
+            "texto": "Facturación",
+            "href": "/facturacion"
+          },
+          {
+            "texto": "Insumos",
+            "href": "/inventario"
+          },
+          {
+            "texto": "Proveedores",
+            "href": "/inventario/proveedores"
+          },
+          {
+            "texto": "Compras de insumos",
+            "href": "/inventario/compras"
+          },
+          {
+            "texto": "Reportes",
+            "href": "/reportes"
+          },
+          {
+            "texto": "Campañas",
+            "href": "/campanas"
+          },
+          {
+            "texto": "Empresas",
+            "href": "/empresas"
+          },
+          {
+            "texto": "Usuarios",
+            "href": "/usuarios"
+          },
+          {
+            "texto": "Configuración",
+            "href": "/configuracion"
+          },
+          {
+            "texto": "Copia de Respaldo de Base de Datos",
+            "href": "/mantenimiento/respaldo"
+          },
+          {
+            "texto": "Restaurar Base de Datos",
+            "href": "/mantenimiento/restaurar"
+          },
+          {
+            "texto": "Contáctenos",
+            "href": "/contacto"
+          }
+        ],
+        "botones": [
+          {
+            "texto": "",
+            "deshabilitado": false
+          },
+          {
+            "texto": "?",
+            "deshabilitado": false
+          },
+          {
+            "texto": "4",
+            "deshabilitado": false
+          },
+          {
+            "texto": "AS\n\nAdministrador SmiloFun\n\nADMIN",
+            "deshabilitado": false
+          },
+          {
+            "texto": "+ Crear respaldo ahora",
+            "deshabilitado": false
+          },
+          {
+            "texto": "Descargar",
+            "deshabilitado": false
+          },
+          {
+            "texto": "Eliminar",
+            "deshabilitado": false
+          }
+        ],
+        "campos": [
+          {
+            "tipo": null,
+            "nombre": null,
+            "placeholder": null,
+            "deshabilitado": false
+          },
+          {
+            "tipo": null,
+            "nombre": null,
+            "placeholder": "Etiqueta (opcional)",
+            "deshabilitado": false
+          }
+        ],
+        "errores_consola": [],
+        "errores_pagina": []
+      },
+      "error": null
+    },
+    {
+      "nombre": "Restauración",
+      "ruta": "mantenimiento/restaurar",
+      "url_solicitada": "http://localhost:4200/mantenimiento/restaurar",
+      "estado": "visitada",
+      "url_final": "http://localhost:4200/mantenimiento/restaurar",
+      "captura": "D:\\WorkSpace\\dentamia\\ReelOdontologia\\capturas\\24_mantenimiento_restaurar.png",
+      "componentes": {
+        "url": "http://localhost:4200/mantenimiento/restaurar",
+        "titulo": "SmiloFun · Centro Odontológico Inteligente",
+        "enlaces": [
+          {
+            "texto": "Dashboard",
+            "href": "/dashboard"
+          },
+          {
+            "texto": "Pacientes",
+            "href": "/pacientes"
+          },
+          {
+            "texto": "Agenda / Citas",
+            "href": "/citas"
+          },
+          {
+            "texto": "Doctores",
+            "href": "/doctores"
+          },
+          {
+            "texto": "Tratamientos",
+            "href": "/tratamientos"
+          },
+          {
+            "texto": "Panel IA",
+            "href": "/ia"
+          },
+          {
+            "texto": "Asistente IA",
+            "href": "/ia/asistente"
+          },
+          {
+            "texto": "Riesgo de Inasistencia",
+            "href": "/ia/no-show"
+          },
+          {
+            "texto": "Proyección de Ingresos",
+            "href": "/ia/ingresos"
+          },
+          {
+            "texto": "Segmentación de Pacientes",
+            "href": "/ia/pacientes"
+          },
+          {
+            "texto": "Inventario Predictivo",
+            "href": "/ia/inventario"
+          },
+          {
+            "texto": "Agenda Inteligente",
+            "href": "/ia/agenda"
+          },
+          {
+            "texto": "Historial de Predicciones",
+            "href": "/ia/historial"
+          },
+          {
+            "texto": "Diseño de Prótesis",
+            "href": "/diseno3d"
+          },
+          {
+            "texto": "Catálogo de Piezas",
+            "href": "/diseno3d/catalogo"
+          },
+          {
+            "texto": "Historial de Diseños",
+            "href": "/diseno3d/historial"
+          },
+          {
+            "texto": "Facturación",
+            "href": "/facturacion"
+          },
+          {
+            "texto": "Insumos",
+            "href": "/inventario"
+          },
+          {
+            "texto": "Proveedores",
+            "href": "/inventario/proveedores"
+          },
+          {
+            "texto": "Compras de insumos",
+            "href": "/inventario/compras"
+          },
+          {
+            "texto": "Reportes",
+            "href": "/reportes"
+          },
+          {
+            "texto": "Campañas",
+            "href": "/campanas"
+          },
+          {
+            "texto": "Empresas",
+            "href": "/empresas"
+          },
+          {
+            "texto": "Usuarios",
+            "href": "/usuarios"
+          },
+          {
+            "texto": "Configuración",
+            "href": "/configuracion"
+          },
+          {
+            "texto": "Copia de Respaldo de Base de Datos",
+            "href": "/mantenimiento/respaldo"
+          },
+          {
+            "texto": "Restaurar Base de Datos",
+            "href": "/mantenimiento/restaurar"
+          },
+          {
+            "texto": "Contáctenos",
+            "href": "/contacto"
+          }
+        ],
+        "botones": [
+          {
+            "texto": "",
+            "deshabilitado": false
+          },
+          {
+            "texto": "?",
+            "deshabilitado": false
+          },
+          {
+            "texto": "4",
+            "deshabilitado": false
+          },
+          {
+            "texto": "AS\n\nAdministrador SmiloFun\n\nADMIN",
+            "deshabilitado": false
+          },
+          {
+            "texto": "Subir archivo de respaldo",
+            "deshabilitado": false
+          },
+          {
+            "texto": "Restaurar",
+            "deshabilitado": false
+          }
+        ],
+        "campos": [
+          {
+            "tipo": null,
+            "nombre": null,
+            "placeholder": null,
+            "deshabilitado": false
+          }
+        ],
+        "errores_consola": [],
+        "errores_pagina": []
+      },
+      "error": null
+    },
+    {
+      "nombre": "Configuración",
+      "ruta": "configuracion",
+      "url_solicitada": "http://localhost:4200/configuracion",
+      "estado": "visitada",
+      "url_final": "http://localhost:4200/configuracion",
+      "captura": "D:\\WorkSpace\\dentamia\\ReelOdontologia\\capturas\\25_configuracion.png",
+      "componentes": {
+        "url": "http://localhost:4200/configuracion",
+        "titulo": "SmiloFun · Centro Odontológico Inteligente",
+        "enlaces": [
+          {
+            "texto": "Dashboard",
+            "href": "/dashboard"
+          },
+          {
+            "texto": "Pacientes",
+            "href": "/pacientes"
+          },
+          {
+            "texto": "Agenda / Citas",
+            "href": "/citas"
+          },
+          {
+            "texto": "Doctores",
+            "href": "/doctores"
+          },
+          {
+            "texto": "Tratamientos",
+            "href": "/tratamientos"
+          },
+          {
+            "texto": "Panel IA",
+            "href": "/ia"
+          },
+          {
+            "texto": "Asistente IA",
+            "href": "/ia/asistente"
+          },
+          {
+            "texto": "Riesgo de Inasistencia",
+            "href": "/ia/no-show"
+          },
+          {
+            "texto": "Proyección de Ingresos",
+            "href": "/ia/ingresos"
+          },
+          {
+            "texto": "Segmentación de Pacientes",
+            "href": "/ia/pacientes"
+          },
+          {
+            "texto": "Inventario Predictivo",
+            "href": "/ia/inventario"
+          },
+          {
+            "texto": "Agenda Inteligente",
+            "href": "/ia/agenda"
+          },
+          {
+            "texto": "Historial de Predicciones",
+            "href": "/ia/historial"
+          },
+          {
+            "texto": "Diseño de Prótesis",
+            "href": "/diseno3d"
+          },
+          {
+            "texto": "Catálogo de Piezas",
+            "href": "/diseno3d/catalogo"
+          },
+          {
+            "texto": "Historial de Diseños",
+            "href": "/diseno3d/historial"
+          },
+          {
+            "texto": "Facturación",
+            "href": "/facturacion"
+          },
+          {
+            "texto": "Insumos",
+            "href": "/inventario"
+          },
+          {
+            "texto": "Proveedores",
+            "href": "/inventario/proveedores"
+          },
+          {
+            "texto": "Compras de insumos",
+            "href": "/inventario/compras"
+          },
+          {
+            "texto": "Reportes",
+            "href": "/reportes"
+          },
+          {
+            "texto": "Campañas",
+            "href": "/campanas"
+          },
+          {
+            "texto": "Empresas",
+            "href": "/empresas"
+          },
+          {
+            "texto": "Usuarios",
+            "href": "/usuarios"
+          },
+          {
+            "texto": "Configuración",
+            "href": "/configuracion"
+          },
+          {
+            "texto": "Copia de Respaldo de Base de Datos",
+            "href": "/mantenimiento/respaldo"
+          },
+          {
+            "texto": "Restaurar Base de Datos",
+            "href": "/mantenimiento/restaurar"
+          },
+          {
+            "texto": "Contáctenos",
+            "href": "/contacto"
+          }
+        ],
+        "botones": [
+          {
+            "texto": "",
+            "deshabilitado": false
+          },
+          {
+            "texto": "?",
+            "deshabilitado": false
+          },
+          {
+            "texto": "4",
+            "deshabilitado": false
+          },
+          {
+            "texto": "AS\n\nAdministrador SmiloFun\n\nADMIN",
+            "deshabilitado": false
+          },
+          {
+            "texto": "Cerrar sesión",
+            "deshabilitado": false
+          },
+          {
+            "texto": "+ Nueva sede",
+            "deshabilitado": false
+          },
+          {
+            "texto": "Guardar configuración Gmail",
+            "deshabilitado": false
+          },
+          {
+            "texto": "Guardar WhatsApp",
+            "deshabilitado": false
+          }
+        ],
+        "campos": [
+          {
+            "tipo": null,
+            "nombre": null,
+            "placeholder": null,
+            "deshabilitado": false
+          },
+          {
+            "tipo": "email",
+            "nombre": "sender_email",
+            "placeholder": "campanas@tuclinica.com",
+            "deshabilitado": false
+          },
+          {
+            "tipo": null,
+            "nombre": "client_id",
+            "placeholder": null,
+            "deshabilitado": false
+          },
+          {
+            "tipo": "password",
+            "nombre": "client_secret",
+            "placeholder": null,
+            "deshabilitado": false
+          },
+          {
+            "tipo": "password",
+            "nombre": "refresh_token",
+            "placeholder": null,
+            "deshabilitado": false
+          },
+          {
+            "tipo": null,
+            "nombre": "phone_number_id",
+            "placeholder": null,
+            "deshabilitado": false
+          },
+          {
+            "tipo": null,
+            "nombre": "business_account_id",
+            "placeholder": null,
+            "deshabilitado": false
+          },
+          {
+            "tipo": "password",
+            "nombre": "access_token",
+            "placeholder": null,
+            "deshabilitado": false
+          },
+          {
+            "tipo": null,
+            "nombre": "campaign_template",
+            "placeholder": "promocion_clinica",
+            "deshabilitado": false
+          },
+          {
+            "tipo": null,
+            "nombre": "template_language",
+            "placeholder": "es",
+            "deshabilitado": false
+          }
+        ],
+        "errores_consola": [],
+        "errores_pagina": []
+      },
+      "error": null
+    },
+    {
+      "nombre": "Empresas",
+      "ruta": "empresas",
+      "url_solicitada": "http://localhost:4200/empresas",
+      "estado": "visitada",
+      "url_final": "http://localhost:4200/empresas",
+      "captura": "D:\\WorkSpace\\dentamia\\ReelOdontologia\\capturas\\26_empresas.png",
+      "componentes": {
+        "url": "http://localhost:4200/empresas",
+        "titulo": "SmiloFun · Centro Odontológico Inteligente",
+        "enlaces": [
+          {
+            "texto": "Dashboard",
+            "href": "/dashboard"
+          },
+          {
+            "texto": "Pacientes",
+            "href": "/pacientes"
+          },
+          {
+            "texto": "Agenda / Citas",
+            "href": "/citas"
+          },
+          {
+            "texto": "Doctores",
+            "href": "/doctores"
+          },
+          {
+            "texto": "Tratamientos",
+            "href": "/tratamientos"
+          },
+          {
+            "texto": "Panel IA",
+            "href": "/ia"
+          },
+          {
+            "texto": "Asistente IA",
+            "href": "/ia/asistente"
+          },
+          {
+            "texto": "Riesgo de Inasistencia",
+            "href": "/ia/no-show"
+          },
+          {
+            "texto": "Proyección de Ingresos",
+            "href": "/ia/ingresos"
+          },
+          {
+            "texto": "Segmentación de Pacientes",
+            "href": "/ia/pacientes"
+          },
+          {
+            "texto": "Inventario Predictivo",
+            "href": "/ia/inventario"
+          },
+          {
+            "texto": "Agenda Inteligente",
+            "href": "/ia/agenda"
+          },
+          {
+            "texto": "Historial de Predicciones",
+            "href": "/ia/historial"
+          },
+          {
+            "texto": "Diseño de Prótesis",
+            "href": "/diseno3d"
+          },
+          {
+            "texto": "Catálogo de Piezas",
+            "href": "/diseno3d/catalogo"
+          },
+          {
+            "texto": "Historial de Diseños",
+            "href": "/diseno3d/historial"
+          },
+          {
+            "texto": "Facturación",
+            "href": "/facturacion"
+          },
+          {
+            "texto": "Insumos",
+            "href": "/inventario"
+          },
+          {
+            "texto": "Proveedores",
+            "href": "/inventario/proveedores"
+          },
+          {
+            "texto": "Compras de insumos",
+            "href": "/inventario/compras"
+          },
+          {
+            "texto": "Reportes",
+            "href": "/reportes"
+          },
+          {
+            "texto": "Campañas",
+            "href": "/campanas"
+          },
+          {
+            "texto": "Empresas",
+            "href": "/empresas"
+          },
+          {
+            "texto": "Usuarios",
+            "href": "/usuarios"
+          },
+          {
+            "texto": "Configuración",
+            "href": "/configuracion"
+          },
+          {
+            "texto": "Copia de Respaldo de Base de Datos",
+            "href": "/mantenimiento/respaldo"
+          },
+          {
+            "texto": "Restaurar Base de Datos",
+            "href": "/mantenimiento/restaurar"
+          },
+          {
+            "texto": "Contáctenos",
+            "href": "/contacto"
+          }
+        ],
+        "botones": [
+          {
+            "texto": "",
+            "deshabilitado": false
+          },
+          {
+            "texto": "?",
+            "deshabilitado": false
+          },
+          {
+            "texto": "4",
+            "deshabilitado": false
+          },
+          {
+            "texto": "AS\n\nAdministrador SmiloFun\n\nADMIN",
+            "deshabilitado": false
+          },
+          {
+            "texto": "+ Nueva empresa",
+            "deshabilitado": false
+          },
+          {
+            "texto": "En uso",
+            "deshabilitado": true
+          },
+          {
+            "texto": "Editar",
+            "deshabilitado": false
+          },
+          {
+            "texto": "Desactivar",
+            "deshabilitado": false
+          },
+          {
+            "texto": "Eliminar",
+            "deshabilitado": false
+          },
+          {
+            "texto": "Usar",
+            "deshabilitado": false
+          },
+          {
+            "texto": "Editar",
+            "deshabilitado": false
+          },
+          {
+            "texto": "Desactivar",
+            "deshabilitado": false
+          },
+          {
+            "texto": "Eliminar",
+            "deshabilitado": false
+          },
+          {
+            "texto": "Usar",
+            "deshabilitado": false
+          },
+          {
+            "texto": "Editar",
+            "deshabilitado": false
+          },
+          {
+            "texto": "Desactivar",
+            "deshabilitado": false
+          },
+          {
+            "texto": "Eliminar",
+            "deshabilitado": false
+          },
+          {
+            "texto": "‹ Anterior",
+            "deshabilitado": true
+          },
+          {
+            "texto": "Siguiente ›",
+            "deshabilitado": true
+          }
+        ],
+        "campos": [
+          {
+            "tipo": null,
+            "nombre": null,
+            "placeholder": null,
+            "deshabilitado": false
+          },
+          {
+            "tipo": null,
+            "nombre": null,
+            "placeholder": "Buscar por nombre, RUC o ciudad…",
+            "deshabilitado": false
+          },
+          {
+            "tipo": null,
+            "nombre": null,
+            "placeholder": null,
+            "deshabilitado": false
+          }
+        ],
+        "errores_consola": [],
+        "errores_pagina": []
+      },
+      "error": null
+    },
+    {
+      "nombre": "Usuarios",
+      "ruta": "usuarios",
+      "url_solicitada": "http://localhost:4200/usuarios",
+      "estado": "visitada",
+      "url_final": "http://localhost:4200/usuarios",
+      "captura": "D:\\WorkSpace\\dentamia\\ReelOdontologia\\capturas\\27_usuarios.png",
+      "componentes": {
+        "url": "http://localhost:4200/usuarios",
+        "titulo": "SmiloFun · Centro Odontológico Inteligente",
+        "enlaces": [
+          {
+            "texto": "Dashboard",
+            "href": "/dashboard"
+          },
+          {
+            "texto": "Pacientes",
+            "href": "/pacientes"
+          },
+          {
+            "texto": "Agenda / Citas",
+            "href": "/citas"
+          },
+          {
+            "texto": "Doctores",
+            "href": "/doctores"
+          },
+          {
+            "texto": "Tratamientos",
+            "href": "/tratamientos"
+          },
+          {
+            "texto": "Panel IA",
+            "href": "/ia"
+          },
+          {
+            "texto": "Asistente IA",
+            "href": "/ia/asistente"
+          },
+          {
+            "texto": "Riesgo de Inasistencia",
+            "href": "/ia/no-show"
+          },
+          {
+            "texto": "Proyección de Ingresos",
+            "href": "/ia/ingresos"
+          },
+          {
+            "texto": "Segmentación de Pacientes",
+            "href": "/ia/pacientes"
+          },
+          {
+            "texto": "Inventario Predictivo",
+            "href": "/ia/inventario"
+          },
+          {
+            "texto": "Agenda Inteligente",
+            "href": "/ia/agenda"
+          },
+          {
+            "texto": "Historial de Predicciones",
+            "href": "/ia/historial"
+          },
+          {
+            "texto": "Diseño de Prótesis",
+            "href": "/diseno3d"
+          },
+          {
+            "texto": "Catálogo de Piezas",
+            "href": "/diseno3d/catalogo"
+          },
+          {
+            "texto": "Historial de Diseños",
+            "href": "/diseno3d/historial"
+          },
+          {
+            "texto": "Facturación",
+            "href": "/facturacion"
+          },
+          {
+            "texto": "Insumos",
+            "href": "/inventario"
+          },
+          {
+            "texto": "Proveedores",
+            "href": "/inventario/proveedores"
+          },
+          {
+            "texto": "Compras de insumos",
+            "href": "/inventario/compras"
+          },
+          {
+            "texto": "Reportes",
+            "href": "/reportes"
+          },
+          {
+            "texto": "Campañas",
+            "href": "/campanas"
+          },
+          {
+            "texto": "Empresas",
+            "href": "/empresas"
+          },
+          {
+            "texto": "Usuarios",
+            "href": "/usuarios"
+          },
+          {
+            "texto": "Configuración",
+            "href": "/configuracion"
+          },
+          {
+            "texto": "Copia de Respaldo de Base de Datos",
+            "href": "/mantenimiento/respaldo"
+          },
+          {
+            "texto": "Restaurar Base de Datos",
+            "href": "/mantenimiento/restaurar"
+          },
+          {
+            "texto": "Contáctenos",
+            "href": "/contacto"
+          }
+        ],
+        "botones": [
+          {
+            "texto": "",
+            "deshabilitado": false
+          },
+          {
+            "texto": "?",
+            "deshabilitado": false
+          },
+          {
+            "texto": "4",
+            "deshabilitado": false
+          },
+          {
+            "texto": "AS\n\nAdministrador SmiloFun\n\nADMIN",
+            "deshabilitado": false
+          },
+          {
+            "texto": "+ Nuevo usuario",
+            "deshabilitado": false
+          },
+          {
+            "texto": "Editar",
+            "deshabilitado": false
+          },
+          {
+            "texto": "Desactivar",
+            "deshabilitado": false
+          },
+          {
+            "texto": "Eliminar",
+            "deshabilitado": false
+          },
+          {
+            "texto": "Editar",
+            "deshabilitado": false
+          },
+          {
+            "texto": "Desactivar",
+            "deshabilitado": false
+          },
+          {
+            "texto": "Eliminar",
+            "deshabilitado": false
+          },
+          {
+            "texto": "Editar",
+            "deshabilitado": false
+          },
+          {
+            "texto": "Desactivar",
+            "deshabilitado": false
+          },
+          {
+            "texto": "Eliminar",
+            "deshabilitado": false
+          },
+          {
+            "texto": "‹ Anterior",
+            "deshabilitado": true
+          },
+          {
+            "texto": "Siguiente ›",
+            "deshabilitado": true
+          }
+        ],
+        "campos": [
+          {
+            "tipo": null,
+            "nombre": null,
+            "placeholder": null,
+            "deshabilitado": false
+          },
+          {
+            "tipo": null,
+            "nombre": null,
+            "placeholder": "Buscar por nombre, correo o rol…",
+            "deshabilitado": false
+          },
+          {
+            "tipo": null,
+            "nombre": null,
+            "placeholder": null,
+            "deshabilitado": false
+          }
+        ],
+        "errores_consola": [],
+        "errores_pagina": []
+      },
+      "error": null
+    },
+    {
+      "nombre": "Contacto",
+      "ruta": "contacto",
+      "url_solicitada": "http://localhost:4200/contacto",
+      "estado": "visitada",
+      "url_final": "http://localhost:4200/contacto",
+      "captura": "D:\\WorkSpace\\dentamia\\ReelOdontologia\\capturas\\28_contacto.png",
+      "componentes": {
+        "url": "http://localhost:4200/contacto",
+        "titulo": "SmiloFun · Centro Odontológico Inteligente",
+        "enlaces": [
+          {
+            "texto": "Dashboard",
+            "href": "/dashboard"
+          },
+          {
+            "texto": "Pacientes",
+            "href": "/pacientes"
+          },
+          {
+            "texto": "Agenda / Citas",
+            "href": "/citas"
+          },
+          {
+            "texto": "Doctores",
+            "href": "/doctores"
+          },
+          {
+            "texto": "Tratamientos",
+            "href": "/tratamientos"
+          },
+          {
+            "texto": "Panel IA",
+            "href": "/ia"
+          },
+          {
+            "texto": "Asistente IA",
+            "href": "/ia/asistente"
+          },
+          {
+            "texto": "Riesgo de Inasistencia",
+            "href": "/ia/no-show"
+          },
+          {
+            "texto": "Proyección de Ingresos",
+            "href": "/ia/ingresos"
+          },
+          {
+            "texto": "Segmentación de Pacientes",
+            "href": "/ia/pacientes"
+          },
+          {
+            "texto": "Inventario Predictivo",
+            "href": "/ia/inventario"
+          },
+          {
+            "texto": "Agenda Inteligente",
+            "href": "/ia/agenda"
+          },
+          {
+            "texto": "Historial de Predicciones",
+            "href": "/ia/historial"
+          },
+          {
+            "texto": "Diseño de Prótesis",
+            "href": "/diseno3d"
+          },
+          {
+            "texto": "Catálogo de Piezas",
+            "href": "/diseno3d/catalogo"
+          },
+          {
+            "texto": "Historial de Diseños",
+            "href": "/diseno3d/historial"
+          },
+          {
+            "texto": "Facturación",
+            "href": "/facturacion"
+          },
+          {
+            "texto": "Insumos",
+            "href": "/inventario"
+          },
+          {
+            "texto": "Proveedores",
+            "href": "/inventario/proveedores"
+          },
+          {
+            "texto": "Compras de insumos",
+            "href": "/inventario/compras"
+          },
+          {
+            "texto": "Reportes",
+            "href": "/reportes"
+          },
+          {
+            "texto": "Campañas",
+            "href": "/campanas"
+          },
+          {
+            "texto": "Empresas",
+            "href": "/empresas"
+          },
+          {
+            "texto": "Usuarios",
+            "href": "/usuarios"
+          },
+          {
+            "texto": "Configuración",
+            "href": "/configuracion"
+          },
+          {
+            "texto": "Copia de Respaldo de Base de Datos",
+            "href": "/mantenimiento/respaldo"
+          },
+          {
+            "texto": "Restaurar Base de Datos",
+            "href": "/mantenimiento/restaurar"
+          },
+          {
+            "texto": "Contáctenos",
+            "href": "/contacto"
+          },
+          {
+            "texto": "mauricioangulo4@gmail.com",
+            "href": "mailto:mauricioangulo4@gmail.com"
+          },
+          {
+            "texto": "(051) 938977259",
+            "href": "tel:051938977259"
+          },
+          {
+            "texto": "Escribir correo",
+            "href": "mailto:mauricioangulo4@gmail.com"
+          },
+          {
+            "texto": "Llamar",
+            "href": "tel:051938977259"
+          },
+          {
+            "texto": "faridecontrerascasis7@gmail.com",
+            "href": "mailto:faridecontrerascasis7@gmail.com"
+          },
+          {
+            "texto": "Escribir correo",
+            "href": "mailto:faridecontrerascasis7@gmail.com"
+          }
+        ],
+        "botones": [
+          {
+            "texto": "",
+            "deshabilitado": false
+          },
+          {
+            "texto": "?",
+            "deshabilitado": false
+          },
+          {
+            "texto": "4",
+            "deshabilitado": false
+          },
+          {
+            "texto": "AS\n\nAdministrador SmiloFun\n\nADMIN",
+            "deshabilitado": false
+          },
+          {
+            "texto": "Copiar",
+            "deshabilitado": false
+          },
+          {
+            "texto": "Copiar",
+            "deshabilitado": false
+          },
+          {
+            "texto": "Copiar",
+            "deshabilitado": false
+          }
+        ],
+        "campos": [
+          {
+            "tipo": null,
+            "nombre": null,
+            "placeholder": null,
+            "deshabilitado": false
+          }
+        ],
+        "errores_consola": [],
+        "errores_pagina": []
+      },
+      "error": null
     }
-  ]
+  ],
+  "resumen": {
+    "total": 28,
+    "visitadas": 28,
+    "sesion_no_reconocida": 0,
+    "errores": 0
+  },
+  "errores_consola": [
+    "Failed to load resource: the server responded with a status of 404 (Not Found)",
+    "ERROR HttpErrorResponse",
+    "Failed to load resource: the server responded with a status of 404 (Not Found)",
+    "Failed to load resource: the server responded with a status of 404 (Not Found)",
+    "ERROR HttpErrorResponse",
+    "ERROR HttpErrorResponse"
+  ],
+  "errores_pagina": []
 }

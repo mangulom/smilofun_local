@@ -5,9 +5,9 @@ from pydantic import BaseModel
 from sqlalchemy import func, select
 from sqlalchemy.orm import Session
 
-from app.api.deps import get_current_user
+from app.api.deps import get_current_user, require_empresa_access, require_roles
 from app.core.database import get_db
-from app.models import Cita, Paciente, PrediccionIA
+from app.models import Cita, Paciente, PrediccionIA, Usuario
 from app.schemas import (
     NoShowPrediccion,
     PacienteRiesgo,
@@ -29,6 +29,7 @@ router = APIRouter(
 def entrenar(
     empresa_id: int | None = Query(default=None, description="Limita las predicciones guardadas por empresa"),
     db: Session = Depends(get_db),
+    user: Usuario = Depends(require_roles("admin")),
 ):
     """(Re)entrena los modelos con el histórico de la clínica.
 
@@ -36,6 +37,8 @@ def entrenar(
     las próximas dos semanas y la proyección de ingresos, para que el
     historial de predicciones quede documentado.
     """
+    if empresa_id is not None:
+        require_empresa_access(empresa_id, user)
     métricas = ia_service.entrenar(db)
 
     hoy = date.today()
@@ -46,7 +49,7 @@ def entrenar(
                 Cita.fecha >= hoy,
                 Cita.fecha <= hoy + timedelta(days=14),
                 Cita.estado.in_(["programada", "confirmada"]),
-                *([Cita.empresa_id == empresa_id] if empresa_id else []),
+                *([Cita.empresa_id == empresa_id] if empresa_id is not None else []),
             )
             .order_by(Cita.fecha, Cita.hora_inicio)
             .limit(100)
@@ -96,7 +99,7 @@ def entrenar(
 
 
 @router.get("/metricas")
-def metricas():
+def metricas(user: Usuario = Depends(get_current_user)):
     return ia_service.metricas_modelo()
 
 
@@ -108,8 +111,16 @@ def no_show_proximos(
     skip: int = Query(0, ge=0),
     limit: int = Query(100, ge=1, le=500),
     db: Session = Depends(get_db),
+    user: Usuario = Depends(get_current_user),
 ):
+
     """Riesgo de inasistencia de las próximas citas programadas."""
+    assigned = {link.empresa_id for link in user.empresas_link}
+    if empresa_id is not None:
+        require_empresa_access(empresa_id, user)
+    elif assigned:
+        empresa_id = next(iter(assigned))
+
     hoy = date.today()
     citas = (
         db.execute(
@@ -118,7 +129,7 @@ def no_show_proximos(
                 Cita.fecha >= hoy,
                 Cita.fecha <= hoy + timedelta(days=dias),
                 Cita.estado.in_(["programada", "confirmada"]),
-                *([Cita.empresa_id == empresa_id] if empresa_id else []),
+                *([Cita.empresa_id == empresa_id] if empresa_id is not None else []),
             )
             .order_by(Cita.fecha, Cita.hora_inicio)
         )
@@ -135,11 +146,12 @@ def no_show_proximos(
 
 
 @router.get("/no-show/{cita_id}", response_model=NoShowPrediccion)
-def no_show_cita(cita_id: int, db: Session = Depends(get_db)):
+def no_show_cita(cita_id: int, db: Session = Depends(get_db), user: Usuario = Depends(get_current_user)):
     """Predicción para una cita puntual (se persiste en predicciones_ia)."""
     cita = db.get(Cita, cita_id)
     if cita is None:
         raise HTTPException(status.HTTP_404_NOT_FOUND, "Cita no encontrada")
+    require_empresa_access(cita.empresa_id, user)
     pred = ia_service.predecir_no_show(db, cita)
     db.add(
         PrediccionIA(
@@ -163,7 +175,14 @@ def proyeccion_ingresos(
     meses: int = Query(3, ge=1, le=12),
     empresa_id: int | None = Query(default=None),
     db: Session = Depends(get_db),
+    user: Usuario = Depends(get_current_user),
 ):
+
+    assigned = {link.empresa_id for link in user.empresas_link}
+    if empresa_id is not None:
+        require_empresa_access(empresa_id, user)
+    elif assigned:
+        empresa_id = next(iter(assigned))
     serie = ia_service.proyectar_ingresos(db, meses=meses, empresa_id=empresa_id)
     ultimo = serie[-1] if serie else {"tendencia": "estable", "confianza": 0}
     return {
@@ -178,7 +197,14 @@ def pacientes_riesgo(
     limite: int = Query(10, ge=1, le=50),
     empresa_id: int | None = Query(default=None),
     db: Session = Depends(get_db),
+    user: Usuario = Depends(get_current_user),
 ):
+
+    assigned = {link.empresa_id for link in user.empresas_link}
+    if empresa_id is not None:
+        require_empresa_access(empresa_id, user)
+    elif assigned:
+        empresa_id = next(iter(assigned))
     return ia_service.pacientes_en_riesgo(db, limite=limite, empresa_id=empresa_id)
 
 
@@ -187,7 +213,14 @@ def recomendaciones(
     limite: int = Query(10, ge=1, le=30),
     empresa_id: int | None = Query(default=None),
     db: Session = Depends(get_db),
+    user: Usuario = Depends(get_current_user),
 ):
+
+    assigned = {link.empresa_id for link in user.empresas_link}
+    if empresa_id is not None:
+        require_empresa_access(empresa_id, user)
+    elif assigned:
+        empresa_id = next(iter(assigned))
     return ia_service.recomendaciones(db, limite=limite, empresa_id=empresa_id)
 
 
@@ -195,7 +228,14 @@ def recomendaciones(
 def resumen(
     empresa_id: int | None = Query(default=None),
     db: Session = Depends(get_db),
+    user: Usuario = Depends(get_current_user),
 ):
+
+    assigned = {link.empresa_id for link in user.empresas_link}
+    if empresa_id is not None:
+        require_empresa_access(empresa_id, user)
+    elif assigned:
+        empresa_id = next(iter(assigned))
     hoy = date.today()
     citas = (
         db.execute(
@@ -204,7 +244,7 @@ def resumen(
                 Cita.fecha >= hoy,
                 Cita.fecha <= hoy + timedelta(days=14),
                 Cita.estado.in_(["programada", "confirmada"]),
-                *([Cita.empresa_id == empresa_id] if empresa_id else []),
+                *([Cita.empresa_id == empresa_id] if empresa_id is not None else []),
             )
             .order_by(Cita.fecha, Cita.hora_inicio)
             .limit(40)
@@ -232,7 +272,7 @@ def resumen(
     ]
     total_pacientes = db.scalar(
         select(func.count(Paciente.id)).where(
-            *([Paciente.empresa_id == empresa_id] if empresa_id else [])
+            *([Paciente.empresa_id == empresa_id] if empresa_id is not None else [])
         )
     ) or 0
     return ResumenIAOut(
@@ -252,8 +292,15 @@ def historial(
     limite: int = Query(50, ge=1, le=200),
     skip: int = Query(0, ge=0),
     db: Session = Depends(get_db),
+    user: Usuario = Depends(get_current_user),
 ):
     stmt = select(PrediccionIA)
+    assigned = {link.empresa_id for link in user.empresas_link}
+    if assigned:
+        stmt = stmt.where(
+            (PrediccionIA.cita_id.is_(None))
+            | (PrediccionIA.cita.has(Cita.empresa_id.in_(assigned)))
+        )
     if tipo:
         stmt = stmt.where(PrediccionIA.tipo == tipo)
     return (
@@ -279,8 +326,16 @@ class PreguntaIA(BaseModel):
 def segmentacion(
     empresa_id: int | None = Query(default=None),
     db: Session = Depends(get_db),
+    user: Usuario = Depends(get_current_user),
 ):
+
     """Segmentación RFM de pacientes: VIP, recurrentes, en riesgo de fuga…"""
+    assigned = {link.empresa_id for link in user.empresas_link}
+    if empresa_id is not None:
+        require_empresa_access(empresa_id, user)
+    elif assigned:
+        empresa_id = next(iter(assigned))
+
     return ia_service.segmentar_pacientes(db, empresa_id=empresa_id)
 
 
@@ -289,8 +344,16 @@ def demanda_citas(
     dias: int = Query(14, ge=1, le=60),
     empresa_id: int | None = Query(default=None),
     db: Session = Depends(get_db),
+    user: Usuario = Depends(get_current_user),
 ):
+
     """Pronóstico de demanda de citas por día de la semana."""
+    assigned = {link.empresa_id for link in user.empresas_link}
+    if empresa_id is not None:
+        require_empresa_access(empresa_id, user)
+    elif assigned:
+        empresa_id = next(iter(assigned))
+
     return ia_service.demanda_citas(db, dias=dias, empresa_id=empresa_id)
 
 
@@ -298,8 +361,16 @@ def demanda_citas(
 def inventario(
     empresa_id: int | None = Query(default=None),
     db: Session = Depends(get_db),
+    user: Usuario = Depends(get_current_user),
 ):
+
     """Predicción de consumo y reposición de insumos."""
+    assigned = {link.empresa_id for link in user.empresas_link}
+    if empresa_id is not None:
+        require_empresa_access(empresa_id, user)
+    elif assigned:
+        empresa_id = next(iter(assigned))
+
     return ia_service.prediccion_inventario(db, empresa_id=empresa_id)
 
 
@@ -307,8 +378,16 @@ def inventario(
 def agenda(
     empresa_id: int | None = Query(default=None),
     db: Session = Depends(get_db),
+    user: Usuario = Depends(get_current_user),
 ):
+
     """Optimización de agenda: horas pico, franjas libres y recomendaciones."""
+    assigned = {link.empresa_id for link in user.empresas_link}
+    if empresa_id is not None:
+        require_empresa_access(empresa_id, user)
+    elif assigned:
+        empresa_id = next(iter(assigned))
+
     return ia_service.optimizar_agenda(db, empresa_id=empresa_id)
 
 
@@ -316,8 +395,16 @@ def agenda(
 def anomalias(
     empresa_id: int | None = Query(default=None),
     db: Session = Depends(get_db),
+    user: Usuario = Depends(get_current_user),
 ):
+
     """Anomalías de facturación (z-score mensual y facturas atípicas)."""
+    assigned = {link.empresa_id for link in user.empresas_link}
+    if empresa_id is not None:
+        require_empresa_access(empresa_id, user)
+    elif assigned:
+        empresa_id = next(iter(assigned))
+
     return ia_service.anomalias_facturacion(db, empresa_id=empresa_id)
 
 
@@ -326,12 +413,25 @@ def rentabilidad(
     limite: int = Query(12, ge=1, le=30),
     empresa_id: int | None = Query(default=None),
     db: Session = Depends(get_db),
+    user: Usuario = Depends(get_current_user),
 ):
+
     """Ranking de tratamientos por ingresos generados."""
+    assigned = {link.empresa_id for link in user.empresas_link}
+    if empresa_id is not None:
+        require_empresa_access(empresa_id, user)
+    elif assigned:
+        empresa_id = next(iter(assigned))
+
     return ia_service.rentabilidad_tratamientos(db, empresa_id=empresa_id, limite=limite)
 
 
 @router.post("/asistente")
-def asistente(payload: PreguntaIA, db: Session = Depends(get_db)):
-    """Asistente IA: responde preguntas sobre la clínica combinando las métricas."""
-    return ia_service.asistente(db, payload.pregunta, empresa_id=payload.empresa_id)
+def asistente(payload: PreguntaIA, db: Session = Depends(get_db), user: Usuario = Depends(get_current_user)):
+    """Responde preguntas sobre la cl?nica dentro del ?mbito de la empresa asignada."""
+    empresa_id = payload.empresa_id
+    if empresa_id is not None:
+        require_empresa_access(empresa_id, user)
+    elif user.empresas_link:
+        empresa_id = user.empresas_link[0].empresa_id
+    return ia_service.asistente(db, payload.pregunta, empresa_id=empresa_id)

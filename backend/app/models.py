@@ -18,9 +18,11 @@ from sqlalchemy import (
     UniqueConstraint,
     func,
 )
-from sqlalchemy.orm import Mapped, mapped_column, relationship
+from sqlalchemy.orm import Mapped, mapped_column, relationship, reconstructor, validates
 
 from app.core.database import Base
+
+from app.core.security import decrypt_sensitive, encrypt_sensitive
 
 # ---------------------------------------------------------------------------
 # Catálogos y seguridad
@@ -55,6 +57,22 @@ class Empresa(Base):
     vinculos: Mapped[list["UsuarioEmpresa"]] = relationship(
         back_populates="empresa", cascade="all, delete-orphan"
     )
+
+
+class Campana(Base):
+    __tablename__ = "campanas_marketing"
+
+    id: Mapped[int] = mapped_column(primary_key=True)
+    empresa_id: Mapped[int] = mapped_column(ForeignKey("empresas.id"), index=True)
+    usuario_id: Mapped[int | None] = mapped_column(ForeignKey("usuarios.id"), nullable=True)
+    nombre: Mapped[str] = mapped_column(String(160))
+    asunto: Mapped[str] = mapped_column(String(240))
+    html: Mapped[str] = mapped_column(Text)
+    canales: Mapped[list] = mapped_column(JSON, default=list)
+    estado: Mapped[str] = mapped_column(String(24), default="borrador")
+    destinatarios: Mapped[int] = mapped_column(Integer, default=0)
+    enviado_en: Mapped[datetime | None] = mapped_column(DateTime, nullable=True)
+    creado_en: Mapped[datetime] = mapped_column(DateTime, server_default=func.now())
 
 
 class UsuarioEmpresa(Base):
@@ -168,6 +186,10 @@ class Paciente(Base):
     dni: Mapped[str | None] = mapped_column(String(20), unique=True)
     telefono: Mapped[str | None] = mapped_column(String(30))
     email: Mapped[str | None] = mapped_column(String(120))
+    consentimiento_marketing_email: Mapped[bool] = mapped_column(Boolean, default=False, nullable=False)
+    baja_marketing_email: Mapped[bool] = mapped_column(Boolean, default=False, nullable=False)
+    consentimiento_marketing_whatsapp: Mapped[bool] = mapped_column(Boolean, default=False, nullable=False)
+    baja_marketing_whatsapp: Mapped[bool] = mapped_column(Boolean, default=False, nullable=False)
     direccion: Mapped[str | None] = mapped_column(String(200))
     ocupacion: Mapped[str | None] = mapped_column(String(100))
     tipo_sangre: Mapped[str | None] = mapped_column(String(10))
@@ -198,6 +220,15 @@ class Paciente(Base):
     def nombre_completo(self) -> str:
         return f"{self.nombres} {self.apellidos}"
 
+    @reconstructor
+    def descifrar_datos_clinicos(self) -> None:
+        for field in ("alergias", "enfermedades", "medicamentos", "antecedentes", "notas", "direccion", "emergencia_nombre", "emergencia_telefono"):
+            self.__dict__[field] = decrypt_sensitive(self.__dict__.get(field))
+
+    @validates("alergias", "enfermedades", "medicamentos", "antecedentes", "notas", "direccion", "emergencia_nombre", "emergencia_telefono")
+    def cifrar_datos_clinicos(self, key: str, value: str | None) -> str | None:
+        return encrypt_sensitive(value)
+
 
 class HistorialClinico(Base):
     __tablename__ = "historial_clinico"
@@ -215,6 +246,15 @@ class HistorialClinico(Base):
 
     paciente: Mapped[Paciente] = relationship(back_populates="historial")
     doctor: Mapped[Doctor] = relationship()
+
+    @reconstructor
+    def descifrar_contenido_clinico(self) -> None:
+        for field in ("motivo", "diagnostico", "tratamiento", "indicaciones", "notas"):
+            self.__dict__[field] = decrypt_sensitive(self.__dict__.get(field))
+
+    @validates("motivo", "diagnostico", "tratamiento", "indicaciones", "notas")
+    def cifrar_contenido_clinico(self, key: str, value: str | None) -> str | None:
+        return encrypt_sensitive(value)
 
 
 # Estados posibles de una pieza dental (odontograma FDI)
@@ -253,6 +293,14 @@ class Odontograma(Base):
 
     paciente: Mapped[Paciente] = relationship(back_populates="odontograma")
     doctor: Mapped[Doctor | None] = relationship()
+
+    @reconstructor
+    def descifrar_notas_clinicas(self) -> None:
+        self.__dict__["notas"] = decrypt_sensitive(self.__dict__.get("notas"))
+
+    @validates("notas")
+    def cifrar_notas_clinicas(self, key: str, value: str | None) -> str | None:
+        return encrypt_sensitive(value)
 
 
 # ---------------------------------------------------------------------------
@@ -582,9 +630,18 @@ class ExamenImagen(Base):
     paciente: Mapped[Paciente] = relationship(back_populates="examenes")
     doctor: Mapped["Doctor | None"] = relationship()
 
+    @reconstructor
+    def descifrar_metadata_clinica(self) -> None:
+        for field in ("titulo", "descripcion", "diente", "notas"):
+            self.__dict__[field] = decrypt_sensitive(self.__dict__.get(field))
+
+    @validates("titulo", "descripcion", "diente", "notas")
+    def cifrar_metadata_clinica(self, key: str, value: str | None) -> str | None:
+        return encrypt_sensitive(value)
+
     @property
     def url(self) -> str:
-        return f"/uploads/examenes/{self.archivo}"
+        return f"/api/pacientes/{self.paciente_id}/examenes/{self.id}/archivo/{self.archivo}"
 
 
 # ---------------------------------------------------------------------------
@@ -617,4 +674,4 @@ class DisenoProtesis(Base):
 
     @property
     def url(self) -> str:
-        return f"/uploads/diseno3d/{self.archivo}"
+        return f"/api/diseno3d/{self.id}/archivo"

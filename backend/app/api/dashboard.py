@@ -4,7 +4,7 @@ from fastapi import APIRouter, Depends, Query
 from sqlalchemy import func, select
 from sqlalchemy.orm import Session, selectinload
 
-from app.api.deps import get_current_user
+from app.api.deps import get_current_user, require_empresa_access
 from app.core.database import get_db
 from app.models import (
     Cita,
@@ -13,6 +13,7 @@ from app.models import (
     Factura,
     Paciente,
     Producto,
+    Usuario,
 )
 from app.schemas import DashboardOut, IngresoMensual
 
@@ -27,7 +28,13 @@ router = APIRouter(
 def dashboard(
     empresa_id: int | None = Query(default=None, description="Filtra los indicadores por empresa"),
     db: Session = Depends(get_db),
+    user: Usuario = Depends(get_current_user),
 ):
+    assigned = {x.empresa_id for x in user.empresas_link}
+    if empresa_id is not None:
+        require_empresa_access(empresa_id, user)
+    elif assigned:
+        empresa_id = next(iter(assigned))
     hoy = date.today()
     mes_inicio = hoy.replace(day=1)
     mes_anterior_inicio = (mes_inicio - timedelta(days=1)).replace(day=1)

@@ -16,6 +16,7 @@ uploads/
 .env
 .env.*
 !.env.example
+.fernet.key
 
 # Editores / SO
 .vscode/

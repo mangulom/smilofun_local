@@ -27,6 +27,7 @@ from __future__ import annotations
 import base64
 import gzip
 import json
+import os
 import re
 import threading
 import zlib
@@ -313,6 +314,10 @@ def _crear(engine: Engine, prefijo: str = "smilofun", etiqueta: str | None = Non
                     escritas_total += escritas
                 salida.write(_linea({"fin": True, "filas": escritas_total}))
         parcial.replace(destino)
+        try:
+            os.chmod(destino, 0o600)
+        except OSError:
+            pass
     except BaseException:
         parcial.unlink(missing_ok=True)
         raise

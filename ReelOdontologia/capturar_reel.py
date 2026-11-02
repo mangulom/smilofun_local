@@ -492,9 +492,6 @@ def main():
         )
 
         print(f"\nAbriendo directamente el dashboard de Dentamia")
-        pagina.goto(f"{URL}/dashboard", wait_until="domcontentloaded", timeout=30000)
-        esperar_pantalla(pagina)
-
         if parece_login(pagina):
             print("\nInicia sesión en Dentamia.")
             print("Cuando termines, vuelve a PowerShell.")
@@ -513,8 +510,8 @@ def main():
 
         reporte = recorrer_rutas(pagina)
 
-        # Vuelve a mostrar las pantallas principales al final de la grabación.
-        for ruta in ("ia/asistente", "diseno3d/catalogo", "dashboard"):
+        # Cierra en la última pantalla del recorrido, sin repetir Dashboard ni módulos.
+        for ruta in ():
             try:
                 pagina.goto(
                     f"{URL}/{ruta}",

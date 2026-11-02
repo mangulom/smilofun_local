@@ -1,3 +1,4 @@
+import { authenticatedFetch } from './authenticated-fetch';
 import { AfterViewInit, Component, ElementRef, EventEmitter, Input, OnDestroy, Output, ViewChild, signal } from '@angular/core';
 import { DecimalPipe } from '@angular/common';
 
@@ -63,7 +64,7 @@ export class VolumenViewerComponent implements AfterViewInit, OnDestroy {
   private async cargar(): Promise<void> {
     this.abortador = new AbortController();
     try {
-      const res=await fetch(this.url,{signal:this.abortador.signal});
+      const res=await authenticatedFetch(this.url,{signal:this.abortador.signal});
       if(!res.ok) throw new Error(`No se pudo descargar el estudio (HTTP ${res.status}).`);
       const buffer=await res.arrayBuffer();
       const format=this.formato.toUpperCase();

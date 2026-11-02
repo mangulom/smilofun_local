@@ -1,4 +1,4 @@
-import { Component, inject, signal, viewChild, Input, OnInit, ElementRef } from '@angular/core';
+import { Component, inject, signal, viewChild, Input, OnInit, ElementRef, OnDestroy } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { DatePipe, CurrencyPipe, DecimalPipe } from '@angular/common';
 import { RouterLink } from '@angular/router';
@@ -276,14 +276,14 @@ const TIPOS_EXAMEN: Record<string, { label: string; color: string }> = {
                               <span class="text-[10px] text-fuchsia-100">Abrir visor clínico</span>
                             </div>
                           } @else if (esVideo(ex)) {
-                            <video [src]="ex.url" preload="metadata" class="h-full w-full object-contain" muted></video>
+                            <video [src]="urlArchivo(ex)" preload="metadata" class="h-full w-full object-contain" muted></video>
                             <span class="absolute inset-0 flex items-center justify-center">
                               <span class="flex h-10 w-10 items-center justify-center rounded-full bg-black/60 text-white">
                                 <svg class="ml-0.5 h-6 w-6" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z" /></svg>
                               </span>
                             </span>
 } @else {
-                            <img [src]="ex.url" [alt]="ex.titulo" class="h-full w-full object-contain" loading="lazy" />
+                            <img [src]="urlArchivo(ex)" [alt]="ex.titulo" class="h-full w-full object-contain" loading="lazy" />
                           }
                           <span class="absolute left-2 top-1.5 badge text-[10px]" [class]="tipoInfo(ex.tipo).color">{{ tipoInfo(ex.tipo).label }}</span>
                           @if (ex.marcas?.length) {
@@ -372,7 +372,7 @@ const TIPOS_EXAMEN: Record<string, { label: string; color: string }> = {
                         <td class="td">
                           <div class="flex justify-end gap-2">
                             <a class="btn-ghost !px-3 !py-1.5 text-xs" [routerLink]="['/diseno3d']" [queryParams]="{ diseno: d.id }">Ver 3D</a>
-                            <a class="btn-accent !px-3 !py-1.5 text-xs" [href]="d.url_stl" download>STL</a>
+                            <button class="btn-accent !px-3 !py-1.5 text-xs" (click)="descargarDiseno(d.id)">STL</button>
                           </div>
                         </td>
                       </tr>
@@ -571,7 +571,7 @@ const TIPOS_EXAMEN: Record<string, { label: string; color: string }> = {
     `,
   ],
 })
-export class PacienteDetalleComponent implements OnInit {
+export class PacienteDetalleComponent implements OnInit, OnDestroy {
   private dialog = inject(DialogService);
   private api = inject(ApiService);
 
@@ -635,6 +635,7 @@ historial = signal<HistorialNota[]>([]);
   private visorEl = viewChild<ElementRef<HTMLDivElement>>('visorEl');
   private imgEl = viewChild<ElementRef<HTMLImageElement>>('imgEl');
   dicomSerie = signal<Record<number, string[]>>({});
+  private archivoUrls = new Map<number, string>();
 
   ngOnInit(): void {
     this.cargar();
@@ -650,7 +651,10 @@ historial = signal<HistorialNota[]>([]);
     this.api.paciente(pid).subscribe((p) => this.paciente.set(p));
     this.api.resumenPaciente(pid).subscribe((r) => this.resumen.set(r));
     this.api.historial(pid).subscribe((h) => this.historial.set(h));
-    this.api.examenes(pid).subscribe((e) => this.examenes.set(e));
+    this.api.examenes(pid).subscribe((e) => {
+      this.examenes.set(e);
+      for (const examen of e) this.cargarArchivoSeguro(examen);
+    });
     this.cargandoPiezas3d.set(true);
     this.api.historialDiseno3D(undefined, pid).subscribe({
       next: (d) => {
@@ -809,6 +813,7 @@ clasePlan(estado: string): string {
     this.api.subirExamen(Number(this.id), fd).subscribe({
       next: (ex) => {
         this.examenes.set([ex, ...this.examenes()]);
+        this.cargarArchivoSeguro(ex);
         this.subiendo.set(false);
         void this.dialog.success({ title: ex.tipo === 'tomografia' ? 'Tomografía agregada' : 'Examen agregado', text: `${ex.titulo} se guardó y validó correctamente.` });
         this.archivoSel.set(null);
@@ -829,12 +834,38 @@ clasePlan(estado: string): string {
   async eliminarExamen(ex: ExamenImagen): Promise<void> {
     if (!await this.dialog.confirm({ title: '¿Eliminar examen?', text: `Se eliminará "${ex.titulo}" de la ficha del paciente.`, confirmText: 'Eliminar', danger: true })) return;
     this.api.eliminarExamen(Number(this.id), ex.id).subscribe({
-      next: () => { this.examenes.set(this.examenes().filter((x) => x.id !== ex.id)); void this.dialog.success({ title: 'Examen eliminado' }); },
+      next: () => { const url = this.archivoUrls.get(ex.id); if (url) URL.revokeObjectURL(url); this.archivoUrls.delete(ex.id); this.examenes.set(this.examenes().filter((x) => x.id !== ex.id)); void this.dialog.success({ title: 'Examen eliminado' }); },
       error: e => { void this.dialog.apiError(e, 'No se pudo eliminar el examen.'); },
     });
   }
 
   // ================= Visor interactivo =================
+  urlArchivo(ex: ExamenImagen): string { return this.archivoUrls.get(ex.id) ?? ''; }
+
+  descargarDiseno(id: number): void {
+    this.api.archivoDiseno3D(id).subscribe(blob => {
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a'); a.href = url; a.download = `diseno-${id}.stl`; a.click(); URL.revokeObjectURL(url);
+    });
+  }
+
+  private cargarArchivoSeguro(ex: ExamenImagen): void {
+    if (this.archivoUrls.has(ex.id)) return;
+    this.api.archivoExamen(Number(this.id), ex.id, ex.archivo).subscribe({
+      next: blob => {
+        if (!blob.size) return;
+        this.archivoUrls.set(ex.id, URL.createObjectURL(blob));
+      },
+      error: () => { /* el endpoint aplica el control de acceso; no exponer URL directa */ },
+    });
+  }
+
+  ngOnDestroy(): void {
+    for (const url of this.archivoUrls.values()) URL.revokeObjectURL(url);
+    this.archivoUrls.clear();
+    for (const urls of Object.values(this.dicomSerie())) urls.forEach(URL.revokeObjectURL);
+  }
+
   abrirVisor(ex: ExamenImagen): void {
     if (this.esVolumen(ex) && !this.volumenValido(ex)) {
       void this.dialog.warning({ title: 'Volumen no válido', text: `El archivo ${ex.archivo} no contiene un volumen 3D válido. Tamaño registrado: ${ex.tamano} bytes. El archivo original no se ha modificado; elimina este registro de prueba y vuelve a subir un NRRD/NIfTI válido.` });
@@ -844,10 +875,18 @@ clasePlan(estado: string): string {
       this.api.serieDICOM(Number(this.id), ex.id).subscribe({
         next: r => {
           if (!r.instancias.length) { void this.dialog.warning({ title: 'Serie DICOM vacía', text: 'El ZIP no contiene cortes DICOM para mostrar.' }); return; }
-          const apiOrigin = new URL('/api/', document.baseURI).origin;
-          const urls = r.instancias.map(i => new URL(i.url, apiOrigin).toString());
-          this.dicomSerie.update(x => ({ ...x, [ex.id]: urls }));
-          this.visor.set({ ...ex, formato_volumen: 'DICOM-ZIP', tipo: ex.tipo === 'tomografia' ? 'tomografia' : 'resonancia' });
+          const urls: string[] = [];
+          for (const instancia of r.instancias) {
+            const nombre = instancia.url.split('/').pop() || '';
+            this.api.archivoExamen(Number(this.id), ex.id, nombre).subscribe(blob => {
+              urls.push(URL.createObjectURL(blob));
+              if (urls.length === r.instancias.length) {
+                this.dicomSerie.update(x => ({ ...x, [ex.id]: [...urls] }));
+                this.visor.set({ ...ex, formato_volumen: 'DICOM-ZIP', tipo: ex.tipo === 'tomografia' ? 'tomografia' : 'resonancia' });
+              }
+            });
+          }
+          return;
         },
         error: e => { void this.dialog.apiError(e, 'No se pudo leer la serie DICOM del ZIP.'); },
       });
