@@ -41,6 +41,8 @@ def _load_settings() -> Settings:
     """Load backend/.env regardless of the shell's current working directory."""
     env_file = Path(__file__).resolve().parents[2] / ".env"
     loaded = Settings(_env_file=env_file)
+    if loaded.demo_mode and loaded.database_url in {"sqlite:///./dentamia.db", "sqlite:///dentamia.db", ""}:
+        loaded.database_url = "sqlite://"
     if env_file.exists():
         for line in env_file.read_text(encoding="utf-8").splitlines():
             if line.strip().startswith("FERNET_KEY="):
@@ -52,9 +54,6 @@ def _load_settings() -> Settings:
         loaded.fernet_key = ""
     if loaded.fernet_key.strip().upper().startswith(("REEMPLAZAR", "GENERAR_", "CHANGEME", "YOUR_", "<")):
         loaded.fernet_key = ""
-    if loaded.demo_mode:
-        # Demo volatility must not reuse the developer's existing SQL database.
-        loaded.database_url = "sqlite://"
     if not loaded.fernet_key and loaded.fernet_key_file:
         key_file = Path(loaded.fernet_key_file)
         if not key_file.is_absolute():

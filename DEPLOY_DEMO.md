@@ -1,44 +1,58 @@
-# Demo desplegable (datos volátiles)
+# Demo de Dentamia en Vercel + Supabase
 
-## Alcance
+## Arquitectura
 
-La demo usa un SQLite anónimo en RAM (`StaticPool`) y carga los datos ficticios de `backend/app/services/seed.py` al iniciar. Las altas/cambios/bajas relacionales viven mientras el proceso está activo. Con `RESET_DEMO_ON_START=true`, se vuelven a generar al reiniciar/desplegar.
+- Angular estático en Vercel (`frontend`).
+- FastAPI como Vercel Function (entrypoint `backend/app.py`, que exporta la app de `backend/app/main.py`).
+- Supabase Postgres compartido para que CRUD sea consistente entre invocaciones serverless.
+- Seed ficticio de `backend/app/services/seed.py` solo cuando la base no tiene usuarios.
+- Alembic crea el esquema vacío. No se ejecuta `drop_all` en Postgres.
 
-El backend fuerza `sqlite://` cuando `DEMO_MODE=true`, aunque se haya configurado accidentalmente otra `DATABASE_URL`, y aborta si `ENVIRONMENT=production`. No copies los secretos del `.env` local a ningún proveedor.
+Aunque la demo usa registros ficticios, las altas/ediciones/bajas persisten en la base Supabase del proyecto demo. No cargues datos clínicos reales.
 
-## Límites intencionales de la demo
+## Límites intencionales
 
-- Uploads y descargas de imágenes clínicas/DICOM, series DICOM, STL y respaldos están deshabilitados: el modo memoria no conserva bytes ni debe fingir que los guardó.
-- Configurar secretos de integraciones y enviar campañas externas está deshabilitado.
-- Los registros de exámenes ficticios del seed pueden mostrarse; no tienen blobs asociados.
-- Para CRUD de la interfaz se conserva el login de demo `admin@dentamia.com` / `admin123`. Cámbialo antes de hacer pública la URL o restríngela con protección de acceso del host.
-- Usa solo datos ficticios; no cargues pacientes ni estudios reales.
+- Imágenes, DICOM, series, STL y backups están desactivados; no hay bucket de archivos configurado.
+- No se guardan credenciales Gmail/WhatsApp/Meta ni se realizan envíos externos.
+- El login demo es `admin@dentamia.com` / `admin123`; protege la URL o cambia la cuenta antes de hacerla pública.
+- Supabase Free puede pausar tras 7 días sin actividad; revisa cuotas y crea un proyecto separado del de producción.
 
-## Variables Render (demo)
+## Backend en Vercel
+
+Importa la misma rama `demo-in-memory` como un servicio/proyecto FastAPI separado.
+
+- Root Directory: repositorio raíz `.`
+- Framework: FastAPI/Python
+- Entry point: `backend/app.py` / `backend/pyproject.toml` (`tool.vercel.entrypoint = "app.main:app"`)
+- Asegúrate de que Vercel instale dependencias desde `backend/requirements.txt`.
+- Functions de Vercel reciben peticiones de forma serverless; Postgres es compartido, no SQLite RAM.
+
+Environment Variables (Production y Preview según corresponda):
 
 ```text
 DEMO_MODE=true
-RESET_DEMO_ON_START=true
+RESET_DEMO_ON_START=false
 ENVIRONMENT=development
-SECRET_KEY=<secreto aleatorio de al menos 32 bytes, no el secreto local>
+DATABASE_URL=postgresql+psycopg2://postgres.<PROJECT_REF>:<PASSWORD>@<SESSION_POOLER_HOST>:5432/postgres
+SECRET_KEY=<secreto aleatorio nuevo de 32 bytes o más>
 PAYLOAD_ENCRYPTION_ENABLED=true
-CORS_ORIGINS=["https://<tu-proyecto>.vercel.app"]
+CORS_ORIGINS=["https://<frontend-vercel-domain>"]
 ```
 
-No configures `DATABASE_URL` ni `FERNET_KEY` para esta demo. El arranque fuerza SQLite en memoria y rechaza producción.
+Toma host/usuario/puerto de **Supabase → Connect → Session pooler → URI**. Codifica la contraseña si contiene caracteres reservados. Nunca la pongas aquí ni en Git. No copies la contraseña o `DATABASE_URL` de este proyecto a otros sitios.
 
-Comando de inicio sugerido para Render: `cd backend && python run.py` (el servicio debe exponer `PORT`; `run.py` lo respeta). El servicio Free se duerme por inactividad, así que el estado de memoria se reinicia y vuelve al seed.
+El Build Command debe ejecutar `cd backend && python vercel_build.py`; esto aplica Alembic y carga el seed solo si la base está vacía, antes de publicar. Las Functions no migran ni seed-ean en cada cold start. Verifica logs de Function y que `/api/health` devuelva `demo_mode: true` y `persistence: database`.
 
-## Vercel (frontend)
+## Frontend en Vercel
 
 - Root Directory: `frontend`
-- Framework: Angular (o Other)
+- Framework: Angular
 - Build: `npm run build`
-- Output Directory: `dist/frontend/browser`
-- Variable de entorno/archivo público de runtime `config.ini`: `api_url=https://<tu-api-render>`
+- Output: `dist/frontend/browser`
+- `frontend/vercel.json` proporciona fallback SPA a `index.html`.
+- `frontend/public/config.ini`: `api_url=https://<backend-vercel-domain>`.
+- El backend debe permitir el origen exacto del frontend en `CORS_ORIGINS`.
 
-Comprueba que las rutas SPA usan fallback a `index.html`. El frontend se conecta directamente a la API HTTPS; CORS en Render debe permitir el origen exacto de Vercel.
+## Seguridad/producción
 
-## Producción real
-
-No uses el modo demo para pacientes. Producción requiere PostgreSQL persistente, `DEMO_MODE=false`, `ENVIRONMENT=production`, `SECRET_KEY` y la `FERNET_KEY` original, backups probados y almacenamiento privado de objetos para los archivos clínicos. La demo no es una vía de restauración de registros reales.
+No uses la configuración demo con pacientes. Producción requiere revisar controles de acceso, privacidad/regulación, PostgreSQL persistente con backups, `DEMO_MODE=false`, secretos propios, FERNET_KEY original y almacenamiento privado S3 para blobs clínicos. Vercel Hobby es de uso personal no comercial; verifica sus condiciones antes de publicar un servicio comercial.

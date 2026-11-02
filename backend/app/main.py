@@ -1,4 +1,5 @@
 from contextlib import asynccontextmanager
+from pathlib import Path
 import base64
 import json
 import os
@@ -36,22 +37,37 @@ from app.core.database import Base, SessionLocal, engine
 
 @asynccontextmanager
 async def lifespan(_: FastAPI):
-    # 1) Crea tablas nuevas (empresas, usuario_empresas).
-    Base.metadata.create_all(bind=engine)
-
     if settings.demo_mode:
         from app.models import Empresa, Usuario, UsuarioEmpresa
         from app.services.seed import seed_if_empty
 
+        if settings.database_url.startswith("sqlite"):
+            Base.metadata.create_all(bind=engine)
+
+        if os.getenv("VERCEL") == "1" and not settings.database_url.startswith("sqlite"):
+            # Vercel build step performs migrations/seed once; Functions stay stateless.
+            yield
+            return
+
         db = SessionLocal()
         try:
-            if settings.reset_demo_on_start:
+            demo_uses_shared_database = not settings.database_url.startswith("sqlite")
+            if settings.reset_demo_on_start and not demo_uses_shared_database:
                 db.close()
                 Base.metadata.drop_all(bind=engine)
                 Base.metadata.create_all(bind=engine)
                 db = SessionLocal()
+
             if db.query(Usuario).count() == 0:
                 seed_if_empty(db)
+            if not db.query(Empresa).count():
+                for nombre, ruc, telefono in [
+                    ("SmiloFun Demo Centro", "20500000001", "(051) 900000001"),
+                    ("SmiloFun Demo Norte", "20500000002", "(051) 900000002"),
+                    ("SmiloFun Demo Sur", "20500000003", "(051) 900000003"),
+                ]:
+                    db.add(Empresa(nombre=nombre, ruc=ruc, telefono=telefono))
+                db.flush()
             empresas = db.query(Empresa).order_by(Empresa.id).all()
             for usuario in db.query(Usuario).all():
                 if db.query(UsuarioEmpresa).filter_by(usuario_id=usuario.id).first():
@@ -64,6 +80,9 @@ async def lifespan(_: FastAPI):
             db.close()
         yield
         return
+
+    # Persisted non-demo deployments use the legacy startup schema/bootstrap path.
+    Base.metadata.create_all(bind=engine)
 
     # 2) Migración ligera: agrega empresa_id, siembra empresas y backfilla.
     try:
@@ -500,4 +519,5 @@ async def security_headers(request: Request, call_next):
 
 @app.get("/api/health", tags=["Salud"])
 def health():
-    return {"status": "ok", "app": settings.app_name, "version": settings.app_version, "demo_mode": settings.demo_mode, "persistence": "memory" if settings.demo_mode else "database"}
+    persistence = "memory" if settings.demo_mode and settings.database_url.startswith("sqlite") else "database"
+    return {"status": "ok", "app": settings.app_name, "version": settings.app_version, "demo_mode": settings.demo_mode, "persistence": persistence}

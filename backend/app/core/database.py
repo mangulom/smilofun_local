@@ -4,10 +4,10 @@ from sqlalchemy.pool import StaticPool
 
 from app.core.config import settings
 
-if settings.demo_mode:
-    # Una sola SQLite volátil compartida por sesiones dentro de este proceso.
+if settings.demo_mode and settings.database_url in {"sqlite://", "sqlite:///:memory:"}:
+    # Volatile, single-process demo backend. Shared Postgres URLs use normal pooling.
     engine = create_engine(
-        "sqlite://",
+        settings.database_url,
         connect_args={"check_same_thread": False},
         poolclass=StaticPool,
         future=True,
