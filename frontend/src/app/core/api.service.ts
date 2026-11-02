@@ -34,6 +34,10 @@ type Query = Record<string, string | number | boolean | undefined | null>;
 export class ApiService {
   private http = inject(HttpClient);
 
+  health(): Observable<{ status: string; app: string; version: string; demo_mode?: boolean; persistence?: string }> {
+    return this.http.get<{ status: string; app: string; version: string; demo_mode?: boolean; persistence?: string }>('/api/health');
+  }
+
 
   private params(query?: Query): HttpParams {
     let p = new HttpParams();

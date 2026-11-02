@@ -9,6 +9,7 @@ from sqlalchemy.orm import Session, joinedload
 
 from app.api.deps import get_current_user, require_empresa_access
 from app.core.database import get_db
+from app.core.config import settings
 from app.models import DisenoProtesis, Paciente, Usuario
 from app.services import diseno3d as svc
 
@@ -44,6 +45,8 @@ def generar(
     user: Usuario = Depends(get_current_user),
 ):
     """Genera la malla de la pieza, guarda el STL y registra el diseno."""
+    if settings.demo_mode:
+        raise HTTPException(status.HTTP_501_NOT_IMPLEMENTED, "La generación de archivos STL requiere almacenamiento de archivos, deshabilitado en la demo volátil.")
     pieza = _POR_CLAVE.get(datos.tipo)
     if pieza is None:
         raise HTTPException(status.HTTP_400_BAD_REQUEST, f"Tipo de pieza invalido: {datos.tipo}")
@@ -163,6 +166,8 @@ def geometria(diseno_id: int, db: Session = Depends(get_db), user: Usuario = Dep
 
 @router.get("/{diseno_id}/archivo")
 def descargar_stl(diseno_id: int, db: Session = Depends(get_db), user: Usuario = Depends(get_current_user)):
+    if settings.demo_mode:
+        raise HTTPException(status.HTTP_404_NOT_FOUND, "No hay archivos STL persistentes en modo demo.")
     diseno = db.get(DisenoProtesis, diseno_id)
     if diseno is None:
         raise HTTPException(status.HTTP_404_NOT_FOUND, "Dise?o no encontrado")

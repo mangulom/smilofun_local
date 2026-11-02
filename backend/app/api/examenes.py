@@ -14,6 +14,7 @@ from sqlalchemy.orm import Session
 
 from app.api.deps import get_current_user, require_empresa_access
 from app.core.database import get_db
+from app.core.config import settings
 from app.models import TIPOS_EXAMEN, ExamenImagen, Paciente, Usuario
 from app.schemas import ExamenImagenOut, ExamenImagenUpdate
 
@@ -182,6 +183,8 @@ def listar_examenes(paciente_id: int, db: Session = Depends(get_db), user: Usuar
 
 @router.get("/pacientes/{paciente_id}/examenes/{examen_id}/archivo/{nombre}")
 def descargar_archivo_examen(paciente_id: int, examen_id: int, nombre: str, db: Session = Depends(get_db), user: Usuario = Depends(get_current_user)):
+    if settings.demo_mode:
+        raise HTTPException(status.HTTP_404_NOT_FOUND, "No hay archivos persistentes en modo demo.")
     examen = _obtener_examen(db, paciente_id, examen_id)
     _obtener_paciente(db, paciente_id, user)
     base = UPLOAD_DIR.resolve()
@@ -203,6 +206,8 @@ def descargar_archivo_examen(paciente_id: int, examen_id: int, nombre: str, db: 
 
 @router.get("/pacientes/{paciente_id}/examenes/{examen_id}/serie")
 def obtener_serie_dicom(paciente_id: int, examen_id: int, db: Session = Depends(get_db), user: Usuario = Depends(get_current_user)):
+    if settings.demo_mode:
+        raise HTTPException(status.HTTP_404_NOT_FOUND, "No hay series DICOM persistentes en modo demo.")
     examen = _obtener_examen(db, paciente_id, examen_id)
     _obtener_paciente(db, paciente_id, user)
     if not examen.instancias_dicom:
@@ -236,6 +241,8 @@ async def subir_examen(
     db: Session = Depends(get_db),
     user: Usuario = Depends(get_current_user),
 ):
+    if settings.demo_mode:
+        raise HTTPException(status.HTTP_501_NOT_IMPLEMENTED, "Las cargas de archivos clínicos están desactivadas en la demo volátil; no se guarda ningún archivo.")
     paciente = _obtener_paciente(db, paciente_id, user)
     if doctor_id is not None:
         doctor = db.get(Doctor, doctor_id)
@@ -392,6 +399,8 @@ def actualizar_examen(
     db: Session = Depends(get_db),
     user: Usuario = Depends(get_current_user),
 ):
+    if settings.demo_mode:
+        raise HTTPException(status.HTTP_501_NOT_IMPLEMENTED, "Los archivos clínicos no son persistentes en modo demo.")
     examen = _obtener_examen(db, paciente_id, examen_id)
     _obtener_paciente(db, paciente_id, user)
     for key, value in data.model_dump(exclude_unset=True).items():
@@ -405,6 +414,8 @@ def actualizar_examen(
 
 @router.delete("/pacientes/{paciente_id}/examenes/{examen_id}", status_code=status.HTTP_204_NO_CONTENT)
 def eliminar_examen(paciente_id: int, examen_id: int, db: Session = Depends(get_db), user: Usuario = Depends(get_current_user)):
+    if settings.demo_mode:
+        raise HTTPException(status.HTTP_501_NOT_IMPLEMENTED, "Los archivos clínicos no son persistentes en modo demo.")
     examen = _obtener_examen(db, paciente_id, examen_id)
     _obtener_paciente(db, paciente_id, user)
     archivo = UPLOAD_DIR / examen.archivo

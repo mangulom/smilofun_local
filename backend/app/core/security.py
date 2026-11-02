@@ -64,6 +64,8 @@ def validate_fernet_key() -> None:
 def encrypt_sensitive(value: str | None) -> str | None:
     if value is None or value == "" or value.startswith(_ENCRYPTED_PREFIX) or value.startswith("gAAAA") or value == _OPAQUE_CIPHERTEXT_MARKER:
         return value
+    if settings.demo_mode:
+        return value
     token = _fernet().encrypt(value.encode("utf-8")).decode("ascii")
     return _ENCRYPTED_PREFIX + token
 
@@ -76,6 +78,8 @@ def decrypt_sensitive(value: str | None) -> str | None:
     if value is None:
         return value
     if value == _OPAQUE_CIPHERTEXT_MARKER:
+        return value
+    if settings.demo_mode:
         return value
     if not value.startswith(_ENCRYPTED_PREFIX):
         if value.startswith("gAAAA"):

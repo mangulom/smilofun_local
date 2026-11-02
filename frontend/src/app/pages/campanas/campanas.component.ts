@@ -52,7 +52,7 @@ interface Oferta { tratamiento: string; precioRegular: number; precioOferta: num
 
           @if (error()) { <p class="rounded-xl bg-red-50 p-3 text-sm text-red-700">{{ error() }}</p> }
           @if (resultado()) { <p class="rounded-xl bg-emerald-50 p-3 text-sm text-emerald-800">{{ resultado() }}</p> }
-          <div class="rounded-xl border border-amber-200 bg-amber-50 p-4 text-sm text-amber-900"><b>Envío real.</b> Revisa empresa, contenido y destinatarios con consentimiento vigente antes de confirmar.</div>
+          @if (modoDemo()) { <div class="rounded-xl border border-amber-300 bg-amber-50 p-4 text-sm text-amber-900"><b>Modo demo:</b> borradores temporales; Gmail, WhatsApp y credenciales externas están desactivados.</div> } @else { <div class="rounded-xl border border-amber-200 bg-amber-50 p-4 text-sm text-amber-900"><b>Envío real.</b> Revisa empresa, contenido y destinatarios con consentimiento vigente antes de confirmar.</div> }
           <div class="flex flex-wrap gap-2"><button class="btn-ghost" type="button" (click)="copiarHtml()">{{ copiado() ? 'HTML copiado' : 'Copiar HTML' }}</button><button class="btn-ghost" type="button" disabled title="La publicación Reel requiere permisos Meta y video">Preparar Reel (requiere Meta)</button><button class="btn-ghost" type="button" [disabled]="guardando()" (click)="guardarBorrador()">{{ guardando() ? 'Guardando…' : 'Guardar borrador' }}</button><button class="btn-primary" type="button" [disabled]="!gmailConfigurado() || !campanaId() || enviando()" (click)="enviar('gmail')">{{ enviando() ? 'Enviando…' : 'Enviar por Gmail' }}</button><button class="btn-primary" type="button" [disabled]="!whatsappConfigurado() || !campanaId() || enviando()" (click)="enviar('whatsapp')">Enviar por WhatsApp</button></div>
         </section>
 
@@ -80,6 +80,7 @@ export class CampanasComponent {
   verHtml = signal(false);
   copiado = signal(false);
   gmailConfigurado = signal(false);
+  modoDemo = signal(false);
   whatsappConfigurado = signal(false);
   gmailRemitente = signal('');
   metaConfigurado = signal(false);
@@ -91,6 +92,7 @@ export class CampanasComponent {
   html = computed(() => this.generarHtml());
 
   constructor() {
+    this.api.health().subscribe({ next: status => this.modoDemo.set(status.demo_mode === true) });
     this.api.estadoCampanas().subscribe({
       next: state => { this.gmailConfigurado.set(state.gmail.configured); this.whatsappConfigurado.set(state.whatsapp?.configured ?? false); this.metaConfigurado.set(state.meta_reels.configured); },
       error: e => { void this.dialog.apiError(e, 'No se pudo comprobar la configuración de campañas.'); },
@@ -118,6 +120,10 @@ export class CampanasComponent {
   }
 
   async enviar(canal: 'gmail' | 'whatsapp'): Promise<void> {
+    if (this.modoDemo()) {
+      this.error.set('Los envíos externos están deshabilitados en modo demo.');
+      return;
+    }
     const id = this.campanaId();
     if (!id || (canal === 'gmail' ? !this.gmailConfigurado() : !this.whatsappConfigurado())) return;
     const confirmado = await this.dialog.confirm({ title: `¿Enviar campaña por ${canal === 'gmail' ? 'Gmail' : 'WhatsApp'}?`, text: `Se enviará solo a pacientes activos con consentimiento de ${canal} vigente y sin baja, de la empresa activa. WhatsApp usa una plantilla aprobada por Meta.`, confirmText: 'Enviar campaña' });

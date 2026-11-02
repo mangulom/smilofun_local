@@ -1,9 +1,10 @@
-import { Component, signal } from '@angular/core';
+import { Component, inject, signal } from '@angular/core';
 import { NgClass } from '@angular/common';
 import { RouterOutlet } from '@angular/router';
 import { SidebarComponent } from './sidebar.component';
 import { HeaderComponent } from './header.component';
 import { FooterComponent } from './footer.component';
+import { ApiService } from '../core/api.service';
 
 @Component({
   selector: 'app-layout',
@@ -31,6 +32,11 @@ import { FooterComponent } from './footer.component';
         [ngClass]="sidebarColapsada() ? 'lg:pl-16' : 'lg:pl-64'"
       >
         <app-header (abrirSidebar)="sidebarAbierta.set(true)" />
+        @if (modoDemo()) {
+          <div class="mx-6 mt-3 rounded-xl border border-amber-300 bg-amber-50 px-4 py-2 text-sm font-bold text-amber-900">
+            DEMO VOLÁTIL — DATOS FICTICIOS: los cambios viven solo mientras esta instancia está activa. No uses datos reales; exámenes, STL, respaldos y envíos externos están desactivados.
+          </div>
+        }
         <main class="flex-1 overflow-y-auto p-6">
           <router-outlet />
         </main>
@@ -40,6 +46,12 @@ import { FooterComponent } from './footer.component';
   `,
 })
 export class LayoutComponent {
+  private readonly api = inject(ApiService);
   sidebarAbierta = signal(false);
   sidebarColapsada = signal(false);
+  modoDemo = signal(false);
+
+  constructor() {
+    this.api.health().subscribe({ next: status => this.modoDemo.set(status.demo_mode === true) });
+  }
 }

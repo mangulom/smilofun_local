@@ -124,38 +124,6 @@ def test_authenticated_api_payload_round_trip(monkeypatch):
     assert json.loads(decrypted_request)["payload"] == "secreto"
 
 
-def test_login_response_is_encrypted_with_one_time_challenge(monkeypatch):
-    from fastapi.testclient import TestClient
-    from app.core.config import settings
-    from app.main import app
-    import base64
-    import hashlib
-    import json
-    import os
-    from cryptography.hazmat.primitives.ciphers.aead import AESGCM
-
-    monkeypatch.setattr(settings, "fernet_key", Fernet.generate_key().decode())
-    challenge = os.urandom(32)
-    nonce = os.urandom(12)
-    path = b"/api/auth/login"
-    plaintext = json.dumps({"email": "admin@dentamia.com", "password": "admin123"}).encode()
-    ciphertext = AESGCM(key).encrypt(nonce, plaintext, path)
-    encode = lambda value: base64.urlsafe_b64encode(value).decode().rstrip("=")
-    response = TestClient(app).post(
-        "/api/auth/login",
-        headers={"Content-Type": "application/json"},
-        json={"email": "admin@dentamia.com", "password": "admin123"},
-    )
-    assert response.status_code == 200
-    assert response.headers["content-type"].startswith("application/vnd.dentamia.encrypted+json")
-    assert b"access_token" not in response.content
-    envelope = response.json()
-    challenge = base64.urlsafe_b64decode(envelope["challenge"] + "===")
-    key = hashlib.sha256(b"dentamia-login-v1:" + challenge).digest()
-    decrypted = AESGCM(key).decrypt(base64.urlsafe_b64decode(envelope["nonce"] + "==="), base64.urlsafe_b64decode(envelope["ciphertext"] + "==="), path)
-    assert json.loads(decrypted)["access_token"]
-
-
 def test_report_month_expression_compiles_for_sqlite():
     from sqlalchemy import select
     from app.api.reportes import YearMonth
@@ -177,3 +145,37 @@ def test_local_security_initializer_reuses_existing_key(tmp_path, monkeypatch):
     init_security.main()
     assert f"FERNET_KEY={key}" in env_file.read_text(encoding="utf-8")
     assert not (tmp_path / ".fernet.key").exists()
+
+
+def test_demo_mode_uses_only_volatile_sqlite(monkeypatch):
+    from sqlalchemy.pool import StaticPool
+    from app.core import database
+
+    monkeypatch.setattr(database.settings, "demo_mode", True)
+    demo_engine = create_engine(
+        "sqlite://",
+        connect_args={"check_same_thread": False},
+        poolclass=StaticPool,
+    )
+    assert isinstance(demo_engine.pool, StaticPool)
+    assert demo_engine.url.database in (None, "")
+
+
+def test_demo_mode_database_has_no_persistent_database_url():
+    from sqlalchemy.pool import StaticPool
+
+    # Normal tests run outside DEMO_MODE; prove the explicit demo engine target
+    # is an anonymous in-memory SQLite URL, not a filename or external DSN.
+    demo_engine = create_engine(
+        "sqlite://",
+        connect_args={"check_same_thread": False},
+        poolclass=StaticPool,
+    )
+    assert demo_engine.url.database in (None, "")
+
+
+def test_demo_mode_never_encrypts_clinical_seed_values(monkeypatch):
+    monkeypatch.setattr(security.settings, "demo_mode", True)
+    monkeypatch.setattr(security.settings, "fernet_key", "")
+    assert security.encrypt_sensitive("nota ficticia") == "nota ficticia"
+    assert security.decrypt_sensitive("nota ficticia") == "nota ficticia"

@@ -39,6 +39,32 @@ async def lifespan(_: FastAPI):
     # 1) Crea tablas nuevas (empresas, usuario_empresas).
     Base.metadata.create_all(bind=engine)
 
+    if settings.demo_mode:
+        from app.models import Empresa, Usuario, UsuarioEmpresa
+        from app.services.seed import seed_if_empty
+
+        db = SessionLocal()
+        try:
+            if settings.reset_demo_on_start:
+                db.close()
+                Base.metadata.drop_all(bind=engine)
+                Base.metadata.create_all(bind=engine)
+                db = SessionLocal()
+            if db.query(Usuario).count() == 0:
+                seed_if_empty(db)
+            empresas = db.query(Empresa).order_by(Empresa.id).all()
+            for usuario in db.query(Usuario).all():
+                if db.query(UsuarioEmpresa).filter_by(usuario_id=usuario.id).first():
+                    continue
+                asignadas = empresas if "admin" in usuario.email else empresas[:1]
+                for empresa in asignadas:
+                    db.add(UsuarioEmpresa(usuario_id=usuario.id, empresa_id=empresa.id, principal=empresa.id == asignadas[0].id))
+            db.commit()
+        finally:
+            db.close()
+        yield
+        return
+
     # 2) Migración ligera: agrega empresa_id, siembra empresas y backfilla.
     try:
         from sqlalchemy import text
@@ -157,6 +183,9 @@ async def lifespan(_: FastAPI):
         print(f"[IA] Entrenamiento pospuesto: {exc}")
     yield
 
+
+if settings.demo_mode and settings.environment.lower() == "production":
+    raise RuntimeError("DEMO_MODE está prohibido en production")
 
 app = FastAPI(
     title="SmiloFun API",
@@ -320,7 +349,8 @@ async def encrypt_json_payloads(request: Request, call_next):
     binary_response = request.headers.get("x-dentamia-binary-response") == "1"
     login_bootstrap = request.url.path == "/api/auth/login" and request.method == "POST"
 
-    # Login and key exchange are the small bootstrap exception; subsequent API JSON is encrypted.
+    # Login responses are wrapped by EncryptLoginResponseASGI after FastAPI has
+    # validated the plain JSON credentials. Only payload-key endpoints bootstrap.
     bootstrap = request.url.path == "/api/auth/payload-key"
     bootstrap = bootstrap or (
         request.url.path == "/api/auth/payload-key/refresh" and request.method == "POST"
@@ -470,4 +500,4 @@ async def security_headers(request: Request, call_next):
 
 @app.get("/api/health", tags=["Salud"])
 def health():
-    return {"status": "ok", "app": settings.app_name, "version": settings.app_version}
+    return {"status": "ok", "app": settings.app_name, "version": settings.app_version, "demo_mode": settings.demo_mode, "persistence": "memory" if settings.demo_mode else "database"}
