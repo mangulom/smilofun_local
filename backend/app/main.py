@@ -38,16 +38,14 @@ from app.core.database import Base, SessionLocal, engine
 @asynccontextmanager
 async def lifespan(_: FastAPI):
     if settings.demo_mode:
+        if os.getenv("VERCEL_DEMO_BUILD_ONLY") == "true":
+            yield
+            return
         from app.models import Empresa, Usuario, UsuarioEmpresa
         from app.services.seed import seed_if_empty
 
         if settings.database_url.startswith("sqlite"):
             Base.metadata.create_all(bind=engine)
-
-        if os.getenv("VERCEL") == "1" and not settings.database_url.startswith("sqlite"):
-            # Vercel build step performs migrations/seed once; Functions stay stateless.
-            yield
-            return
 
         db = SessionLocal()
         try:
