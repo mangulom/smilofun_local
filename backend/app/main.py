@@ -58,24 +58,27 @@ async def lifespan(_: FastAPI):
                 Base.metadata.create_all(bind=engine)
                 db = SessionLocal()
 
-            if db.query(Usuario).count() == 0:
+            # Seed only a genuinely empty demo database. Never mix fictitious
+            # seed rows into a Supabase project that already contains records.
+            demo_db_was_empty = db.query(Usuario).count() == 0 and db.query(Empresa).count() == 0
+            if demo_db_was_empty:
                 seed_if_empty(db)
-            if not db.query(Empresa).count():
-                for nombre, ruc, telefono in [
-                    ("SmiloFun Demo Centro", "20500000001", "(051) 900000001"),
-                    ("SmiloFun Demo Norte", "20500000002", "(051) 900000002"),
-                    ("SmiloFun Demo Sur", "20500000003", "(051) 900000003"),
-                ]:
-                    db.add(Empresa(nombre=nombre, ruc=ruc, telefono=telefono))
-                db.flush()
-            empresas = db.query(Empresa).order_by(Empresa.id).all()
-            for usuario in db.query(Usuario).all():
-                if db.query(UsuarioEmpresa).filter_by(usuario_id=usuario.id).first():
-                    continue
-                asignadas = empresas if "admin" in usuario.email else empresas[:1]
-                for empresa in asignadas:
-                    db.add(UsuarioEmpresa(usuario_id=usuario.id, empresa_id=empresa.id, principal=empresa.id == asignadas[0].id))
-            db.commit()
+                if not db.query(Empresa).count():
+                    for nombre, ruc, telefono in [
+                        ("SmiloFun Demo Centro", "20500000001", "(051) 900000001"),
+                        ("SmiloFun Demo Norte", "20500000002", "(051) 900000002"),
+                        ("SmiloFun Demo Sur", "20500000003", "(051) 900000003"),
+                    ]:
+                        db.add(Empresa(nombre=nombre, ruc=ruc, telefono=telefono))
+                    db.flush()
+                empresas = db.query(Empresa).order_by(Empresa.id).all()
+                for usuario in db.query(Usuario).all():
+                    if db.query(UsuarioEmpresa).filter_by(usuario_id=usuario.id).first():
+                        continue
+                    asignadas = empresas if "admin" in usuario.email else empresas[:1]
+                    for empresa in asignadas:
+                        db.add(UsuarioEmpresa(usuario_id=usuario.id, empresa_id=empresa.id, principal=empresa.id == asignadas[0].id))
+                db.commit()
         finally:
             db.close()
         yield
