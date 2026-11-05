@@ -1,0 +1,6 @@
+# Archivos pesados que no hacen falta para ejecutar el demo en Vercel
+ReelOdontologia
+files
+videoia.mp4
+.opencode
+informe_paginacion_endpoints.txt
