@@ -11,10 +11,6 @@ from __future__ import annotations
 import threading
 from datetime import date, datetime, timedelta
 
-import numpy as np
-from sklearn.linear_model import LinearRegression, LogisticRegression
-from sklearn.metrics import accuracy_score
-from sklearn.model_selection import train_test_split
 from sqlalchemy import func, select
 from sqlalchemy.orm import Session
 
@@ -94,6 +90,43 @@ def _features_cita(cita: Cita, paciente: Paciente, tasa_previa: float, citas_pre
     ]
 
 
+def _promedio(valores: list[float]) -> float:
+    return sum(valores) / len(valores) if valores else 0.0
+
+
+def _desviacion(valores: list[float]) -> float:
+    if not valores:
+        return 0.0
+    media = _promedio(valores)
+    return _promedio([(valor - media) ** 2 for valor in valores]) ** 0.5
+
+
+def _regresion_lineal(valores: list[float]) -> tuple[float, float, float]:
+    """Pendiente, intercepto y R² de una serie con índices consecutivos."""
+    if len(valores) < 2:
+        return 0.0, _promedio(valores), 0.0
+    xs = list(range(len(valores)))
+    media_x, media_y = _promedio(xs), _promedio(valores)
+    denominador = sum((x - media_x) ** 2 for x in xs)
+    pendiente = sum((x - media_x) * (y - media_y) for x, y in zip(xs, valores)) / denominador if denominador else 0.0
+    intercepto = media_y - pendiente * media_x
+    residual = sum((y - (pendiente * x + intercepto)) ** 2 for x, y in zip(xs, valores))
+    total = sum((y - media_y) ** 2 for y in valores)
+    r2 = max(0.0, min(1.0, 1 - residual / total)) if total else 0.0
+    return pendiente, intercepto, r2
+
+
+def _percentil(valores: list[float], percentil: float) -> float:
+    if not valores:
+        return 0.0
+    ordenados = sorted(valores)
+    posicion = (len(ordenados) - 1) * percentil / 100
+    inferior = int(posicion)
+    superior = min(inferior + 1, len(ordenados) - 1)
+    fraccion = posicion - inferior
+    return ordenados[inferior] * (1 - fraccion) + ordenados[superior] * fraccion
+
+
 # ---------------------------------------------------------------------------
 # Entrenamiento del clasificador de no-show
 # ---------------------------------------------------------------------------
@@ -125,19 +158,14 @@ def entrenar(db: Session) -> dict:
         métricas["modelo"] = "reglas"  # fallback determinista
         return métricas
 
-    Xa, ya = np.array(X), np.array(y)
-    modelo = LogisticRegression(max_iter=1000, class_weight="balanced")
-    Xtr, Xte, ytr, yte = train_test_split(Xa, ya, test_size=0.25, random_state=42, stratify=ya)
-    modelo.fit(Xtr, ytr)
-    accuracy = float(accuracy_score(yte, modelo.predict(Xte)))
-    modelo.fit(Xa, ya)  # reentrena con todo el histórico para producción
-
+    # The demo serves predictions with the deterministic rules-based fallback;
+    # do not bundle scikit-learn/SciPy into the serverless function.
     with _lock:
-        _modelo_no_show["model"] = modelo
+        _modelo_no_show["model"] = None
         _modelo_no_show["n_muestras"] = len(X)
-        _modelo_no_show["accuracy"] = round(accuracy, 3)
+        _modelo_no_show["accuracy"] = None
         _modelo_no_show["entrenado_en"] = datetime.utcnow()
-    métricas.update({"modelo": "regresion_logistica", "accuracy": round(accuracy, 3)})
+    métricas.update({"modelo": "reglas", "accuracy": None})
     return métricas
 
 
@@ -181,7 +209,7 @@ def _score_reglas(feats: list[float]) -> tuple[float, list[str]]:
     if confirmada:
         p -= 0.12
         factores.append("Cita confirmada por el paciente")
-    return float(np.clip(p, 0.01, 0.95)), factores
+    return max(0.01, min(0.95, p)), factores
 
 
 def predecir_no_show(db: Session, cita: Cita) -> dict:
@@ -197,7 +225,7 @@ def predecir_no_show(db: Session, cita: Cita) -> dict:
     if modelo is not None:
         proba = float(modelo.predict_proba([feats])[0][1])
         coef = modelo.coef_[0]
-        orden = np.argsort(-np.abs(coef))[:3]
+        orden = sorted(range(len(coef)), key=lambda i: -abs(coef[i]))[:3]
         for i in orden:
             nombre = FEATURE_NAMES[i]
             if abs(coef[i]) > 0.01:
@@ -258,12 +286,7 @@ def proyectar_ingresos(db: Session, meses: int = 3, empresa_id: int | None = Non
     salidas = []
     valores = [v for _, v in meses_hist]
     if len(valores) >= 3 and max(valores) > 0:
-        X = np.arange(len(valores)).reshape(-1, 1)
-        y = np.array(valores, dtype=float)
-        reg = LinearRegression().fit(X, y)
-        pred = reg.predict(np.arange(len(valores), len(valores) + meses).reshape(-1, 1))
-        r2 = float(reg.score(X, y))
-        pendiente = float(reg.coef_[0])
+        pendiente, intercepto, r2 = _regresion_lineal(valores)
         tendencia = "creciente" if pendiente > 5 else "decreciente" if pendiente < -5 else "estable"
         ultimo_anio, ultimo_mes = hoy.year, hoy.month
         for k in range(meses):
@@ -275,7 +298,7 @@ def proyectar_ingresos(db: Session, meses: int = 3, empresa_id: int | None = Non
             salidas.append(
                 {
                     "mes": f"{anio}-{mes:02d}",
-                    "proyectado": round(float(pred[k]), 2),
+                    "proyectado": round(pendiente * (len(valores) + k) + intercepto, 2),
                     "confianza": round(max(min(r2, 1.0), 0.0), 3),
                     "tendencia": tendencia,
                 }
@@ -590,7 +613,7 @@ def segmentar_pacientes(db: Session, empresa_id: int | None = None) -> dict:
         )
 
     gastos = [f["gasto"] for f in filas if f["gasto"] > 0]
-    p80 = float(np.percentile(gastos, 80)) if gastos else 0.0
+    p80 = _percentil(gastos, 80)
 
     for f in filas:
         dias = f["dias"]
@@ -804,8 +827,8 @@ def anomalias_facturacion(db: Session, empresa_id: int | None = None) -> dict:
         )
         mensual.append({"mes": f"{anio}-{mes:02d}", "total": round(total, 2)})
 
-    vals = np.array([m["total"] for m in mensual], dtype=float)
-    mu, sd = float(vals.mean()), float(vals.std())
+    vals = [float(m["total"]) for m in mensual]
+    mu, sd = _promedio(vals), _desviacion(vals)
     for m in mensual:
         z = (m["total"] - mu) / sd if sd > 0 else 0.0
         m["z"] = round(z, 2)
@@ -824,8 +847,8 @@ def anomalias_facturacion(db: Session, empresa_id: int | None = None) -> dict:
     )
     anom = []
     if len(facturas) > 5:
-        tots = np.array([float(f.total) for f in facturas], dtype=float)
-        mu2, sd2 = float(tots.mean()), float(tots.std())
+        tots = [float(f.total) for f in facturas]
+        mu2, sd2 = _promedio(tots), _desviacion(tots)
         for f in facturas:
             z = (float(f.total) - mu2) / sd2 if sd2 > 0 else 0.0
             if abs(z) >= 2.5:

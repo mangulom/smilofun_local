@@ -1,0 +1,11 @@
+# Optional full feature set for local development only.
+-r requirements.txt
+uvicorn[standard]>=0.30
+scikit-learn>=1.5
+numpy>=1.26
+trimesh>=5.1
+pydicom>=2.4
+pillow>=10.4
+nibabel>=5.2
+SimpleITK>=2.3
+manifold3d>=3.5

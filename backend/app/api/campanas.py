@@ -130,7 +130,10 @@ def obtener_configuracion_gmail(user: Usuario = Depends(require_roles("admin")))
 
 @settings_router.put("/gmail")
 def guardar_configuracion_gmail(data: GmailConfigIn, user: Usuario = Depends(require_roles("admin"))):
-    from email_validator import validate_email, EmailNotValidError
+    try:
+        from email_validator import validate_email, EmailNotValidError
+    except ImportError as exc:
+        raise HTTPException(status.HTTP_501_NOT_IMPLEMENTED, "Validacion de email no disponible en esta demo.") from exc
     try:
         validate_email(data.sender_email, check_deliverability=False)
     except EmailNotValidError as exc:

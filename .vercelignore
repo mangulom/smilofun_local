@@ -4,3 +4,11 @@ files
 videoia.mp4
 .opencode
 informe_paginacion_endpoints.txt
+backend/.venv
+backend/backups
+backend/uploads
+backend/*.db
+backend/*.sqlite3
+backend/**/*.log
+backend/tests
+backend/app/check_imports.py

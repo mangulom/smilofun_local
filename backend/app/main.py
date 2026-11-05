@@ -19,11 +19,8 @@ from app.api import (
     compras,
     configuracion,
     dashboard,
-    diseno3d,
     doctores,
-    examenes,
     facturacion,
-    ia,
     inventario,
     pacientes,
     proveedores,
@@ -32,6 +29,14 @@ from app.api import (
     tratamientos,
 )
 from app.core.config import settings
+
+if os.getenv("DENTAMIA_DEMO_NO_FILE_ROUTERS") == "true":
+    from app.api import ia
+
+    diseno3d = None
+    examenes = None
+else:
+    from app.api import diseno3d, examenes, ia
 from app.core.database import Base, SessionLocal, engine
 
 
@@ -484,7 +489,6 @@ for router in (
     campanas.router,
     campanas.settings_router,
     pacientes.router,
-    examenes.router,
     doctores.router,
     citas.router,
     tratamientos.router,
@@ -494,12 +498,17 @@ for router in (
     compras.router,
     dashboard.router,
     reportes.router,
-    ia.router,
     configuracion.router,
-    diseno3d.router,
     respaldos.router,
 ):
     app.include_router(router)
+
+if examenes is not None:
+    app.include_router(examenes.router)
+if ia is not None:
+    app.include_router(ia.router)
+if diseno3d is not None:
+    app.include_router(diseno3d.router)
 
 # Archivos estáticos: radiografías, fotos clínicas y escaneos subidos
 # No exponer directorios de uploads como rutas est?ticas; todo archivo sensible pasa por auth.
@@ -521,4 +530,15 @@ async def security_headers(request: Request, call_next):
 @app.get("/api/health", tags=["Salud"])
 def health():
     persistence = "memory" if settings.demo_mode and settings.database_url.startswith("sqlite") else "database"
-    return {"status": "ok", "app": settings.app_name, "version": settings.app_version, "demo_mode": settings.demo_mode, "persistence": persistence, "payload_key_configured": bool(settings.fernet_key)}
+    return {
+        "status": "ok",
+        "app": settings.app_name,
+        "version": settings.app_version,
+        "demo_mode": settings.demo_mode,
+        "persistence": persistence,
+        "payload_key_configured": bool(settings.fernet_key),
+        "disabled_modules": [
+            name for name, module in (("examenes", examenes), ("diseno3d", diseno3d))
+            if module is None
+        ],
+    }

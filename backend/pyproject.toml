@@ -1,0 +1,10 @@
+[project]
+name = "smilofun-demo-api"
+version = "1.0.0"
+requires-python = ">=3.12,<3.14"
+
+[tool.vercel]
+entrypoint = "main:app"
+
+[tool.vercel.scripts]
+build = "python vercel_build.py"

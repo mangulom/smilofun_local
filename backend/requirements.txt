@@ -1,18 +1,13 @@
+# Compact Vercel runtime: CRUD and the rules-based AI endpoints.
+# File processing (DICOM/NIfTI/images) and STL generation are demo-disabled.
 fastapi>=0.115
-uvicorn[standard]>=0.30
 sqlalchemy>=2.0
 alembic>=1.13
 psycopg2-binary>=2.9
-pydantic[email]>=2.7
+pydantic>=2.7
 pydantic-settings>=2.3
 PyJWT>=2.8
-scikit-learn>=1.5
-numpy>=1.26
-trimesh>=5.1
-pydicom>=2.4
-pillow>=10.4
 python-multipart>=0.0.9
-httpx>=0.27
-
 cryptography>=42.0
 bcrypt>=4.0,<5
+httpx>=0.27

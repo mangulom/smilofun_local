@@ -9,8 +9,7 @@
     },
     "backend": {
       "root": "backend/",
-      "entrypoint": "app.main:app",
-      "buildCommand": "python -m pip install -r requirements.txt && python vercel_build.py",
+      "entrypoint": "main:app",
       "framework": "fastapi",
       "functions": {
         "app/main.py": {
