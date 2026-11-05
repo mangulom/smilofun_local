@@ -14,6 +14,9 @@ import { DialogService } from '../../shared/dialog.service';
   template: `
     <div class="space-y-5">
       <!-- Cabecera -->
+      @if (modoDemo()) {
+        <div class="rounded-xl border border-amber-300 bg-amber-50 p-4 text-sm text-amber-900">Respaldos y restauración están deshabilitados: esta demo solo mantiene datos en memoria y se reinicia al apagar.</div>
+      }
       <div class="flex flex-wrap items-end justify-between gap-3">
         <div>
           @if (esRestaurar) {
@@ -176,6 +179,7 @@ export class RespaldosComponent {
   private api = inject(ApiService);
   private auth = inject(AuthService);
   private dialog = inject(DialogService);
+  modoDemo = signal(false);
   readonly esRestaurar = inject(ActivatedRoute).snapshot.data['modo'] === 'restaurar';
 
   lista = signal<Respaldo[]>([]);
@@ -195,10 +199,12 @@ export class RespaldosComponent {
   totalTamano = computed(() => this.formatoTamano(this.lista().reduce((suma, b) => suma + b.tamano, 0)));
 
   constructor() {
+    this.api.health().subscribe({ next: result => this.modoDemo.set(result.demo_mode === true) });
     this.cargar();
   }
 
   cargar(): void {
+    if (this.modoDemo()) { this.lista.set([]); this.cargando.set(false); return; }
     this.api.respaldos().subscribe({
       next: lista => {
         this.lista.set(lista);
@@ -212,6 +218,7 @@ export class RespaldosComponent {
   }
 
   crear(): void {
+    if (this.modoDemo()) return;
     this.limpiarMensajes();
     this.creando.set(true);
     this.api.crearRespaldo(this.etiqueta.trim() || undefined).subscribe({
@@ -230,6 +237,7 @@ export class RespaldosComponent {
   }
 
   subir(evento: Event): void {
+    if (this.modoDemo()) return;
     const entrada = evento.target as HTMLInputElement;
     const archivo = entrada.files?.[0];
     entrada.value = '';
@@ -251,6 +259,7 @@ export class RespaldosComponent {
   }
 
   descargar(b: Respaldo): void {
+    if (this.modoDemo()) return;
     this.limpiarMensajes();
     this.api.descargarRespaldo(b.nombre).subscribe({
       next: blob => {
@@ -292,6 +301,7 @@ export class RespaldosComponent {
   }
 
   restaurar(b: Respaldo): void {
+    if (this.modoDemo()) return;
     this.errorRestaurar.set('');
     this.restaurando.set(true);
     this.api.restaurarRespaldo(b.nombre, this.confirmacion.trim()).subscribe({

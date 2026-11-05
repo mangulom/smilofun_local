@@ -12,6 +12,7 @@ from starlette.concurrency import run_in_threadpool
 from app.api.deps import get_current_user
 from app.core.database import engine
 from app.models import Usuario
+from app.core.config import settings
 from app.services import respaldo
 
 MAX_SUBIDA = 2 * 1024 * 1024 * 1024  # 2 GiB
@@ -25,6 +26,11 @@ def solo_admin(user: Usuario = Depends(get_current_user)) -> Usuario:
 
 
 router = APIRouter(prefix="/api/respaldos", tags=["Respaldos"], dependencies=[Depends(solo_admin)])
+
+
+def _solo_persistente():
+    if settings.demo_mode:
+        raise HTTPException(status.HTTP_404_NOT_FOUND, "Respaldos deshabilitados en modo demo en memoria.")
 
 
 class RespaldoOut(BaseModel):
@@ -62,11 +68,13 @@ def _ruta(nombre: str) -> Path:
 
 @router.get("", response_model=list[RespaldoOut])
 def listar():
+    _solo_persistente()
     return respaldo.listar()
 
 
 @router.post("", response_model=RespaldoOut, status_code=status.HTTP_201_CREATED)
 def crear(datos: RespaldoIn | None = None):
+    _solo_persistente()
     try:
         ruta = respaldo.crear(engine, etiqueta=datos.etiqueta if datos else None)
     except respaldo.RespaldoOcupado as exc:
@@ -79,6 +87,7 @@ def crear(datos: RespaldoIn | None = None):
 @router.post("/subir", response_model=RespaldoOut, status_code=status.HTTP_201_CREATED)
 async def subir(file: UploadFile = File(...)):
     """Guarda un respaldo proveniente de otro equipo (queda listo para restaurar)."""
+    _solo_persistente()
     try:
         nombre = respaldo.nombre_seguro(file.filename or "")
     except ValueError as exc:
@@ -109,12 +118,14 @@ async def subir(file: UploadFile = File(...)):
 
 @router.get("/{nombre}/descargar")
 def descargar(nombre: str):
+    _solo_persistente()
     ruta = _ruta(nombre)
     return FileResponse(ruta, media_type="application/gzip", filename=ruta.name)
 
 
 @router.post("/{nombre}/restaurar", response_model=RestauracionOut)
 def restaurar(nombre: str, datos: RestaurarIn):
+    _solo_persistente()
     """Reemplaza todos los datos actuales por los del respaldo (acción destructiva)."""
     if datos.confirmacion.strip() != "RESTAURAR":
         raise HTTPException(status.HTTP_400_BAD_REQUEST, 'Escribe "RESTAURAR" para confirmar.')
@@ -134,5 +145,6 @@ def restaurar(nombre: str, datos: RestaurarIn):
 
 @router.delete("/{nombre}", status_code=status.HTTP_204_NO_CONTENT)
 def eliminar(nombre: str):
+    _solo_persistente()
     _ruta(nombre)
     respaldo.eliminar(nombre)

@@ -64,6 +64,9 @@ export function apiUrl(path: string): string {
   if (!base && typeof localStorage !== 'undefined') {
     base = localStorage.getItem('smilofun_api_url')?.trim().replace(/\/+$/, '') ?? '';
   }
+  // Keep same-origin API calls only when no explicit backend origin is configured.
+  // Split Vercel frontend/backend projects set api_url in public/config.ini.
+  if (!base && typeof location !== 'undefined' && location.hostname.endsWith('.vercel.app')) return path;
   if (!base || !path.startsWith('/')) return path;
   try {
     const url = new URL(base);

@@ -65,6 +65,8 @@ def _empresa_valida(user: Usuario, empresa_id: int) -> None:
 
 
 def _canales_configurados() -> dict[str, bool]:
+    if settings.demo_mode:
+        return {"gmail": False, "meta_reels": False, "whatsapp": False}
     return {
         "gmail": bool(settings.gmail_sender_email and settings.gmail_oauth_client_id and settings.gmail_oauth_client_secret and settings.gmail_oauth_refresh_token),
         "meta_reels": bool(settings.meta_page_id and settings.meta_access_token),
@@ -73,6 +75,8 @@ def _canales_configurados() -> dict[str, bool]:
 
 def _guardar_variables_entorno(values: dict[str, str]) -> None:
     """Persist integration credentials atomically with restrictive local permissions."""
+    if settings.demo_mode:
+        raise HTTPException(403, "No se guardan credenciales externas en la demo en memoria.")
     import json
     import os
     from pathlib import Path
@@ -209,6 +213,8 @@ def crear(data: CampanaIn, db: Session = Depends(get_db), user: Usuario = Depend
 
 @router.post("/{campana_id}/enviar")
 async def enviar(campana_id: int, data: EnviarCampanaIn, db: Session = Depends(get_db), user: Usuario = Depends(get_current_user)):
+    if settings.demo_mode:
+        raise HTTPException(403, "Los envíos externos están desactivados en la demo; no se contactará a pacientes.")
     campana = db.get(Campana, campana_id)
     if not campana:
         raise HTTPException(404, "Campaña no encontrada")

@@ -8,6 +8,8 @@ class Settings(BaseSettings):
     app_name: str = "SmiloFun"
     app_version: str = "1.0.0"
     environment: str = "development"
+    demo_mode: bool = False
+    reset_demo_on_start: bool = True
     database_url: str = "sqlite:///./dentamia.db"
     secret_key: str = ""
     fernet_key: str = ""
@@ -39,6 +41,8 @@ def _load_settings() -> Settings:
     """Load backend/.env regardless of the shell's current working directory."""
     env_file = Path(__file__).resolve().parents[2] / ".env"
     loaded = Settings(_env_file=env_file)
+    if loaded.demo_mode and loaded.database_url in {"sqlite:///./dentamia.db", "sqlite:///dentamia.db", ""}:
+        loaded.database_url = "sqlite://"
     if env_file.exists():
         for line in env_file.read_text(encoding="utf-8").splitlines():
             if line.strip().startswith("FERNET_KEY="):
@@ -83,9 +87,11 @@ if settings.environment.lower() == "production" and len(settings.secret_key.enco
     raise RuntimeError("SECRET_KEY de producci?n debe tener al menos 32 bytes")
 if settings.environment.lower() == "production" and settings.database_url.startswith("sqlite"):
     raise RuntimeError("SQLite no est? permitido como base de datos de producci?n")
-if settings.environment.lower() == "production" and not settings.fernet_key:
+if settings.environment.lower() == "production" and not settings.demo_mode and not settings.fernet_key:
     raise RuntimeError("FERNET_KEY es obligatoria en producci?n")
-if settings.fernet_key:
+if settings.environment.lower() == "production" and settings.demo_mode:
+    raise RuntimeError("DEMO_MODE esta prohibido en production")
+if settings.fernet_key and not settings.demo_mode:
     from cryptography.fernet import Fernet
 
     try:

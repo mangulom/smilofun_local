@@ -1,4 +1,5 @@
 from contextlib import asynccontextmanager
+from pathlib import Path
 import base64
 import json
 import os
@@ -36,7 +37,52 @@ from app.core.database import Base, SessionLocal, engine
 
 @asynccontextmanager
 async def lifespan(_: FastAPI):
-    # 1) Crea tablas nuevas (empresas, usuario_empresas).
+    if settings.demo_mode:
+        if os.getenv("VERCEL_DEMO_BUILD_ONLY") == "true":
+            yield
+            return
+        from app.models import Empresa, Usuario, UsuarioEmpresa
+        from app.services.seed import seed_if_empty
+
+        if settings.database_url.startswith("sqlite"):
+            Base.metadata.create_all(bind=engine)
+
+        db = SessionLocal()
+        try:
+            demo_uses_shared_database = not settings.database_url.startswith("sqlite")
+            if settings.reset_demo_on_start and not demo_uses_shared_database:
+                db.close()
+                Base.metadata.drop_all(bind=engine)
+                Base.metadata.create_all(bind=engine)
+                db = SessionLocal()
+
+            # Seed only a genuinely empty demo database. Never mix fictitious
+            # seed rows into a Supabase project that already contains records.
+            demo_db_was_empty = db.query(Usuario).count() == 0 and db.query(Empresa).count() == 0
+            if demo_db_was_empty:
+                seed_if_empty(db)
+                if not db.query(Empresa).count():
+                    for nombre, ruc, telefono in [
+                        ("SmiloFun Demo Centro", "20500000001", "(051) 900000001"),
+                        ("SmiloFun Demo Norte", "20500000002", "(051) 900000002"),
+                        ("SmiloFun Demo Sur", "20500000003", "(051) 900000003"),
+                    ]:
+                        db.add(Empresa(nombre=nombre, ruc=ruc, telefono=telefono))
+                    db.flush()
+                empresas = db.query(Empresa).order_by(Empresa.id).all()
+                for usuario in db.query(Usuario).all():
+                    if db.query(UsuarioEmpresa).filter_by(usuario_id=usuario.id).first():
+                        continue
+                    asignadas = empresas if "admin" in usuario.email else empresas[:1]
+                    for empresa in asignadas:
+                        db.add(UsuarioEmpresa(usuario_id=usuario.id, empresa_id=empresa.id, principal=empresa.id == asignadas[0].id))
+                db.commit()
+        finally:
+            db.close()
+        yield
+        return
+
+    # Persisted non-demo deployments use the legacy startup schema/bootstrap path.
     Base.metadata.create_all(bind=engine)
 
     # 2) Migración ligera: agrega empresa_id, siembra empresas y backfilla.
@@ -157,6 +203,9 @@ async def lifespan(_: FastAPI):
         print(f"[IA] Entrenamiento pospuesto: {exc}")
     yield
 
+
+if settings.demo_mode and settings.environment.lower() == "production":
+    raise RuntimeError("DEMO_MODE está prohibido en production")
 
 app = FastAPI(
     title="SmiloFun API",
@@ -320,7 +369,8 @@ async def encrypt_json_payloads(request: Request, call_next):
     binary_response = request.headers.get("x-dentamia-binary-response") == "1"
     login_bootstrap = request.url.path == "/api/auth/login" and request.method == "POST"
 
-    # Login and key exchange are the small bootstrap exception; subsequent API JSON is encrypted.
+    # Login responses are wrapped by EncryptLoginResponseASGI after FastAPI has
+    # validated the plain JSON credentials. Only payload-key endpoints bootstrap.
     bootstrap = request.url.path == "/api/auth/payload-key"
     bootstrap = bootstrap or (
         request.url.path == "/api/auth/payload-key/refresh" and request.method == "POST"
@@ -470,4 +520,5 @@ async def security_headers(request: Request, call_next):
 
 @app.get("/api/health", tags=["Salud"])
 def health():
-    return {"status": "ok", "app": settings.app_name, "version": settings.app_version}
+    persistence = "memory" if settings.demo_mode and settings.database_url.startswith("sqlite") else "database"
+    return {"status": "ok", "app": settings.app_name, "version": settings.app_version, "demo_mode": settings.demo_mode, "persistence": persistence, "payload_key_configured": bool(settings.fernet_key)}
