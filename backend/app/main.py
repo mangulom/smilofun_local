@@ -521,4 +521,4 @@ async def security_headers(request: Request, call_next):
 @app.get("/api/health", tags=["Salud"])
 def health():
     persistence = "memory" if settings.demo_mode and settings.database_url.startswith("sqlite") else "database"
-    return {"status": "ok", "app": settings.app_name, "version": settings.app_version, "demo_mode": settings.demo_mode, "persistence": persistence}
+    return {"status": "ok", "app": settings.app_name, "version": settings.app_version, "demo_mode": settings.demo_mode, "persistence": persistence, "payload_key_configured": bool(settings.fernet_key)}
