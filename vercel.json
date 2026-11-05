@@ -1,15 +1,26 @@
 {
   "$schema": "https://openapi.vercel.sh/vercel.json",
-  "buildCommand": "bash build-vercel.sh",
-  "outputDirectory": "frontend/dist/frontend/browser",
-  "functions": {
-    "api/index.py": {
-      "maxDuration": 60
+  "services": {
+    "frontend": {
+      "root": "frontend/",
+      "framework": "angular",
+      "buildCommand": "npm run build",
+      "outputDirectory": "dist/frontend/browser"
+    },
+    "backend": {
+      "root": "backend/",
+      "entrypoint": "app.main:app",
+      "buildCommand": "python -m pip install -r requirements.txt && python vercel_build.py",
+      "framework": "fastapi",
+      "functions": {
+        "app/main.py": {
+          "maxDuration": 60
+        }
+      }
     }
   },
   "rewrites": [
-    { "source": "/api", "destination": "/api/index" },
-    { "source": "/api/:path*", "destination": "/api/index" },
-    { "source": "/:path*", "destination": "/index.html" }
+    { "source": "/api/(.*)", "destination": { "service": "backend" } },
+    { "source": "/(.*)", "destination": { "service": "frontend" } }
   ]
 }
