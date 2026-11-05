@@ -17,15 +17,17 @@ def main() -> None:
     config.set_main_option("sqlalchemy.url", settings.database_url.replace("%", "%%"))
     command.upgrade(config, "head")
     with SessionLocal() as db:
-        if db.query(Usuario).count() == 0:
-            seed_if_empty(db)
+        # Las empresas deben existir antes del seed: doctores, pacientes, etc.
+        # llevan una FK a empresas.id (por defecto 1) y en PostgreSQL se valida.
         if db.query(Empresa).count() == 0:
             db.add_all([
                 Empresa(nombre="SmiloFun Demo Centro", ruc="20500000001", telefono="(051) 900000001"),
                 Empresa(nombre="SmiloFun Demo Norte", ruc="20500000002", telefono="(051) 900000002"),
                 Empresa(nombre="SmiloFun Demo Sur", ruc="20500000003", telefono="(051) 900000003"),
             ])
-            db.flush()
+            db.commit()
+        if db.query(Usuario).count() == 0:
+            seed_if_empty(db)
         companies = db.query(Empresa).order_by(Empresa.id).all()
         for user in db.query(Usuario).all():
             if db.query(UsuarioEmpresa).filter_by(usuario_id=user.id).first():
